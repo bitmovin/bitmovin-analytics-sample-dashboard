@@ -1,0 +1,92 @@
+#playerChartsWrapper div {
+    position: absolute;
+    top: -3px;
+    left: -10px;
+    z-index: 300000;
+}
+i.red {
+  color: #E73F3B;
+}
+
+i.green {
+  color: #51AB55;
+}
+
+h4.title {
+  color: white;
+}
+
+.loading {
+  position: relative;
+  text-align: center;
+  font-size: 30px;
+  color: #3C4858;
+}
+.loading .inner i, .loading .inner span {
+  margin: 10px;
+  display: inline-block;
+}
+.loading .inner {
+  position: absolute;
+  top: 20px;
+  margin: 0 auto;
+  left: 50%;
+  width: 150px;
+  margin-left: -75px;
+}
+
+.pagination {
+    float: right;
+}
+.pagination .break {
+    display: none;
+}
+.pagination a {
+    cursor: pointer;
+}
+.filters-button {
+    position: absolute;
+    right: 25px;
+    top: -20px;
+    z-index: 1039;
+}
+.modal {
+    overflow: visible;
+}
+.modal hr {
+    border-width: 2px;
+}
+.nav li a {
+    cursor: pointer;
+}
+
+.table-metric-sort {
+    margin-left: 10px;
+}
+
+.table-metric-sort:hover {
+    cursor: pointer;
+}
+
+.columns {
+
+}
+.column {
+    margin-bottom: 20px;
+}
+
+.removeColumn {
+    float: right;
+}
+
+.impression-row:hover {
+    cursor: pointer;
+}
+
+.sidebar .sidebar-wrapper, .off-canvas-sidebar .sidebar-wrapper {
+    height: calc(100vh - 147px);
+}
+
+.error-detail-video-id:hover {
+    cursor: pointer;
+}
