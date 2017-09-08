@@ -1,5 +1,6 @@
 # Bitmovin Analytics Sample Dashboard
 [![bitmovin](http://bitmovin-a.akamaihd.net/webpages/bitmovin-logo-github.png)](http://www.bitmovin.com)
+[![Build Status](https://travis-ci.org/bitmovin/bitmovin-analytics-sample-dashboard.svg?branch=master)](https://travis-ci.org/bitmovin/bitmovin-analytics-sample-dashboard)
 
 This project is meant as an example of how a Bitmovin Analytics dashboard could look like. This is by no means a fully featured Dashboard but meant to give users a starting point from where to develop their own.
 
