@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import Card from './components/Card'
 import * as actions from './actions/api'
 import LinearProgress from 'material-ui/LinearProgress';
+import GitHubForkRibbon from 'react-github-fork-ribbon'
 
 class ApiKeyConfiguration extends Component {
   submitClicked () {
@@ -24,6 +25,7 @@ class ApiKeyConfiguration extends Component {
     const progress = !this.props.loading ? null : <LinearProgress mode="indeterminate" />;
     return (
     <div className="container">
+      <GitHubForkRibbon href="https://github.com/bitmovin/bitmovin-analytics-sample-dashboard" target="_blank" position="right" color="black">View on GitHub</GitHubForkRibbon>
       <div className="row">
         <Card width={{md: 4, sm: 6, xs: 12}} title="Please enter your credentials" className="col-md-offset-4 col-sm-offset-3 card-login" login={true} cardHeight="auto" footer={footer} centerHeader={true} style={{ marginTop: '50px' }}>
           <div style={{ marginTop: '30px' }}>
