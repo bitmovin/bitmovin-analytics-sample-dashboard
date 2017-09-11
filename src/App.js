@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import Title from 'react-title-component';
 import Sidebar from './Sidebar';
 import TimeFrameDialog from './TimeFrameDialog';
+import GitHubForkRibbon from 'react-github-fork-ribbon'
 
 class App extends Component {
   static propTypes = {
@@ -45,6 +46,7 @@ class App extends Component {
             </div>
           </nav>
           <div className="content">
+            <GitHubForkRibbon href="https://github.com/bitmovin/bitmovin-analytics-sample-dashboard" target="_blank" position="right" color="black">View on GitHub</GitHubForkRibbon>
             <div className="container-fluid">
               {this.props.children}
             </div>

@@ -4783,6 +4783,10 @@ react-event-listener@^0.4.5:
     prop-types "^15.5.4"
     warning "^3.0.0"
 
+react-github-fork-ribbon@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/react-github-fork-ribbon/-/react-github-fork-ribbon-0.5.0.tgz#59605ee7abe01fe48f16039dcc7fd82d840b02c5"
+
 react-gravatar@^2.6.1:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/react-gravatar/-/react-gravatar-2.6.3.tgz#5407eb6ac87e830e2a34deb760d2a4c404eb1dac"
