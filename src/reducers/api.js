@@ -62,6 +62,12 @@ function api(state = defaultState, action) {
         ...state,
         analyticsLicenseKey: action.analyticsLicenseKey
       };
+    case apiAction.API_KEY_INVALID:
+      return {
+        ...state,
+        processingLogin: false,
+        loginFailed: true
+      }
 
     default:
       return state;

@@ -46,7 +46,6 @@ const removeLoginFromLocalStorage = () => {
   if (storageAvailable('localStorage')) {
     let storage = window.localStorage;
     storage.removeItem('apiKey');
-    storage.removeItem('userName');
   }
 }
 
@@ -57,44 +56,54 @@ export function unsetApiKey() {
   }
 }
 
-export function persistLogin(apiKey, userName) {
+export function persistLogin(apiKey) {
   if (storageAvailable('localStorage')) {
-			let storage = window.localStorage;
-			storage.setItem('apiKey', apiKey);
-			storage.setItem('userName', userName);
+    const storage = window.localStorage;
+    storage.setItem('apiKey', apiKey);
   }
 }
 
-function checkIfKeyIsPresentInLocalStorage() {
+function getKeyFromLocalStorage() {
   if (!storageAvailable('localStorage')) {
     return false
   }
   const storage = window.localStorage;
   const apiKey = storage.getItem('apiKey');
-  const userName = storage.getItem('userName');
-  return (apiKey && userName) ? { apiKey, userName } : false;
+  return apiKey ? apiKey : false;
+}
+
+function getAccountInformation(apiKey) {
+  const api = new Api(apiKey)
+  return api.bitmovin.account.information().then(info => {
+    return { apiKey: apiKey, userName: info.email }
+  })
+}
+
+function loginThroughApiKey(dispatch, apiKey, userName) {
+  return loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
+    dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
+  })
 }
 
 export function initializeApplication() {
 	return (dispatch) => {
    {
-     const localInfo = checkIfKeyIsPresentInLocalStorage()
-     if (localInfo !== false) {
-       loadAnalyticsLicenseKeys(localInfo.apiKey).then(licenseKeys => {
-         const { apiKey, userName } = localInfo
-         dispatch(setLogin(apiKey, userName, licenseKeys));
+     const keyFromLocalStorage = getKeyFromLocalStorage()
+     const apiKeyFromQueryString = tryLoginFromQueryParam() || keyFromLocalStorage;
+     if (apiKeyFromQueryString) {
+       getAccountInformation(apiKeyFromQueryString).then(info => {
+         const { apiKey, userName } = info
+         loginThroughApiKey(dispatch, apiKey, userName)
        }).catch(error => {
-         removeLoginFromLocalStorage();
          dispatch(createApiKeyInvalidAction())
-       })
+       });
      }
     }
 	}
 }
 
 const tryLoginFromQueryParam = () => {
-  const queryParams = queryString.parse(location.search);
-  const {apiKey} = queryParams;
+  const {apiKey} = queryString.parse(location.search);
   return apiKey;
 };
 
@@ -134,7 +143,7 @@ export function login(userName, password) {
       loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
         dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
       });
-      persistLogin(apiKey, userName);
+      persistLogin(apiKey);
     }).catch(err => {
       dispatch(createLoginfailedAction());
     });
