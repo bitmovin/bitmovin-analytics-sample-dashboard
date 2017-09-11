@@ -46,16 +46,6 @@ function api(state = defaultState, action) {
         ...state, processingLogin: true, loginFailed: false
       };
 
-    case apiAction.SUCCESS_LOADING_ANALYTICS_LICENSE_KEYS:
-      window.bitmovinAnalyticsLicenseKey = action.analyticsLicenseKeys[0].keyValue;
-      return {
-        ...state,
-        isLoadingAnalyticsLicenseKeys: false,
-        loadedAnalyticsLicenseKeys   : true,
-        analyticsLicenseKeys         : action.analyticsLicenseKeys,
-        analyticsLicenseKey          : action.analyticsLicenseKeys[0].keyValue
-      };
-
     case apiAction.SELECT_ANALYTICS_LICENSE_KEY:
       window.bitmovinAnalyticsLicenseKey = action.analyticsLicenseKey;
       return {

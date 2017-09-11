@@ -17,7 +17,6 @@ const storageAvailable = (type) => {
 }
 
 export const SET_LOGIN = 'SET_LOGIN';
-export const UNSET_LOGIN = 'UNSET_LOGIN';
 
 export function createSetLoginAction(apiKey, userName, licenseKeys) {
   return {
@@ -42,6 +41,20 @@ export function createApiKeyInvalidAction() {
   }
 }
 
+export const START_LOGIN = 'START_LOGIN';
+export function createStartLoginAction() {
+  return {
+    type: START_LOGIN,
+  };
+}
+export const UNSET_LOGIN = 'UNSET_LOGIN';
+export function unsetApiKey() {
+  removeLoginFromLocalStorage();
+  return {
+    type: UNSET_LOGIN
+  }
+}
+
 const removeLoginFromLocalStorage = () => {
   if (storageAvailable('localStorage')) {
     let storage = window.localStorage;
@@ -49,12 +62,16 @@ const removeLoginFromLocalStorage = () => {
   }
 }
 
-export function unsetApiKey() {
-  removeLoginFromLocalStorage();
-  return {
-    type: UNSET_LOGIN
+
+export const SELECT_ANALYTICS_LICENSE_KEY = 'SELECT_ANALYTICS_LICENSE_KEY';
+export const selectAnalyticsLicenseKey = (analyticsLicenseKey) => {
+  return (dispatch) => {
+    dispatch({
+      type: SELECT_ANALYTICS_LICENSE_KEY,
+      analyticsLicenseKey
+    })
   }
-}
+};
 
 export function persistLogin(apiKey) {
   if (storageAvailable('localStorage')) {
@@ -107,13 +124,6 @@ const tryLoginFromQueryParam = () => {
   return apiKey;
 };
 
-const ENABLE_EXPERIMENTAL_MODE = 'ENABLE_EXPERIMENTAL_MODE';
-export function enableExperimentalMode() {
-  return {
-    type: ENABLE_EXPERIMENTAL_MODE
-  }
-}
-
 export function setLogin(apiKey, userName) {
   return (dispatch, getState) => {
     if (getState().api.apiKey === apiKey) {
@@ -130,12 +140,9 @@ export function setLogin(apiKey, userName) {
   }
 }
 
-export const START_LOGIN = 'START_LOGIN';
 export function login(userName, password) {
   return (dispatch, getState) => {
-    dispatch({
-      type: START_LOGIN,
-    });
+    dispatch(createStartLoginAction());
 
     performLogin(userName, password).then(response => {
       const apiKey = response.data.result.apiKeys[0].value;
@@ -150,21 +157,8 @@ export function login(userName, password) {
   }
 }
 
-export const START_LOADING_ANALYTICS_LICENSE_KEYS = 'START_LOADING_ANALYTICS_LICENSE_KEYS';
-export const SUCCESS_LOADING_ANALYTICS_LICENSE_KEYS = 'SUCCESS_LOADING_ANALYTICS_LICENSE_KEYS';
-export const ERROR_LOADING_ANALYTICS_LICENSE_KEYS = 'ERROR_LOADING_ANALYTICS_LICENSE_KEYS';
-
 export const loadAnalyticsLicenseKeys = (apiKey) => {
     const api = new Api(apiKey);
     return api.getAnalyticsLicenseKeys()
 };
 
-export const SELECT_ANALYTICS_LICENSE_KEY = 'SELECT_ANALYTICS_LICENSE_KEY';
-export const selectAnalyticsLicenseKey = (analyticsLicenseKey) => {
-  return (dispatch) => {
-    dispatch({
-      type: SELECT_ANALYTICS_LICENSE_KEY,
-      analyticsLicenseKey
-    })
-  }
-};
