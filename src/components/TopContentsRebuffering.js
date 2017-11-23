@@ -2,9 +2,8 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as rebuffer from '../api/metrics/rebuffer';
 import Card from './Card';
-import {Link} from 'react-router';
+import VideoLink from './VideoLink';
 import * as util from '../api/util';
-import {shortenString} from '../utils';
 import ReactPaginate from 'react-paginate';
 
 class TopContents extends PureComponent {
@@ -86,10 +85,7 @@ class TopContents extends PureComponent {
     const top = sorted.slice(this.state.offset, this.state.offset + this.state.limit);
 
     const rows = top.map((video, index) => {
-      const fullVideoId = video[0];
-      const shortenedVideoId = shortenString(video[0]);
-
-      return <tr key={index}><td><Link to="/videoinspection" query={{video: fullVideoId }}>{shortenedVideoId}</Link></td><td>{util.roundTo(video[3]*100, 2) + '%'}</td></tr>;
+      return <tr key={index}><td><VideoLink videoId={video[0]} /></td><td>{util.roundTo(video[3]*100, 2) + '%'}</td></tr>;
     });
 
     let tbody = null;

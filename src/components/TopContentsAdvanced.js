@@ -2,13 +2,12 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as impressions from '../api/metrics/impressions';
 import Card from './Card';
-import {Link} from 'react-router';
+import VideoLink from './VideoLink';
 import * as rebuffer from '../api/metrics/rebuffer';
 import * as util from '../api/util';
 import * as errors from '../api/metrics/errors';
 import * as startupdelay from '../api/metrics/startupdelay';
 import ReactPaginate from 'react-paginate';
-import {shortenString} from '../utils';
 
 class TopContents extends PureComponent {
   constructor (props) {
@@ -116,12 +115,10 @@ class TopContents extends PureComponent {
 
   renderTable () {
     const rows = this.state.topContents.map((video, index) => {
-      const fullVideoId = video.name;
-      let shortenedVideoId = shortenString(video.name);
 
       return <tr key={index}>
         <td>
-          <Link to="/videoinspection" query={{video: fullVideoId}}>{shortenedVideoId}</Link>
+          <VideoLink videoId={video.name} />
         </td>
         <td>
           {video.impressions}

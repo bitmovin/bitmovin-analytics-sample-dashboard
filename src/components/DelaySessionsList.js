@@ -6,6 +6,7 @@ import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 import * as util from '../api/util';
+import { shortenString } from '../utils';
 
 class DelaySessions extends Component {
   static propTypes = {
@@ -80,23 +81,9 @@ class DelaySessions extends Component {
       }
     };
 
-    const shortenString = (string) => {
-      let shortenedString = string;
-      if (typeof shortenedString !== 'string') {
-        return '<UNKNOWN>';
-      }
-      if (string.length > 50) {
-        shortenedString = string.substring(0, 22);
-        shortenedString += '...';
-        shortenedString += string.substring(string.length - 22, string.length);
-      }
-
-      return shortenedString;
-    };
-
     const sessions = this.state.sessions.map((session, index) => {
       const info = getInfo(session[3]);
-      const playedVideo = shortenString(session[1]);
+      const playedVideo = shortenString(session[1], 50, 22);
       return <tr onClick={() => this.props.navigateToSessionDetail(session[0])}
                  key={index}
                  className="impression-row">
