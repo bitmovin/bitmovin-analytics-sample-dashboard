@@ -36,8 +36,15 @@ class Chart extends Component {
   }
   loadData(props, queries) {
     Promise.all(queries.map(query => {
-      const baseQuery = { ...props.primaryRange, interval: props.interval, groupBy: [], orderBy: [{ name: props.interval, order: 'ASC'}] };
-      baseQuery.filters = [...query.filters];
+      const baseQuery = {
+        ...props.primaryRange,
+        licenseKey: props.licenseKey,
+        interval: props.interval,
+        groupBy: [],
+        orderBy: [{ name: props.interval, order: 'ASC'}],
+        filters: [...query.filters],
+      };
+
       return props.dataFunction(props.apiKey, query.name, baseQuery)
 
     })).then((results) => {
@@ -121,10 +128,11 @@ class Chart extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  const { name, interval, primaryRange, secondaryRange } = state.ranges;
+const mapStateToProps = ({ api, ranges }) => {
+  const { name, interval, primaryRange, secondaryRange } = ranges;
   return {
-    apiKey: state.api.apiKey,
+    apiKey: api.apiKey,
+    licenseKey: api.analyticsLicenseKey,
     name,
     interval,
     primaryRange,

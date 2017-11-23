@@ -9,14 +9,6 @@ import ErrorsByBrowserTable from './components/ErrorsByBrowserTable'
 
 class ErrorDashboard extends Component {
   render () {
-    const errorsDataFunction = (apiKey, name, baseQuery) => {
-      baseQuery = {
-        ...baseQuery,
-        licenseKey: this.props.licenseKey
-      };
-      return errors.fetchErrorPercentage(apiKey, name, baseQuery);
-    };
-
     const converter = (name, interval, data) => {
       return {
         data: data,
@@ -33,7 +25,7 @@ class ErrorDashboard extends Component {
         <div className="row">
           <Chart title="Error Percentage"
                  defaultSeriesName="Error Percentage"
-                 dataFunction={errorsDataFunction}
+                 dataFunction={::errors.fetchErrorPercentage}
                  convertResultToSeries={converter}
                  maxYAxis={100}
                  yAxisTitle="Percent"
