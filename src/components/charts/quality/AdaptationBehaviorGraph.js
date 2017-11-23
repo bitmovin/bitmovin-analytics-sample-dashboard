@@ -25,7 +25,6 @@ class AdaptationBehaviorGraph extends Component {
         yAxis: 0
       };
     }
-    const live = this.isLive()
     const startTimeStamp = this.getStartTimestamp()
     let videoLength = d3.max(this.props.impressions, (imp) => { return imp.video_duration; });
     if (!videoLength) {

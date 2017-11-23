@@ -6,8 +6,6 @@ import Bitmovin from 'bitmovin-javascript'
 
 export const apiBasePath = 'https://api.bitmovin.com/v1/';
 export const analyticsApi = urljoin(apiBasePath, 'analytics');
-const queriesApi = urljoin(analyticsApi, 'queries');
-const impressionsApi = urljoin(analyticsApi, 'impressions');
 const globalQueriesApi = urljoin(analyticsApi, 'globalqueries');
 
 export const checkResponseStatus = (response, query, queryFunction) => {
