@@ -64,11 +64,9 @@ export function fetchErrorPercentageThisWeek(apiKey, ranges, baseQuery, videoId)
       fetchErrorPercentage(ranges.primaryRange),
       fetchErrorPercentage(ranges.secondaryRange),
       userbase.errors(apiKey, {...ranges.primaryRange, ...baseQuery}),
-      userbase.impressions(apiKey, {...ranges.primaryRange, ...baseQuery})
     ]).then(data => {
       const errorPercentagePrimaryRange = checkIfNaNAndSetZero(data[0].errors / data[0].impressions) * 100;
       const errorPercentageSecondaryRange = checkIfNaNAndSetZero(data[1].errors / data[1].impressions) * 100;
-      const globalErrorPercentage = checkIfNaNAndSetZero(data[2][0][0] / data[3][0][0]) * 100;
 
       const change = errorPercentagePrimaryRange - errorPercentageSecondaryRange;
 
@@ -76,7 +74,6 @@ export function fetchErrorPercentageThisWeek(apiKey, ranges, baseQuery, videoId)
         primary: util.round10(errorPercentagePrimaryRange),
         secondary: util.round10(errorPercentageSecondaryRange),
         change: util.round10(change),
-        userbase: util.round10(globalErrorPercentage)
       });
     })
   })

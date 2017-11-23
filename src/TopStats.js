@@ -105,7 +105,7 @@ class TopStats extends Component {
         <div className="row tile_count">
         <TopStatMetric title="Users" metric={this.state.users} icon="users"/>
         <TopStatMetric title="Impressions" metric={this.state.impressions} icon="user" />
-        <TopStatMetric format="pct" title="Errors" metric={this.state.errors} icon="exclamation-triangle" inverse={true} compareUserBase={true} />
+        <TopStatMetric format="pct" title="Errors" metric={this.state.errors} icon="exclamation-triangle" inverse={true} />
         <TopStatMetric format="pct" onClick={this.props.navigateToRebuffer} title="Buffering" metric={this.state.rebuffer} icon="spinner" compareUserBase={true} inverse={true} />
         <TopStatMetric format="ms" onClick={this.props.navigateToPerformance} title="Delay" metric={this.state.startupDelay} icon="clock-o" inverse={true} compareUserBase={true} />
         <TopStatMetric format="pct" title="Bounce Rate" metric={this.state.bounceRate} icon="eject" inverse={true} compareUserBase={true} />
