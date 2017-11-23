@@ -1138,9 +1138,9 @@ binary-extensions@^1.0.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.10.0.tgz#9aeb9a6c5e88638aad171e167f5900abe24835d0"
 
-bitmovin-javascript@^1.1.16:
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/bitmovin-javascript/-/bitmovin-javascript-1.1.16.tgz#7ef14861e19ae7640fd9fbefe0f2aa53bb64e804"
+bitmovin-javascript@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/bitmovin-javascript/-/bitmovin-javascript-1.4.1.tgz#2687bf674f2000c2c2683f47db2fc904a031b439"
 
 block-stream@*:
   version "0.0.9"
