@@ -50,7 +50,7 @@ class ErrorDetail extends Component {
   }
 
   loadData(props, limit = this.state.limit, offset = this.state.offset) {
-    videosByErrorCode(props.apiKey, props.interval, parseInt(props.errorCode), {...props.primaryRange, limit, offset}).then((data) => {
+    videosByErrorCode(props.apiKey, props.interval, parseInt(props.errorCode, 10), {...props.primaryRange, limit, offset}).then((data) => {
       this.setState(prevState => {
         return {
           ...prevState,
@@ -66,7 +66,7 @@ class ErrorDetail extends Component {
   }
 
   loadErrorDetailsForVideoId(props, videoId) {
-    errorDetailsForVideoId(props.apiKey, parseInt(props.errorCode), videoId, props.primaryRange).then(data => {
+    errorDetailsForVideoId(props.apiKey, parseInt(props.errorCode, 10), videoId, props.primaryRange).then(data => {
       this.setState(prevState => {
         return {
           ...prevState,
@@ -201,7 +201,7 @@ class ErrorDetail extends Component {
         filters: [{
           name: 'ERROR_CODE',
           operator: 'EQ',
-          value: parseInt(props.errorCode)
+          value: parseInt(props.errorCode, 10)
         },{
           name: 'VIDEO_ID',
           operator: 'EQ',

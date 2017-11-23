@@ -1,6 +1,5 @@
 import Api from '../api/index'
 import performLogin from '../api/login'
-import moment from 'moment'
 import queryString from 'query-string';
 
 const storageAvailable = (type) => {
@@ -47,13 +46,6 @@ export function createStartLoginAction() {
     type: START_LOGIN,
   };
 }
-export const UNSET_LOGIN = 'UNSET_LOGIN';
-export function unsetApiKey() {
-  removeLoginFromLocalStorage();
-  return {
-    type: UNSET_LOGIN
-  }
-}
 
 const removeLoginFromLocalStorage = () => {
   if (storageAvailable('localStorage')) {
@@ -62,6 +54,13 @@ const removeLoginFromLocalStorage = () => {
   }
 }
 
+export const UNSET_LOGIN = 'UNSET_LOGIN';
+export function unsetApiKey() {
+  removeLoginFromLocalStorage();
+  return {
+    type: UNSET_LOGIN
+  }
+}
 
 export const SELECT_ANALYTICS_LICENSE_KEY = 'SELECT_ANALYTICS_LICENSE_KEY';
 export const selectAnalyticsLicenseKey = (analyticsLicenseKey) => {
@@ -96,11 +95,21 @@ function getAccountInformation(apiKey) {
   })
 }
 
+export const loadAnalyticsLicenseKeys = (apiKey) => {
+    const api = new Api(apiKey);
+    return api.getAnalyticsLicenseKeys()
+};
+
 function loginThroughApiKey(dispatch, apiKey, userName) {
   return loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
     dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
   })
 }
+
+const tryLoginFromQueryParam = () => {
+  const {apiKey} = queryString.parse(location.search);
+  return apiKey;
+};
 
 export function initializeApplication() {
 	return (dispatch) => {
@@ -119,18 +128,12 @@ export function initializeApplication() {
 	}
 }
 
-const tryLoginFromQueryParam = () => {
-  const {apiKey} = queryString.parse(location.search);
-  return apiKey;
-};
-
 export function setLogin(apiKey, userName) {
   return (dispatch, getState) => {
     if (getState().api.apiKey === apiKey) {
       return;
     }
 
-    const api = new Api(apiKey);
     loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
       dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
     }).catch((err) => {
@@ -156,9 +159,3 @@ export function login(userName, password) {
     });
   }
 }
-
-export const loadAnalyticsLicenseKeys = (apiKey) => {
-    const api = new Api(apiKey);
-    return api.getAnalyticsLicenseKeys()
-};
-
