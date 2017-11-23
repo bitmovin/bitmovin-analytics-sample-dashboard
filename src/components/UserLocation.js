@@ -30,9 +30,10 @@ class UserLocation extends Component {
 		this.loadData(nextProps);
 	}
 
-  loadData(props) {
-		impressions.fetchGrouped(props.apiKey, 'COUNTRY', {
-		  ...props.primaryRange,
+  loadData({ apiKey, primaryRange, licenseKey }) {
+		impressions.fetchGrouped(apiKey, 'COUNTRY', {
+		  ...primaryRange,
+      licenseKey: licenseKey,
       groupBy: ['COUNTRY'],
       orderBy: [{name: 'FUNCTION', order: 'DESC'}]
 		}).then(data => {
@@ -170,12 +171,13 @@ class UserLocation extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({ api, ranges }) => {
 	return {
-		apiKey: state.api.apiKey,
-		interval: state.ranges.interval,
-		rangeName: state.ranges.name,
-		primaryRange: state.ranges.primaryRange
+		apiKey: api.apiKey,
+    licenseKey: api.analyticsLicenseKey,
+		interval: ranges.interval,
+		rangeName: ranges.name,
+		primaryRange: ranges.primaryRange
 	}
 }
 
