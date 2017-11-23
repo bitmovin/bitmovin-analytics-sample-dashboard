@@ -28,6 +28,7 @@ class TopContents extends PureComponent {
   loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
     const baseQuery = {
       ...props.primaryRange,
+      licenseKey: props.licenseKey,
       groupBy: ['VIDEO_ID'],
       orderBy: [{name: 'FUNCTION', order: orderByOrder}, {name: 'VIDEO_ID', order: 'DESC'}],
       limit,
@@ -113,12 +114,13 @@ class TopContents extends PureComponent {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({ api, ranges }) => {
 	return {
-		apiKey: state.api.apiKey,
-		interval: state.ranges.interval,
-		rangeName: state.ranges.name,
-		primaryRange: state.ranges.primaryRange
+		apiKey: api.apiKey,
+    licenseKey: api.analyticsLicenseKey,
+		interval: ranges.interval,
+		rangeName: ranges.name,
+		primaryRange: ranges.primaryRange
 	}
 };
 
