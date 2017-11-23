@@ -2,9 +2,8 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as startupdelay from '../api/metrics/startupdelay';
 import Card from './Card';
-import {Link} from 'react-router';
+import VideoLink from './VideoLink';
 import * as util from '../api/util';
-import {shortenString} from '../utils';
 import ReactPaginate from 'react-paginate';
 
 class TopContents extends PureComponent {
@@ -63,12 +62,8 @@ class TopContents extends PureComponent {
   }
 
   renderTable () {
-    const rows = this.state.topContents.map((video, index) => {
-      const fullVideoId = video[0];
-      const shortenedVideoId = shortenString(video[0]);
-
-      return <tr key={index}><td><Link to="/videoinspection" query={{video: fullVideoId }}>{shortenedVideoId}</Link></td><td>{util.roundTo(video[1],0) + ' ms'}</td></tr>;
-    });
+    const rows = this.state.topContents.map((video, index) =>
+      <tr key={index}><td><VideoLink videoId={video[0]} /></td><td>{util.roundTo(video[1],0) + ' ms'}</td></tr>);
 
     let tbody = null;
     if (rows.length > 0) {

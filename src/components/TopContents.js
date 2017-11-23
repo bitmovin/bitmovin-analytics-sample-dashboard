@@ -1,8 +1,8 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as impressions from '../api/metrics/impressions';
+import VideoLink from './VideoLink';
 import Card from './Card';
-import {Link} from 'react-router';
 import ReactPaginate from 'react-paginate';
 
 class TopContents extends PureComponent {
@@ -61,19 +61,7 @@ class TopContents extends PureComponent {
 
   renderTable () {
     const rows = this.state.topContents.map((video, index) => {
-      const fullVideoId = video[0];
-      let shortenedVideoId = video[0];
-      if (typeof shortenedVideoId !== 'string') {
-        shortenedVideoId = '<UNKNOWN>';
-      }
-      if (shortenedVideoId.length > 35) {
-        const copy  = shortenedVideoId;
-        shortenedVideoId = shortenedVideoId.substring(0, 12);
-        shortenedVideoId += '...';
-        shortenedVideoId += copy.substring(copy.length - 12, copy.length);
-      }
-
-      return <tr key={index}><td><Link to="/videoinspection" query={{video: fullVideoId }}>{shortenedVideoId}</Link></td><td>{video[1]}</td></tr>;
+      return <tr key={index}><td><VideoLink videoId={video[0]} maxLength={35} /></td><td>{video[1]}</td></tr>;
     });
 
     let tbody = null;
