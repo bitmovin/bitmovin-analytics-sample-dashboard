@@ -100,13 +100,13 @@ class TopContents extends PureComponent {
 }
 
 const mapStateToProps = ({ api, ranges }) => {
-	return {
-		apiKey: api.apiKey,
+  return {
+    apiKey: api.apiKey,
     licenseKey: api.analyticsLicenseKey,
-		interval: ranges.interval,
-		rangeName: ranges.name,
-		primaryRange: ranges.primaryRange
-	}
+    interval: ranges.interval,
+    rangeName: ranges.name,
+    primaryRange: ranges.primaryRange
+  }
 };
 
 export default connect(mapStateToProps)(TopContents);
