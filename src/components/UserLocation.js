@@ -39,17 +39,17 @@ class UserLocation extends Component {
 
     const { rows } = await query.query();
 
-		const mapData = rows.map(([hcKey, value]) => ({
-			'hc-key': hcKey.toLowerCase(),
-			value
-		}));
-		this.setState(prevState => {
-			return {
-				userLocationSeries: { data: mapData },
+    const mapData = rows.map(([hcKey, value]) => ({
+      'hc-key': hcKey.toLowerCase(),
+      value
+    }));
+    this.setState(prevState => {
+      return {
+        userLocationSeries: { data: mapData },
         tableData: rows,
         pageCount: Math.ceil(rows.length / prevState.limit)
-			}
-		});
+      }
+    });
   }
 
   toggleSorting() {
@@ -168,13 +168,13 @@ class UserLocation extends Component {
 }
 
 const mapStateToProps = ({ api, ranges }) => {
-	return {
-		apiKey: api.apiKey,
+  return {
+    apiKey: api.apiKey,
     licenseKey: api.analyticsLicenseKey,
-		interval: ranges.interval,
-		rangeName: ranges.name,
-		primaryRange: ranges.primaryRange
-	}
+    interval: ranges.interval,
+    rangeName: ranges.name,
+    primaryRange: ranges.primaryRange
+  }
 }
 
 export default connect(mapStateToProps)(UserLocation);
