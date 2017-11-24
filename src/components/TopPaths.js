@@ -24,27 +24,24 @@ class TopPaths extends Component {
     this.loadData(nextProps);
   }
 
-  loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
-    const pathsQuery = {
-      ...props.primaryRange,
-      groupBy: ['PATH'],
-      orderBy: [{name: 'FUNCTION', order: orderByOrder}, {name: 'PATH', order: 'DESC'}],
+  async loadData ({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    const query = impressions.groupedQuery(apiKey)
+      .licenseKey(licenseKey)
+      .between(primaryRange.start, primaryRange.end)
+      .groupBy('PATH')
+      .orderBy('FUNCTION', orderByOrder)
+      .orderBy('PATH', 'DESC')
+      .limit(limit)
+      .offset(offset);
+
+    const { rows } = await query.query();
+
+    this.setState({
+      topPaths: rows,
       limit,
       offset,
-      licenseKey: props.licenseKey
-    };
-
-    impressions.fetchGrouped(props.apiKey, 'Top Contents', pathsQuery).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          topPaths: data.data,
-          limit,
-          offset,
-          orderByOrder,
-          page: offset / limit
-        }
-      });
+      orderByOrder,
+      page: offset / limit
     });
   }
 

@@ -9,12 +9,21 @@ import Chart from './Chart';
 
 class UserDashboard extends Component {
   render () {
-    const impressionsDataFunction = (apiKey, groupBy, baseQuery) => {
-      baseQuery = {
-        ...baseQuery,
-        licenseKey: this.props.licenseKey
-      };
-      return impressions.fetchGrouped(apiKey, groupBy, baseQuery)
+    const impressionsDataFunction = async (apiKey, groupBy, baseQuery) => {
+      const intervalQuery = impressions.groupedQuery(apiKey)
+        .licenseKey(this.props.licenseKey)
+        .interval(baseQuery.interval)
+        .between(baseQuery.start, baseQuery.end)
+
+      const orderedQuery = baseQuery.orderBy
+        .reduce((query, { name, order }) => query.orderBy(name, order), intervalQuery);
+
+      const filteredQuery = baseQuery.filters
+        .reduce((query, { name, operator, value }) => query.filter(name, operator, value), orderedQuery);
+
+      const { rows } = await filteredQuery.query();
+
+      return { data: rows, name: groupBy };
     };
     const converter = (name, interval, data) => {
       return {

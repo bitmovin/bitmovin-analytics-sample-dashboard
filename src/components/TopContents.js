@@ -25,28 +25,25 @@ class TopContents extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
-    const baseQuery = {
-      ...props.primaryRange,
-      licenseKey: props.licenseKey,
-      groupBy: ['VIDEO_ID'],
-      orderBy: [{name: 'FUNCTION', order: orderByOrder}, {name: 'VIDEO_ID', order: 'DESC'}],
-      limit,
-      offset
-    };
+  async loadData ({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    const query = impressions.groupedQuery(apiKey)
+      .licenseKey(licenseKey)
+      .between(primaryRange.start, primaryRange.end)
+      .groupBy('VIDEO_ID')
+      .orderBy('FUNCTION', orderByOrder)
+      .orderBy('VIDEO_ID', 'DESC')
+      .limit(limit)
+      .offset(offset);
 
-		impressions.fetchGrouped(props.apiKey, 'Top Contents', baseQuery).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          limit,
-          offset,
-          orderByOrder,
-          page: offset / limit,
-          topContents: data.data
-        }
-      });
-		});
+    const { rows } = await query.query();
+
+    this.setState({
+      limit,
+      offset,
+      orderByOrder,
+      page: offset / limit,
+      topContents: rows
+    });
   }
 
   toggleSorting() {

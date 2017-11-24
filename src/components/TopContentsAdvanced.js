@@ -9,7 +9,7 @@ import * as errors from '../api/metrics/errors';
 import * as startupdelay from '../api/metrics/startupdelay';
 import ReactPaginate from 'react-paginate';
 
-class TopContents extends PureComponent {
+class TopContentsAdvanced extends PureComponent {
   constructor (props) {
     super(props);
     this.state = {
@@ -29,76 +29,68 @@ class TopContents extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
-    const limitOffsetOrderBy = {
-      limit,
-      offset,
-      orderBy: [{name: 'FUNCTION', order: orderByOrder}, {name: 'VIDEO_ID', order: 'DESC'}],
-      licenseKey: props.licenseKey
-    };
+  async loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    const query = impressions.groupedQuery(props.apiKey)
+      .licenseKey(props.licenseKey)
+      .between(props.primaryRange.start, props.primaryRange.end)
+      .groupBy('VIDEO_ID')
+      .orderBy('FUNCTION', orderByOrder)
+      .orderBy('VIDEO_ID', 'DESC')
+      .limit(limit)
+      .offset(offset)
 
-    const impressionQuery = {
-      ...props.primaryRange,
-      groupBy: ['VIDEO_ID'],
-      ...limitOffsetOrderBy
-    };
+    const { rows } = await query.query();
 
-    impressions.fetchGrouped(props.apiKey, 'Top Contents', impressionQuery).then(videoImpressions => {
+    const videoImpressionsPromises = rows.map(videoImpression => {
+      const filters = [];
+      if (typeof videoImpression[0] === 'string') {
+        filters.push({'name': 'VIDEO_ID', operator: 'EQ', value: videoImpression[0]});
+      }
 
-      const videoImpressionsPromises = videoImpressions.data.map(videoImpression => {
-        const filters = [];
-        if (typeof videoImpression[0] === 'string') {
-          filters.push({'name': 'VIDEO_ID', operator: 'EQ', value: videoImpression[0]});
+      const rebufferPercentageQuery    = {...props.primaryRange, interval: null, filters};
+      const videoStartupTimeByCountray = {...props.primaryRange, interval: null, filters};
+      const errorsByVideo              = {...props.primaryRange, filters};
+
+      return Promise.all([
+        Promise.resolve(videoImpression),
+        rebuffer.rebufferPercentageOverTime(props.apiKey, rebufferPercentageQuery),
+        startupdelay.fetchStartupDelay(props.apiKey, videoStartupTimeByCountray),
+        errors.errorsByVideo(props.apiKey, errorsByVideo)
+      ]);
+    });
+
+    Promise.all(videoImpressionsPromises).then(videos => {
+      const videosForState = videos.map(video => {
+        let rebufferPercentage = 0;
+        if (video[1].length > 0) {
+          rebufferPercentage = util.roundTo(video[1][0][2] * 100, 2);
         }
 
-        const rebufferPercentageQuery    = {...props.primaryRange, interval: null, filters};
-        const videoStartupTimeByCountray = {...props.primaryRange, interval: null, filters};
-        const errorsByVideo              = {...props.primaryRange, filters};
+        let startuptime = 0;
+        if (video[2]) {
+          startuptime = util.roundTo(video[2], 0);
+        }
 
-        return Promise.all([
-          Promise.resolve(videoImpression),
-          rebuffer.rebufferPercentageOverTime(props.apiKey, rebufferPercentageQuery),
-          startupdelay.fetchStartupDelay(props.apiKey, videoStartupTimeByCountray),
-          errors.errorsByVideo(props.apiKey, errorsByVideo)
-        ]);
+        let errors = 0;
+        if (video[3].length > 0) {
+          errors = video[3][0][0];
+        }
+
+        return {
+          name       : video[0][0],
+          impressions: video[0][1],
+          rebufferPercentage,
+          startuptime,
+          errors
+        };
       });
 
-      Promise.all(videoImpressionsPromises).then(videos => {
-        const videosForState = videos.map(video => {
-          let rebufferPercentage = 0;
-          if (video[1].length > 0) {
-            rebufferPercentage = util.roundTo(video[1][0][2] * 100, 2);
-          }
-
-          let startuptime = 0;
-          if (video[2]) {
-            startuptime = util.roundTo(video[2], 0);
-          }
-
-          let errors = 0;
-          if (video[3].length > 0) {
-            errors = video[3][0][0];
-          }
-
-          return {
-            name       : video[0][0],
-            impressions: video[0][1],
-            rebufferPercentage,
-            startuptime,
-            errors
-          };
-        });
-
-        this.setState(prevState => {
-          return {
-            ...prevState,
-            topContents: videosForState,
-            limit,
-            offset,
-            orderByOrder,
-            page: offset / limit
-          }
-        });
+      this.setState({
+        topContents: videosForState,
+        limit,
+        offset,
+        orderByOrder,
+        page: offset / limit
       });
     });
   }
@@ -184,4 +176,4 @@ const mapStateToProps = (state) => {
 	}
 };
 
-export default connect(mapStateToProps)(TopContents);
+export default connect(mapStateToProps)(TopContentsAdvanced);
