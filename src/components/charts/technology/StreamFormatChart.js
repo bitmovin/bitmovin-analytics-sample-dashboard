@@ -19,13 +19,13 @@ class StreamFormatChart extends Component {
     }
   }
 
-	componentDidMount () {
-		this.loadData(this.props);
-	}
+  componentDidMount () {
+    this.loadData(this.props);
+  }
 
-	componentWillReceiveProps (nextProps) {
-		this.loadData(nextProps);
-	}
+  componentWillReceiveProps (nextProps) {
+    this.loadData(nextProps);
+  }
 
   async loadData({ apiKey, licenseKey, range }) {
     const query = impressions.groupedQuery(apiKey)
@@ -37,14 +37,14 @@ class StreamFormatChart extends Component {
 
     const { rows } = await query.query();
 
-		const slices = rows.map(([name, y]) => ({ name, y }));
+    const slices = rows.map(([name, y]) => ({ name, y }));
 
-		this.setState(prevState => ({
-			impressionSeries: {
-				...prevState.impressionSeries,
-				data: slices
-			}
-		}));
+    this.setState(prevState => ({
+      impressionSeries: {
+        ...prevState.impressionSeries,
+        data: slices
+      }
+    }));
   }
 
   render () {
@@ -81,11 +81,11 @@ class StreamFormatChart extends Component {
 }
 
 const mapStateToProps = (state) => {
-	return {
-		apiKey: state.api.apiKey,
-		range: state.ranges.primaryRange,
+  return {
+    apiKey: state.api.apiKey,
+    range: state.ranges.primaryRange,
     licenseKey: state.api.analyticsLicenseKey
-	}
+  }
 };
 
 export default connect(mapStateToProps)(StreamFormatChart);
