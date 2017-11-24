@@ -38,9 +38,7 @@ class Chart extends Component {
     Promise.all(queries.map(query => {
       const baseQuery = {
         ...props.primaryRange,
-        licenseKey: props.licenseKey,
         interval: props.interval,
-        groupBy: [],
         orderBy: [{ name: props.interval, order: 'ASC'}],
         filters: [...query.filters],
       };
