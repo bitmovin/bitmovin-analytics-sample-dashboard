@@ -1,8 +1,8 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as impressions from '../api/metrics/impressions';
+import VideoLink from './VideoLink';
 import Card from './Card';
-import {Link} from 'react-router';
 import ReactPaginate from 'react-paginate';
 
 class TopContents extends PureComponent {
@@ -25,27 +25,25 @@ class TopContents extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
-    const baseQuery = {
-      ...props.primaryRange,
-      groupBy: ['VIDEO_ID'],
-      orderBy: [{name: 'FUNCTION', order: orderByOrder}, {name: 'VIDEO_ID', order: 'DESC'}],
-      limit,
-      offset
-    };
+  async loadData ({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    const query = impressions.groupedQuery(apiKey)
+      .licenseKey(licenseKey)
+      .between(primaryRange.start, primaryRange.end)
+      .groupBy('VIDEO_ID')
+      .orderBy('FUNCTION', orderByOrder)
+      .orderBy('VIDEO_ID', 'DESC')
+      .limit(limit)
+      .offset(offset);
 
-		impressions.fetchGrouped(props.apiKey, 'Top Contents', baseQuery).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          limit,
-          offset,
-          orderByOrder,
-          page: offset / limit,
-          topContents: data.data
-        }
-      });
-		});
+    const { rows } = await query.query();
+
+    this.setState({
+      limit,
+      offset,
+      orderByOrder,
+      page: offset / limit,
+      topContents: rows
+    });
   }
 
   toggleSorting() {
@@ -60,19 +58,7 @@ class TopContents extends PureComponent {
 
   renderTable () {
     const rows = this.state.topContents.map((video, index) => {
-      const fullVideoId = video[0];
-      let shortenedVideoId = video[0];
-      if (typeof shortenedVideoId !== 'string') {
-        shortenedVideoId = '<UNKNOWN>';
-      }
-      if (shortenedVideoId.length > 35) {
-        const copy  = shortenedVideoId;
-        shortenedVideoId = shortenedVideoId.substring(0, 12);
-        shortenedVideoId += '...';
-        shortenedVideoId += copy.substring(copy.length - 12, copy.length);
-      }
-
-      return <tr key={index}><td><Link to="/videoinspection" query={{video: fullVideoId }}>{shortenedVideoId}</Link></td><td>{video[1]}</td></tr>;
+      return <tr key={index}><td><VideoLink videoId={video[0]} maxLength={35} /></td><td>{video[1]}</td></tr>;
     });
 
     let tbody = null;
@@ -113,13 +99,14 @@ class TopContents extends PureComponent {
   }
 }
 
-const mapStateToProps = (state) => {
-	return {
-		apiKey: state.api.apiKey,
-		interval: state.ranges.interval,
-		rangeName: state.ranges.name,
-		primaryRange: state.ranges.primaryRange
-	}
+const mapStateToProps = ({ api, ranges }) => {
+  return {
+    apiKey: api.apiKey,
+    licenseKey: api.analyticsLicenseKey,
+    interval: ranges.interval,
+    rangeName: ranges.name,
+    primaryRange: ranges.primaryRange
+  }
 };
 
 export default connect(mapStateToProps)(TopContents);

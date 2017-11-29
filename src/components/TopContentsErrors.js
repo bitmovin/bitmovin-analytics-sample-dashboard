@@ -2,8 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as errors from '../api/metrics/errors';
 import Card from './Card';
-import {Link} from 'react-router';
-import {shortenString} from '../utils';
+import VideoLink from './VideoLink';
 import ReactPaginate from 'react-paginate';
 
 class TopContentsErrors extends PureComponent {
@@ -61,16 +60,14 @@ class TopContentsErrors extends PureComponent {
   }
 
   renderTable () {
-    const rows = this.state.topContents.map((video, index) => {
-      const shortenedVideoId = shortenString(video[0]);
-
-      return <tr key={index}>
+    const rows = this.state.topContents.map((video, index) =>
+      <tr key={index}>
         <td>
-          <Link to="/videoinspection" query={{video: video[0] }}>{shortenedVideoId}</Link>
+          <VideoLink videoId={video[0]} />
         </td>
         <td>{video[1]}</td>
-      </tr>;
-    });
+      </tr>
+    );
     let tbody = null;
     if (rows.length > 0) {
       tbody = <tbody>{rows}</tbody>;

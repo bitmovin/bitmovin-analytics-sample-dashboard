@@ -30,29 +30,26 @@ class UserLocation extends Component {
 		this.loadData(nextProps);
 	}
 
-  loadData(props) {
-		impressions.fetchGrouped(props.apiKey, 'COUNTRY', {
-		  ...props.primaryRange,
-      groupBy: ['COUNTRY'],
-      orderBy: [{name: 'FUNCTION', order: 'DESC'}]
-		}).then(data => {
-			const mapData = (rows) => {
-				return rows.map(row => {
-					return {
-						'hc-key': row[0].toLowerCase(),
-						'value': row[1]
-					}
-				})
-			};
-			this.setState(prevState => {
-				return {
-					...prevState,
-					userLocationSeries: { data: mapData(data.data) },
-          tableData: data.data,
-          pageCount: Math.ceil(data.data.length / prevState.limit)
-				}
-			});
-		});
+  async loadData({ apiKey, primaryRange, licenseKey }) {
+    const query = impressions.groupedQuery(apiKey)
+      .licenseKey(licenseKey)
+      .between(primaryRange.start, primaryRange.end)
+      .groupBy('COUNTRY')
+      .orderBy('FUNCTION', 'DESC')
+
+    const { rows } = await query.query();
+
+    const mapData = rows.map(([hcKey, value]) => ({
+      'hc-key': hcKey.toLowerCase(),
+      value
+    }));
+    this.setState(prevState => {
+      return {
+        userLocationSeries: { data: mapData },
+        tableData: rows,
+        pageCount: Math.ceil(rows.length / prevState.limit)
+      }
+    });
   }
 
   toggleSorting() {
@@ -170,13 +167,14 @@ class UserLocation extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-	return {
-		apiKey: state.api.apiKey,
-		interval: state.ranges.interval,
-		rangeName: state.ranges.name,
-		primaryRange: state.ranges.primaryRange
-	}
+const mapStateToProps = ({ api, ranges }) => {
+  return {
+    apiKey: api.apiKey,
+    licenseKey: api.analyticsLicenseKey,
+    interval: ranges.interval,
+    rangeName: ranges.name,
+    primaryRange: ranges.primaryRange
+  }
 }
 
 export default connect(mapStateToProps)(UserLocation);

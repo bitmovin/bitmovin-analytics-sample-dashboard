@@ -19,46 +19,32 @@ class StreamFormatChart extends Component {
     }
   }
 
-	componentDidMount () {
-		this.loadData(this.props);
-	}
+  componentDidMount () {
+    this.loadData(this.props);
+  }
 
-	componentWillReceiveProps (nextProps) {
-		this.loadData(nextProps);
-	}
+  componentWillReceiveProps (nextProps) {
+    this.loadData(nextProps);
+  }
 
-  loadData(props) {
-    const baseQuery = {
-      ...props.range,
-      licenseKey: props.licenseKey
-    };
-    baseQuery.groupBy = ['STREAM_FORMAT'];
-    baseQuery.orderBy = [{
-      name: 'FUNCTION',
-      order: 'DESC'
-    }];
-    baseQuery.filters = [{
-      name: 'STREAM_FORMAT',
-      operator: 'NE',
-      value: 'unknown'
-    }];
-		impressions.fetchGrouped(props.apiKey, 'stream format', baseQuery).then(data => {
-			const slices = data.data.map((slice) => {
-				return {
-					name: slice[0],
-					y: slice[1]
-				}
-			});
-			this.setState(prevState => {
-				return {
-					...prevState,
-					impressionSeries: {
-						...prevState.impressionSeries,
-						data: slices
-					}
-				}
-			});
-		});
+  async loadData({ apiKey, licenseKey, range }) {
+    const query = impressions.groupedQuery(apiKey)
+      .licenseKey(licenseKey)
+      .between(range.start, range.end)
+      .groupBy('STREAM_FORMAT')
+      .orderBy('FUNCTION', 'DESC')
+      .filter('STREAM_FORMAT', 'NE', 'unknown');
+
+    const { rows } = await query.query();
+
+    const slices = rows.map(([name, y]) => ({ name, y }));
+
+    this.setState(prevState => ({
+      impressionSeries: {
+        ...prevState.impressionSeries,
+        data: slices
+      }
+    }));
   }
 
   render () {
@@ -95,11 +81,11 @@ class StreamFormatChart extends Component {
 }
 
 const mapStateToProps = (state) => {
-	return {
-		apiKey: state.api.apiKey,
-		range: state.ranges.primaryRange,
+  return {
+    apiKey: state.api.apiKey,
+    range: state.ranges.primaryRange,
     licenseKey: state.api.analyticsLicenseKey
-	}
+  }
 };
 
 export default connect(mapStateToProps)(StreamFormatChart);

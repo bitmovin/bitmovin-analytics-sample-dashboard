@@ -11,18 +11,14 @@ export function storageAvailable(type) {
 	}
 }
 
-export const shortenString = (string) => {
-  let shortenedString = string;
-  if (typeof shortenedString !== 'string') {
+export const shortenString = (string, maxLength=50, tokenLength=12) => {
+  if (typeof string !== 'string') {
     return '<UNKNOWN>';
   }
-  if (string.length > 50) {
-    shortenedString = string.substring(0, 22);
-    shortenedString += '...';
-    shortenedString += string.substring(string.length - 22, string.length);
+  if (string.length > maxLength) {
+    return `${string.slice(0, tokenLength)}...${string.slice(-tokenLength)}`;
   }
-
-  return shortenedString;
+  return string;
 };
 
 export const ErrorCodes = {

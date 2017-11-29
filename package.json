@@ -55,7 +55,7 @@
     "webpack-manifest-plugin": "1.1.0"
   },
   "dependencies": {
-    "bitmovin-javascript": "^1.1.16",
+    "bitmovin-javascript": "^1.5.0",
     "bluebird": "^3.4.7",
     "card-react": "^1.2.7",
     "countup.js": "^1.8.5",

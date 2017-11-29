@@ -27,36 +27,26 @@ class VideoImpressionsChart extends Component {
     this.loadData(nextProps);
   }
 
-  loadData(props) {
-    const baseQuery = {
-      ...props.primaryRange,
-      interval: props.interval,
-      groupBy: [],
-      orderBy: [{ name: props.interval, order: 'ASC'}],
-      filters: []
-    };
+  async loadData({ apiKey, licenseKey, primaryRange, interval, videoId, name }) {
+    let query = impressions.groupedQuery(apiKey)
+      .licenseKey(licenseKey)
+      .between(primaryRange.start, primaryRange.end)
+      .interval(interval)
+      .orderBy(interval, 'ASC');
 
-    if (props.videoId) {
-      baseQuery.filters.push({name: 'VIDEO_ID', operator: 'EQ', value: props.videoId});
+    if (videoId) {
+      query = query.filter('VIDEO_ID', 'EQ', videoId);
     }
 
-    impressions.fetchGrouped(props.apiKey, 'impressions', baseQuery).then((data) => {
-      const convertResultToSeriesData = (series) => {
-        return series.map(row => {
-          return [row[0], row[1]];
-        })
-      };
+    const { rows } = await query.query();
 
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          impressionSeries: [{
-            data: convertResultToSeriesData(data.data),
-            type: 'spline',
-            name: props.name
-          }]
-        }
-      });
+    const seriesData = rows.map(row => row.slice(0, 2));
+    this.setState({
+      impressionSeries: [{
+        data: seriesData,
+        type: 'spline',
+        name
+      }]
     });
   }
 
