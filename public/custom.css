@@ -16,17 +16,17 @@ h4.title {
   color: white;
 }
 
-.loading {
+.LoadingSpinner {
   position: relative;
   text-align: center;
   font-size: 30px;
   color: #3C4858;
 }
-.loading .inner i, .loading .inner span {
+.LoadingSpinner .inner i, .LoadingSpinner .inner span {
   margin: 10px;
   display: inline-block;
 }
-.loading .inner {
+.LoadingSpinner .inner {
   position: absolute;
   top: 20px;
   margin: 0 auto;
