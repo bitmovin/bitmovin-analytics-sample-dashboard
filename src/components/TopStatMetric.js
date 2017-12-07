@@ -1,12 +1,6 @@
 import React, { Component, PropTypes } from 'react'
+import LoadingIndicator from './LoadingIndicator';
 import * as util from '../api/util'
-
-const defaultState = Object.freeze({
-  primary: 0,
-  secondary: 0,
-  change: 0,
-  userbase: 0
-});
 
 class TopStatMetric extends Component {
   static propTypes = {
@@ -20,9 +14,16 @@ class TopStatMetric extends Component {
     fetchData: PropTypes.func.isRequired,
   };
 
-  state = defaultState;
+  state = {
+    primary: 0,
+    secondary: 0,
+    change: 0,
+    userbase: 0,
+    loading: false,
+  };
 
   loadData = async ({ fetchData }) => {
+    this.setState({ loading: true })
     const metric = await fetchData();
     if (!isFinite(metric.change)) {
       metric.change = 100;
@@ -30,7 +31,7 @@ class TopStatMetric extends Component {
     if (metric.change > 100) {
       metric.change = 100;
     }
-    this.setState({ ...metric });
+    this.setState({ ...metric, loading: false });
   }
 
   componentDidMount() {
@@ -81,7 +82,7 @@ class TopStatMetric extends Component {
   }
 
   render () {
-    const { primary, userbase, secondary } = this.state;
+    const { primary, userbase, secondary, loading } = this.state;
     const color = {
       'data-background-color': this.metricColor()
     };
@@ -106,23 +107,25 @@ class TopStatMetric extends Component {
       </div>);
     }
     return (
-    <div className="col-lg-2 col-md-4 col-sm-4 col-xs-6" onClick={this.props.onClick}>
-      <div className="card card-stats">
-        <div className="card-header" {...color}>
-          <i className={ "fa fa-" + this.props.icon }></i>
-        </div>
-        <div className="card-content">
-          <p className="category">{this.props.title}</p>
-          <h3 className="title">{this.formatValue(primary)}</h3>
-        </div>
-        <div className="card-footer">
-          <div className="stats">
-            <span><i className={this.metricColor()}><i className={this.metricIcon()}></i>{this.formatMetricNumber()}% </i> From before ({this.formatValue(secondary)})</span>
+      <LoadingIndicator loading={loading}>
+        <div className="col-lg-2 col-md-4 col-sm-4 col-xs-6" onClick={this.props.onClick}>
+          <div className="card card-stats">
+            <div className="card-header" {...color}>
+              <i className={ "fa fa-" + this.props.icon }></i>
+            </div>
+            <div className="card-content">
+              <p className="category">{this.props.title}</p>
+              <h3 className="title">{this.formatValue(primary)}</h3>
+            </div>
+            <div className="card-footer">
+              <div className="stats">
+                <span><i className={this.metricColor()}><i className={this.metricIcon()}></i>{this.formatMetricNumber()}% </i> From before ({this.formatValue(secondary)})</span>
+              </div>
+            </div>
+            {userBase}
           </div>
         </div>
-        {userBase}
-      </div>
-    </div>
+      </LoadingIndicator>
     );
   }
 }

@@ -1,0 +1,20 @@
+@keyframes LoadingIndicator-animation {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+    filter: grayscale(68%) blur(2.1px);
+  }
+  to {
+    opacity: 0.56;
+    transform: scale(0.987);
+    filter: grayscale(70%) blur(2.3px);
+  }
+}
+
+.LoadingIndicator.loading {
+  animation-name: LoadingIndicator-animation;
+  animation-duration: 0.7s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in;
+}
