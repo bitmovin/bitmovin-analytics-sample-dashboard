@@ -5,92 +5,6 @@ import TopStatMetric from './components/TopStatMetric'
 import { push } from 'react-router-redux'
 
 class TopStats extends Component {
-  constructor(props) {
-    super(props);
-    const defaultState = {
-      primary: 0,
-      secondary: 0,
-      change: 0,
-      userbase: 0
-    };
-    this.state = {
-      impressions: defaultState,
-      users: defaultState,
-      errors: defaultState,
-      rebuffer: defaultState,
-      startupDelay: defaultState,
-      bounceRate: defaultState
-    }
-  }
-
-  loadData (props) {
-    const baseQuery = {
-      licenseKey: props.licenseKey
-    };
-
-    topstats.fetchTotalUsersThisWeek(props.apiKey, props.ranges, baseQuery).then((data) => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          users: data
-        }
-      });
-    });
-
-    topstats.fetchTotalImpressionsThisWeek(props.apiKey, props.ranges, baseQuery).then((data) => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          impressions: data
-        }
-      })
-    });
-
-    topstats.fetchErrorPercentageThisWeek(props.apiKey, props.ranges, baseQuery).then((data) => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          errors: data
-        }
-      })
-    });
-
-    topstats.fetchRebufferPercentageThisWeek(props.apiKey, props.ranges, baseQuery).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          rebuffer: data
-        }
-      })
-    });
-
-    topstats.fetchAverageStartupDelayThisWeek(props.apiKey, props.ranges, baseQuery).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          startupDelay: data
-        }
-      })
-    });
-
-    topstats.fetchBounceRateThisWeek(props.apiKey, props.ranges, baseQuery).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          bounceRate: data
-        }
-      })
-    })
-  }
-
-	componentDidMount () {
-		this.loadData(this.props);
-	}
-
-	componentWillReceiveProps (nextProps) {
-		this.loadData(nextProps);
-	}
-
   metricColor(val) {
     if (val > 0) {
       return 'green';
@@ -101,16 +15,58 @@ class TopStats extends Component {
   }
 
   render () {
-      return <div>
+    const { licenseKey, apiKey, ranges } = this.props;
+    const baseQuery = { licenseKey };
+
+    return (
+      <div>
         <div className="row tile_count">
-        <TopStatMetric title="Users" metric={this.state.users} icon="users"/>
-        <TopStatMetric title="Impressions" metric={this.state.impressions} icon="user" />
-        <TopStatMetric format="pct" title="Errors" metric={this.state.errors} icon="exclamation-triangle" inverse={true} />
-        <TopStatMetric format="pct" onClick={this.props.navigateToRebuffer} title="Buffering" metric={this.state.rebuffer} icon="spinner" compareUserBase={true} inverse={true} />
-        <TopStatMetric format="ms" onClick={this.props.navigateToPerformance} title="Delay" metric={this.state.startupDelay} icon="clock-o" inverse={true} compareUserBase={true} />
-        <TopStatMetric format="pct" title="Bounce Rate" metric={this.state.bounceRate} icon="eject" inverse={true} compareUserBase={true} />
+          <TopStatMetric
+            title="Users"
+            icon="users"
+            fetchData={() => topstats.fetchTotalUsersThisWeek(apiKey, ranges, baseQuery)}
+          />
+          <TopStatMetric
+            title="Impressions"
+            icon="user"
+            fetchData={() => topstats.fetchTotalImpressionsThisWeek(apiKey, ranges, baseQuery)}
+          />
+          <TopStatMetric
+            format="pct"
+            title="Errors"
+            icon="exclamation-triangle"
+            inverse
+            fetchData={() => topstats.fetchErrorPercentageThisWeek(apiKey, ranges, baseQuery)}
+          />
+          <TopStatMetric
+            format="pct"
+            onClick={this.props.navigateToRebuffer}
+            title="Buffering"
+            icon="spinner"
+            compareUserBase
+            inverse
+            fetchData={() => topstats.fetchRebufferPercentageThisWeek(apiKey, ranges, baseQuery)}
+          />
+          <TopStatMetric
+            format="ms"
+            onClick={this.props.navigateToPerformance}
+            title="Delay"
+            icon="clock-o"
+            inverse
+            compareUserBase
+            fetchData={() => topstats.fetchAverageStartupDelayThisWeek(apiKey, ranges, baseQuery)}
+          />
+          <TopStatMetric
+            format="pct"
+            title="Bounce Rate"
+            icon="eject"
+            inverse
+            compareUserBase
+            fetchData={() => topstats.fetchBounceRateThisWeek(apiKey, ranges, baseQuery)}
+          />
+        </div>
       </div>
-    </div>
+    )
   }
 }
 

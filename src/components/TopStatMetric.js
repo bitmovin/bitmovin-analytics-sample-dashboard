@@ -1,25 +1,46 @@
 import React, { Component, PropTypes } from 'react'
 import * as util from '../api/util'
 
+const defaultState = Object.freeze({
+  primary: 0,
+  secondary: 0,
+  change: 0,
+  userbase: 0
+});
+
 class TopStatMetric extends Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
-    metric: PropTypes.object.isRequired,
     icon: PropTypes.string.isRequired,
     inverse: PropTypes.bool,
     onClick: PropTypes.func,
     userBaseValue: PropTypes.string,
     formatter: PropTypes.string,
-    isPercentage: PropTypes.bool
+    isPercentage: PropTypes.bool,
+    fetchData: PropTypes.func.isRequired,
   };
-  componentWillUpdate(nextProps, nextState) {
-    if (!isFinite(nextProps.metric.change)) {
-      nextProps.metric.change = 100;
+
+  state = defaultState;
+
+  loadData = async ({ fetchData }) => {
+    const metric = await fetchData();
+    if (!isFinite(metric.change)) {
+      metric.change = 100;
     }
-    if (nextProps.metric.change > 100) {
-      nextProps.metric.change = 100;
+    if (metric.change > 100) {
+      metric.change = 100;
     }
+    this.setState({ ...metric });
   }
+
+  componentDidMount() {
+    this.loadData(this.props);
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.loadData(newProps);
+  }
+
   getColor(change) {
     const colors = ['green', '', 'red'];
     if (this.props.inverse) {
@@ -33,7 +54,7 @@ class TopStatMetric extends Component {
     return colors[2];
   }
   metricColor() {
-    return this.getColor(this.props.metric.change)
+    return this.getColor(this.state.change)
   }
   getIcon(change) {
     if (change === 0)
@@ -43,33 +64,33 @@ class TopStatMetric extends Component {
     return 'fa fa-sort-desc';
   }
   metricIcon () {
-    return this.getIcon(this.props.metric.change);
+    return this.getIcon(this.state.change);
   }
+
   formatMetricNumber () {
-    if (this.props.metric.change > 0) {
-      return `+${this.props.metric.change}`;
-    }
-    return this.props.metric.change
+    const { change } = this.state;
+    return change > 0 ? `+${change}` : change;
   }
+
   formatValue (value) {
-    if (this.props.format === 'pct') {
-      return value + '%';
-    } else if (this.props.format === 'ms') {
-      return value + 'ms';
+    switch (this.props.format) {
+      case 'pct': return `${value}%`;
+      case 'ms': return `${value}ms`;
+      default: return value;
     }
-    return value;
   }
+
   render () {
-    const metric = this.props.metric;
+    const { primary, userbase, secondary } = this.state;
     const color = {
       'data-background-color': this.metricColor()
     };
     let userBase = null;
     if (this.props.compareUserBase === true ) {
-      let changeToUserBase = (( metric.primary / metric.userbase ) - 1) * 100;
+      let changeToUserBase = (( primary / userbase ) - 1) * 100;
 
       if (this.props.format === 'pct')
-        changeToUserBase = metric.primary - metric.userbase;
+        changeToUserBase = primary - userbase;
 
       const color = this.getColor(changeToUserBase);
       const icon = this.getIcon(changeToUserBase);
@@ -92,11 +113,11 @@ class TopStatMetric extends Component {
         </div>
         <div className="card-content">
           <p className="category">{this.props.title}</p>
-          <h3 className="title">{this.formatValue(metric.primary)}</h3>
+          <h3 className="title">{this.formatValue(primary)}</h3>
         </div>
         <div className="card-footer">
           <div className="stats">
-            <span><i className={this.metricColor()}><i className={this.metricIcon()}></i>{this.formatMetricNumber()}% </i> From before ({this.formatValue(metric.secondary)})</span>
+            <span><i className={this.metricColor()}><i className={this.metricIcon()}></i>{this.formatMetricNumber()}% </i> From before ({this.formatValue(secondary)})</span>
           </div>
         </div>
         {userBase}
