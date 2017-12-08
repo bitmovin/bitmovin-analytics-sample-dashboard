@@ -1,10 +1,13 @@
-import React, {Component} from 'react'
-import {connect} from 'react-redux'
-import * as impressions from '../api/metrics/impressions'
-import ReactHighmaps from 'react-highcharts/ReactHighmaps.src'
-import mapdata from '../mapdata/world'
-import Card from './Card'
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import ReactPaginate from 'react-paginate';
+import * as impressions from '../api/metrics/impressions';
+import ReactHighmaps from 'react-highcharts/ReactHighmaps.src';
+import mapdata from '../mapdata/world';
+import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
+
+const limit = 7;
 
 class UserLocation extends Component {
   constructor(props) {
@@ -14,11 +17,11 @@ class UserLocation extends Component {
         data: []
       },
       tableData: [],
-      limit: 7,
       offset: 0,
       pageCount: 0,
       page: 0,
-      orderByOrder: 'DESC'
+      orderByOrder: 'DESC',
+      loading: false,
     }
   }
 
@@ -31,6 +34,7 @@ class UserLocation extends Component {
 	}
 
   async loadData({ apiKey, primaryRange, licenseKey }) {
+    this.setState({ loading: true });
     const query = impressions.groupedQuery(apiKey)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
@@ -43,53 +47,42 @@ class UserLocation extends Component {
       'hc-key': hcKey.toLowerCase(),
       value
     }));
-    this.setState(prevState => {
-      return {
-        userLocationSeries: { data: mapData },
-        tableData: rows,
-        pageCount: Math.ceil(rows.length / prevState.limit)
-      }
+    this.setState({
+      userLocationSeries: { data: mapData },
+      tableData: rows,
+      pageCount: Math.ceil(rows.length / limit),
+      loading: false,
     });
   }
 
   toggleSorting() {
+    const { orderByOrder } = this.state;
     let sorting = (a, b) => {
       return a[1] - b[1];
     };
-    if (this.state.orderByOrder === 'ASC') {
+    if (orderByOrder === 'ASC') {
       sorting = (a, b) => {
         return b[1] - a[1];
       }
     }
 
-    const tableData = this.state.tableData.sort((a, b) => {
-      return sorting(a, b);
-    });
+    const tableData = this.state.tableData.sort(sorting);
 
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        tableData,
-        orderByOrder: prevState.orderByOrder==='DESC'?'ASC':'DESC',
-        offset: 0,
-        page: 0
-      }
-    })
+    this.setState({
+      tableData,
+      orderByOrder: orderByOrder === 'DESC' ? 'ASC' : 'DESC',
+      offset: 0,
+      page: 0
+    });
   }
 
   handlePageClick(pagination) {
-    const offset = this.state.limit * pagination.selected;
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        offset,
-        page: pagination.selected
-      }
-    })
+    const offset = limit * pagination.selected;
+    this.setState({ offset, page: pagination.selected });
   }
 
   renderTable () {
-    const top = this.state.tableData.slice(this.state.offset, this.state.offset + this.state.limit);
+    const top = this.state.tableData.slice(this.state.offset, this.state.offset + limit);
 
     const rows = top.map((row, index) => {
       return <tr key={index}><td><div className={'img-thumbnail flag flag-icon-background flag-icon-' + row[0].toLowerCase()} style={{border: "none", width: "15px", height: "15px", marginRight: "10px"}}></div>{row[0]}</td><td>{row[1]}</td></tr>;
@@ -155,14 +148,14 @@ class UserLocation extends Component {
   render() {
     return (
       <Card width={this.props.width || {md: 8, sm: 8, xs: 12}} title="Visitor Location" cardHeight="500px">
-        <div>
+        <LoadingIndicator loading={this.state.loading}>
           <div className="col-md-6 col-sm-6 col-xs-12">
             { this.renderTable() }
           </div>
           <div className="col-md-6 col-sm-6 col-xs-12">
             { this.renderChart() }
           </div>
-        </div>
+        </LoadingIndicator>
       </Card>);
   }
 }
