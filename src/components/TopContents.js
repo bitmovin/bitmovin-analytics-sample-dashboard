@@ -2,20 +2,18 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as impressions from '../api/metrics/impressions';
 import VideoLink from './VideoLink';
+import LoadingIndicator from './LoadingIndicator';
 import Card from './Card';
 import ReactPaginate from 'react-paginate';
 
 class TopContents extends PureComponent {
-  constructor (props) {
-    super(props);
-    this.state = {
-      topContents: [],
-      limit: 6,
-      offset: 0,
-      page: 0,
-      orderByOrder: 'DESC'
-    }
-  }
+  state = {
+    topContents: [],
+    limit: 6,
+    offset: 0,
+    page: 0,
+    orderByOrder: 'DESC'
+  };
 
 	componentDidMount () {
 		this.loadData(this.props);
@@ -26,6 +24,8 @@ class TopContents extends PureComponent {
 	}
 
   async loadData ({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    this.setState({ loading: true });
+
     const query = impressions.groupedQuery(apiKey)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
@@ -42,7 +42,8 @@ class TopContents extends PureComponent {
       offset,
       orderByOrder,
       page: offset / limit,
-      topContents: rows
+      topContents: rows,
+      loading: false,
     });
   }
 
@@ -57,7 +58,8 @@ class TopContents extends PureComponent {
   }
 
   renderTable () {
-    const rows = this.state.topContents.map((video, index) => {
+    const { topContents, loading, page } = this.state;
+    const rows = topContents.map((video, index) => {
       return <tr key={index}><td><VideoLink videoId={video[0]} maxLength={35} /></td><td>{video[1]}</td></tr>;
     });
 
@@ -66,29 +68,32 @@ class TopContents extends PureComponent {
       tbody = <tbody>{rows}</tbody>;
     }
 
-    return (<div>
-    <table className="table table-hover">
-        <thead>
-          <tr>
-            <th>Video id</th>
-            <th>Impressions <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
-          </tr>
-        </thead>
-        {tbody}
-      </table>
-      <ReactPaginate
-        ref="table_pagination"
-        previousLabel={"previous"}
-        nextLabel={"next"}
-        pageCount={300}
-        forcePage={this.state.page}
-        marginPagesDisplayed={0}
-        pageRangeDisplayed={0}
-        onPageChange={::this.handlePageClick}
-        containerClassName={"pagination"}
-        subContainerClassName={"pages pagination"}
-        activeClassName={"active"}/>
-    </div>);
+    return (
+      <LoadingIndicator loading={loading}>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Video id</th>
+              <th>Impressions <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
+            </tr>
+          </thead>
+          {tbody}
+        </table>
+        <ReactPaginate
+          ref="table_pagination"
+          previousLabel={"previous"}
+          nextLabel={"next"}
+          pageCount={300}
+          forcePage={page}
+          marginPagesDisplayed={0}
+          pageRangeDisplayed={0}
+          onPageChange={::this.handlePageClick}
+          containerClassName={"pagination"}
+          subContainerClassName={"pages pagination"}
+          activeClassName={"active"}
+        />
+      </LoadingIndicator>
+    );
   }
 
   render () {
