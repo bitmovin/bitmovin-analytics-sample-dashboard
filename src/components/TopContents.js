@@ -23,7 +23,7 @@ class TopContents extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  async loadData ({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+  async loadData({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
     this.setState({ loading: true });
 
     const query = impressions.groupedQuery(apiKey)

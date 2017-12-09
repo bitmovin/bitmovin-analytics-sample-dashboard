@@ -3,21 +3,18 @@ import {connect} from 'react-redux';
 import * as rebuffer from '../api/metrics/rebuffer';
 import Card from './Card';
 import VideoLink from './VideoLink';
+import LoadingIndicator from './LoadingIndicator';
 import * as util from '../api/util';
 import ReactPaginate from 'react-paginate';
 
-class TopContents extends PureComponent {
-  constructor (props) {
-    super(props);
-    this.state = {
-      topContents: [],
-      limit: 6,
-      offset: 0,
-      pageCount: 0,
-      page: 0,
-      orderByOrder: 'DESC'
-    }
-  }
+class TopContentsRebuffering extends PureComponent {
+  state = {
+    topContents: [],
+    limit: 6,
+    offset: 0,
+    page: 0,
+    orderByOrder: 'DESC'
+  };
 
 	componentDidMount () {
 		this.loadData(this.props);
@@ -27,62 +24,42 @@ class TopContents extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  loadData (props) {
+  async loadData ({ primaryRange, licenseKey, apiKey }) {
+    this.setState({ loading: true });
+
     const rebufferQuery = {
-      ...props.primaryRange,
+      ...primaryRange,
       interval: null,
       groupBy: ['VIDEO_ID'],
       orderBy: [{name: 'FUNCTION', order: 'DESC'}],
-      licenseKey: props.licenseKey
+      licenseKey: licenseKey
     };
 
-    rebuffer.rebufferPercentageOverTime(props.apiKey, rebufferQuery).then(result => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          topContents: result
-        }
-      })
-    });
+    const result = await rebuffer.rebufferPercentageOverTime(apiKey, rebufferQuery);
+
+    this.setState({ topContents: result, loading: false });
   }
 
   toggleSorting() {
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        orderByOrder: prevState.orderByOrder==='DESC' ? 'ASC' : 'DESC',
-        offset: 0,
-        page: 0
-      }
-    })
+    const orderByOrder = this.state.orderByOrder === 'DESC' ? 'ASC' : 'DESC';
+    this.setState({ orderByOrder, offset: 0, page: 0 });
   }
 
   handlePageClick(pagination) {
     const offset = this.state.limit * pagination.selected;
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        offset,
-        page: pagination.selected
-      }
-    })
+    this.setState({ offset, page: pagination.selected });
   }
 
   renderTable () {
-    let sorting = (a, b) => {
-      return b[3] - a[3];
-    };
-    if (this.state.orderByOrder === 'ASC') {
-      sorting = (a, b) => {
-        return a[3] - b[3];
-      }
+    const { loading, orderByOrder, topContents, offset, limit, page } = this.state;
+    let sorting = (a, b) =>  b[3] - a[3];
+    if (orderByOrder === 'ASC') {
+      sorting = (a, b) => a[3] - b[3];
     }
 
-    const sorted = this.state.topContents.sort((a, b) => {
-      return sorting(a, b);
-    });
+    const sorted = topContents.sort(sorting);
 
-    const top = sorted.slice(this.state.offset, this.state.offset + this.state.limit);
+    const top = sorted.slice(offset, offset + limit);
 
     const rows = top.map((video, index) => {
       return <tr key={index}><td><VideoLink videoId={video[0]} /></td><td>{util.roundTo(video[3]*100, 2) + '%'}</td></tr>;
@@ -93,29 +70,32 @@ class TopContents extends PureComponent {
       tbody = <tbody>{rows}</tbody>;
     }
 
-    return <div>
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th>Video id</th>
-            <th>Rebuffer Percentage <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
-          </tr>
-        </thead>
-        {tbody}
-      </table>
-      <ReactPaginate
-        ref="table_pagination"
-        previousLabel={"previous"}
-        nextLabel={"next"}
-        pageCount={300}
-        forcePage={this.state.page}
-        marginPagesDisplayed={0}
-        pageRangeDisplayed={0}
-        onPageChange={::this.handlePageClick}
-        containerClassName={"pagination"}
-        subContainerClassName={"pages pagination"}
-        activeClassName={"active"}/>
-    </div>;
+    return (
+      <LoadingIndicator loading={loading}>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Video id</th>
+              <th>Rebuffer Percentage <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
+            </tr>
+          </thead>
+          {tbody}
+        </table>
+        <ReactPaginate
+          ref="table_pagination"
+          previousLabel="previous"
+          nextLabel="next"
+          pageCount={300}
+          forcePage={page}
+          marginPagesDisplayed={0}
+          pageRangeDisplayed={0}
+          onPageChange={::this.handlePageClick}
+          containerClassName="pagination"
+          subContainerClassName="pages pagination"
+          activeClassName="active"
+        />
+      </LoadingIndicator>
+    );
   }
 
   render () {
@@ -136,4 +116,4 @@ const mapStateToProps = (state) => {
 	}
 };
 
-export default connect(mapStateToProps)(TopContents);
+export default connect(mapStateToProps)(TopContentsRebuffering);
