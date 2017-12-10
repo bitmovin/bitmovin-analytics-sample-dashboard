@@ -46,6 +46,7 @@ class Chart extends Component {
       const baseQuery = {
         ...props.primaryRange,
         interval: props.interval,
+        licenseKey: props.licenseKey,
         orderBy: [{ name: props.interval, order: 'ASC'}],
         filters: [...query.filters],
       };
