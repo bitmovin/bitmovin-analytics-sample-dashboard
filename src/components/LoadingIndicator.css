@@ -1,21 +1,14 @@
-@keyframes LoadingIndicator-animation {
-  from {
-    opacity: 0.6;
-    transform: scale(1);
-    filter: grayscale(68%) blur(2.1px);
-  }
-  to {
-    opacity: 0.56;
-    transform: scale(0.987);
-    filter: grayscale(70%) blur(2.3px);
-  }
+.LoadingIndicator {
+  opacity: 1;
+  transform: scale(1);
+  filter: grayscale(0) blur(0);
+  transition: all 0.1s ease-in;
 }
 
 .LoadingIndicator.loading {
-  animation-name: LoadingIndicator-animation;
-  animation-duration: 0.7s;
-  animation-direction: alternate;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in;
+  opacity: 0.5;
+  transform: scale(0.97);
+  filter: grayscale(70%) blur(2.5px);
   pointer-events: none;
+  transition: all 5s cubic-bezier(0.250, 0.460, 0.450, 0.940); /* easeOutQuad */;
 }
