@@ -4,7 +4,7 @@ import TopStats from './TopStats'
 import BrowserChart from './components/charts/technology/BrowserChart'
 import OperatingSystemChart from './components/charts/technology/OperatingSystemChart'
 import StreamFormatChart from './components/charts/technology/StreamFormatChart'
-import PlayerTechnologyChart from './components/charts/technology/PlayerTechnology'
+import PlayerTechnologyChart from './components/charts/technology/PlayerTechnologyChart'
 
 class TechnologyDashboard extends Component {
   render () {
