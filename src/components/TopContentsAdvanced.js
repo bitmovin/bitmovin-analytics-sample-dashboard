@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as impressions from '../api/metrics/impressions';
 import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
 import VideoLink from './VideoLink';
 import * as rebuffer from '../api/metrics/rebuffer';
 import * as util from '../api/util';
@@ -10,16 +11,14 @@ import * as startupdelay from '../api/metrics/startupdelay';
 import ReactPaginate from 'react-paginate';
 
 class TopContentsAdvanced extends PureComponent {
-  constructor (props) {
-    super(props);
-    this.state = {
-      topContents: [],
-      limit: 6,
-      offset: 0,
-      page: 0,
-      orderByOrder: 'DESC'
-    }
-  }
+  state = {
+    topContents: [],
+    limit: 6,
+    offset: 0,
+    page: 0,
+    orderByOrder: 'DESC',
+    loading: false,
+  };
 
 	componentDidMount () {
 		this.loadData(this.props);
@@ -30,6 +29,8 @@ class TopContentsAdvanced extends PureComponent {
 	}
 
   async loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    this.setState({ loading: true });
+
     const query = impressions.groupedQuery(props.apiKey)
       .licenseKey(props.licenseKey)
       .between(props.primaryRange.start, props.primaryRange.end)
@@ -59,48 +60,38 @@ class TopContentsAdvanced extends PureComponent {
       ]);
     });
 
-    Promise.all(videoImpressionsPromises).then(videos => {
-      const videosForState = videos.map(video => {
-        let rebufferPercentage = 0;
-        if (video[1].length > 0) {
-          rebufferPercentage = util.roundTo(video[1][0][2] * 100, 2);
-        }
+    const videos = await Promise.all(videoImpressionsPromises);
+    const videosForState = videos.map(video => {
+      console.log(video[1]);
+      const rebufferPercentage = video[1].length > 0 ? util.roundTo(video[1][0][2] * 100, 2) : 0;
+      const startuptime = video[2] ? util.roundTo(video[2], 0) : 0;
+      const errors = video[3].length > 0 ? video[3][0][0] : 0;
 
-        let startuptime = 0;
-        if (video[2]) {
-          startuptime = util.roundTo(video[2], 0);
-        }
+      return {
+        name       : video[0][0],
+        impressions: video[0][1],
+        rebufferPercentage,
+        startuptime,
+        errors
+      };
+    });
 
-        let errors = 0;
-        if (video[3].length > 0) {
-          errors = video[3][0][0];
-        }
-
-        return {
-          name       : video[0][0],
-          impressions: video[0][1],
-          rebufferPercentage,
-          startuptime,
-          errors
-        };
-      });
-
-      this.setState({
-        topContents: videosForState,
-        limit,
-        offset,
-        orderByOrder,
-        page: offset / limit
-      });
+    this.setState({
+      topContents: videosForState,
+      limit,
+      offset,
+      orderByOrder,
+      page: offset / limit,
+      loading: false,
     });
   }
 
-  toggleSorting() {
+  toggleSorting = () => {
     const orderByOrder = this.state.orderByOrder === 'DESC' ? 'ASC' : 'DESC';
     this.loadData(this.props, undefined, 0, orderByOrder);
   }
 
-  handlePageClick(pagination) {
+  handlePageClick = (pagination) => {
     const offset = this.state.limit * pagination.selected;
     this.loadData(this.props, this.state.limit, offset);
   }
@@ -135,7 +126,7 @@ class TopContentsAdvanced extends PureComponent {
         <thead>
           <tr>
             <th>Video id</th>
-            <th>Impressions <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
+            <th>Impressions <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={this.toggleSorting}></i></th>
             <th>Rebufferpercentage</th>
             <th>Startup delay</th>
             <th>Errors</th>
@@ -145,23 +136,26 @@ class TopContentsAdvanced extends PureComponent {
       </table>
       <ReactPaginate
         ref="table_pagination"
-        previousLabel={"previous"}
-        nextLabel={"next"}
+        previousLabel="previous"
+        nextLabel="next"
         pageCount={300}
         forcePage={this.state.page}
         marginPagesDisplayed={0}
         pageRangeDisplayed={0}
-        onPageChange={::this.handlePageClick}
-        containerClassName={"pagination"}
-        subContainerClassName={"pages pagination"}
-        activeClassName={"active"}/>
+        onPageChange={this.handlePageClick}
+        containerClassName="pagination"
+        subContainerClassName="pages pagination"
+        activeClassName="active"
+      />
     </div>;
   }
 
   render () {
     return (
       <Card title="Top Contents" width={ this.props.width || {md:12, sm: 12, xs: 12}} cardHeight={"480px"}>
-        {this.renderTable()}
+        <LoadingIndicator loading={this.state.loading}>
+          {this.renderTable()}
+        </LoadingIndicator>
       </Card>);
   }
 }
