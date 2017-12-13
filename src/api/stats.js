@@ -232,7 +232,7 @@ export function fetchScalingLastDays(apiKey, baseQuery = {}) {
   });
 }
 
-export function fetchVideoDetails(apiKey, videoId) {
+export async function fetchVideoDetails(apiKey, videoId) {
   const api = new Api(apiKey);
   const query = {
     dimension: 'VIDEO_DURATION',
@@ -255,24 +255,10 @@ export function fetchVideoDetails(apiKey, videoId) {
     });
   }
 
-  return new Promise((resolve) => {
-    Promise.all([api.fetchAnalytics('MAX', query)])
-    .then((results) => {
-      const result        = results[0];
-      const mpdUrl        = result[0][1];
-      const m3u8Url       = result[0][2];
-      const progUrl       = result[0][3];
-      const videoDuration = result[0][4];
+  const [result,] = await api.fetchAnalytics('MAX', query);
+  const [, mpdUrl, m3u8Url, progUrl, videoDuration] = result;
 
-      const video = {
-        mpdUrl: mpdUrl,
-        m3u8Url: m3u8Url,
-        progUrl: progUrl,
-        length: videoDuration / 1000
-      };
-      resolve(video)
-    });
-  });
+  return  { mpdUrl, m3u8Url, progUrl, length: videoDuration / 1000 };
 }
 
 

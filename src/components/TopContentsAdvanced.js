@@ -62,7 +62,6 @@ class TopContentsAdvanced extends PureComponent {
 
     const videos = await Promise.all(videoImpressionsPromises);
     const videosForState = videos.map(video => {
-      console.log(video[1]);
       const rebufferPercentage = video[1].length > 0 ? util.roundTo(video[1][0][2] * 100, 2) : 0;
       const startuptime = video[2] ? util.roundTo(video[2], 0) : 0;
       const errors = video[3].length > 0 ? video[3][0][0] : 0;

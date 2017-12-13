@@ -30,18 +30,18 @@ class ImpressionsList extends Component {
     this.loadImpressions(this.props, newOffset);
   }
 
-  async loadImpressions(props, offset) {
+  async loadImpressions({ baseQuery, primaryRange, apiKey, video, licenseKey }, offset) {
     this.setState({ loading: true });
 
     const query = {
-      ...this.props.baseQuery,
-      ...props.primaryRange,
+      ...baseQuery,
+      ...primaryRange,
       limit: this.state.limit,
       offset,
-      licenseKey: props.licenseKey
+      licenseKey,
     };
 
-    const impressions = await stats.fetchLastImpressions(props.apiKey, query, this.props.video);
+    const impressions = await stats.fetchLastImpressions(apiKey, query, video.videoId);
 
     this.setState({ offset: offset, impressions: impressions, loading: false });
   }
