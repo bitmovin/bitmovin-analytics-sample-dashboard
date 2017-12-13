@@ -41,7 +41,7 @@ class ImpressionsList extends Component {
       licenseKey,
     };
 
-    const impressions = await stats.fetchLastImpressions(apiKey, query, video.videoId);
+    const impressions = await stats.fetchLastImpressions(apiKey, query, video && video.videoId);
 
     this.setState({ offset: offset, impressions: impressions, loading: false });
   }
