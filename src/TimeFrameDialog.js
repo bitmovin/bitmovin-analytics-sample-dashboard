@@ -5,6 +5,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import { hideChangeRangeDialog, changeRange } from './actions/ranges';
 import 'react-datepicker/dist/react-datepicker.css';
+import './TimeFrameDialog.css';
 
 class TimeFrameDialog extends Component {
   handleDateChange = (attr) => (dateMoment) => {
@@ -34,8 +35,8 @@ class TimeFrameDialog extends Component {
           <Modal.Title>Change Timeframe</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="PeriodSelection-dateSelection">
-            <FormGroup controlId="PeriodSelection-fromDate">
+          <div className="TimeFrameDialog-dateSelection">
+            <FormGroup controlId="TimeFrameDialog-fromDate">
               <ControlLabel>From</ControlLabel>
               <DatePicker
                 selected={startMoment}
@@ -43,10 +44,10 @@ class TimeFrameDialog extends Component {
                 endDate={endMoment}
                 selectsStart
                 onChange={this.handleDateChange('start')}
-                id="PeriodSelection-fromDate"
+                id="TimeFrameDialog-fromDate"
               />
             </FormGroup>
-            <FormGroup controlId="PeriodSelection-toDate">
+            <FormGroup controlId="TimeFrameDialog-toDate">
               <ControlLabel>To</ControlLabel>
               <DatePicker
                 selected={endMoment}
@@ -54,7 +55,7 @@ class TimeFrameDialog extends Component {
                 endDate={endMoment}
                 selectsStart
                 onChange={this.handleDateChange('end')}
-                id="PeriodSelection-toDate"
+                id="TimeFrameDialog-toDate"
               />
             </FormGroup>
           </div>

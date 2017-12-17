@@ -1,0 +1,8 @@
+.TimeFrameDialog-dateSelection {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+#TimeFrameDialog-fromDate {
+  margin-right: 0.5rem;
+}
