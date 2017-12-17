@@ -1,35 +1,22 @@
 import React, {Component} from 'react';
-import {connect} from 'react-redux';
 import Title from 'react-title-component';
 import Sidebar from './Sidebar';
 import TimeFrameDialog from './TimeFrameDialog';
 import GitHubForkRibbon from 'react-github-fork-ribbon'
 
 class App extends Component {
-  static propTypes = {
-  }
-  navigateTo(path) {
-    this.props.navigate(path);
-  }
-  renderTimeframe() {
-    if (this.props.showChangeRangeDialog !== true) {
-      return null
-    }
-		return <TimeFrameDialog />
-  }
   toggleNavbar() {
-
     if (document.getElementsByTagName('html')[0].className === 'nav-open') {
       document.getElementsByTagName('html')[0].className = '';
     } else {
       document.getElementsByTagName('html')[0].className = 'nav-open';
     }
   }
+
   render() {
     return (
 			<div className="wrapper">
-        {this.renderTimeframe()}
-
+        <TimeFrameDialog />
         <Sidebar />
 
         <div className="main-panel perfect-scrollbar-off">
@@ -59,9 +46,4 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-	return {
-    showChangeRangeDialog: state.ranges.dialogVisible
-	}
-};
-export default connect(mapStateToProps)(App);
+export default App;
