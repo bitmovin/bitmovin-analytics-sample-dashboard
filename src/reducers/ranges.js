@@ -21,24 +21,6 @@ export default function ranges(state = defaultState, action) {
       return { ...state, dialogVisible: true }
     case actions.HIDE_CHANGE_RANGE_DIALOG:
       return { ...state, dialogVisible: false }
-    // TODO: Remove if unused
-    case actions.CHANGE_RANGE_RELATIVE:
-      const primaryRange = {
-        start: moment.utc().subtract(action.range[0], action.range[1]).endOf(action.interval).format(),
-        end: moment.utc().format()
-      };
-      const secondaryRange = {
-        start: moment.utc().subtract(action.range[0] * 2, action.range[1]).endOf(action.interval).format(),
-        end: moment.utc().subtract(action.range[0], action.range[1]).format()
-      }
-
-      return {
-        ...state,
-        name: action.name,
-        primaryRange: primaryRange,
-        secondaryRange: secondaryRange,
-        interval: action.interval
-      }
     case actions.CHANGE_RANGE: {
       // TODO: Make ranges dates instead of strings
       const { name, start, end } = { end: new Date(), ...action };

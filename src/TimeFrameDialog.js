@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import * as rangeActions from './actions/ranges';
+import { hideChangeRangeDialog, changeRange } from './actions/ranges';
 
 class TimeFrameDialog extends Component {
   render () {
@@ -40,15 +40,9 @@ class TimeFrameDialog extends Component {
 	}
 }
 
-const mapDispatchToProps = (dispatch) => {
-	return {
-    hideChangeRangeDialog: () => {
-      dispatch(rangeActions.hideChangeRangeDialog())
-    },
-    changeRange: (range) => {
-      dispatch(rangeActions.changeRange(range));
-    }
-	};
-}
+const mapDispatchToProps = (dispatch) => ({
+  hideChangeRangeDialog: () => dispatch(hideChangeRangeDialog()),
+  changeRange: range => dispatch(changeRange(range)),
+})
 
 export default connect(undefined, mapDispatchToProps)(TimeFrameDialog);
