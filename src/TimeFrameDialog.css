@@ -6,3 +6,12 @@
 #TimeFrameDialog-fromDate {
   margin-right: 0.5rem;
 }
+
+.react-datepicker {
+  font-size: 1.3rem;
+}
+
+.react-datepicker__current-month {
+  font-size: 1.3rem;
+  margin-top: -0.4rem;
+}
