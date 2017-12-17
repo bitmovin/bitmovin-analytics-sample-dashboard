@@ -8,11 +8,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 class TimeFrameDialog extends Component {
   handleDateChange = (attr) => (dateMoment) => {
-    const { start, end } = this.props.primaryRange;
-    const { changeRange, hideChangeRangeDialog } = this.props;
-    const update = { [attr]: dateMoment.toDate() };
-    const name = `${moment(start).format('L')} – ${moment(end).format('L')}`;
-    changeRange({ name, start, end, ...update });
+    const { changeRange, hideChangeRangeDialog, primaryRange } = this.props;
+    const { start, end } = primaryRange;
+    const newRanges = { start, end, [attr]: dateMoment.toDate() };
+    const name = `${moment(newRanges.start).format('D. MMM')} – ${moment(newRanges.end).format('D. MMM')}`;
+    changeRange({ name, ...newRanges });
     hideChangeRangeDialog();
   };
 
