@@ -7,15 +7,25 @@ import { hideChangeRangeDialog, changeRange } from './actions/ranges';
 import 'react-datepicker/dist/react-datepicker.css';
 import './TimeFrameDialog.css';
 
+const utcOffset = new Date().getTimezoneOffset() / 60;
+
 class TimeFrameDialog extends Component {
   handleDateChange = (attr) => (dateMoment) => {
-    const { changeRange, hideChangeRangeDialog, primaryRange } = this.props;
-    const { start, end } = primaryRange;
-    const newRanges = { start, end, [attr]: dateMoment.toDate() };
-    const name = `${moment(newRanges.start).format('D. MMM')} – ${moment(newRanges.end).format('D. MMM')}`;
-    changeRange({ name, ...newRanges });
-    hideChangeRangeDialog();
+    const { changeRange, primaryRange } = this.props;
+    const { start, end } = {
+      start: moment(primaryRange.start),
+      end: moment(primaryRange.end),
+      [attr]: dateMoment[`${attr}Of`]('day').subtract(utcOffset, 'hours'),
+    };
+    const name = `${start.utc().format('D. MMM')} – ${end.utc().format('D. MMM')}`;
+    changeRange({ name, start: start.toDate(), end: end.toDate() });
   };
+
+  changePredefinedRange = ({ name, start }) => () => {
+    const { changeRange, hideChangeRangeDialog } = this.props;
+    changeRange({ name, start });
+    hideChangeRangeDialog();
+  }
 
   render () {
     const predefinedRanges = [
@@ -27,7 +37,8 @@ class TimeFrameDialog extends Component {
     ];
     const { dialogVisible, primaryRange } = this.props;
     const { start, end } = primaryRange;
-    const [startMoment, endMoment] = [start, end].map(d => moment(d));
+    const [startMoment, endMoment] = [start, end].map(d => moment(d).add(utcOffset, 'hours'));
+    console.log(endMoment);
 
     return (
       <Modal show={dialogVisible} onHide={this.props.hideChangeRangeDialog}>
@@ -42,6 +53,7 @@ class TimeFrameDialog extends Component {
                 selected={startMoment}
                 startDate={startMoment}
                 endDate={endMoment}
+                dateFormat="D. MMM"
                 selectsStart
                 onChange={this.handleDateChange('start')}
                 id="TimeFrameDialog-fromDate"
@@ -53,6 +65,7 @@ class TimeFrameDialog extends Component {
                 selected={endMoment}
                 startDate={startMoment}
                 endDate={endMoment}
+                dateFormat="D. MMM"
                 selectsStart
                 onChange={this.handleDateChange('end')}
                 id="TimeFrameDialog-toDate"
@@ -62,7 +75,7 @@ class TimeFrameDialog extends Component {
           {predefinedRanges.map(({ name, start }) =>
           	<Button
               bsStyle="primary"
-              onClick={() => this.props.changeRange({ name, start })}
+              onClick={this.changePredefinedRange({ name, start })}
               key={name}
             >
               {name}
