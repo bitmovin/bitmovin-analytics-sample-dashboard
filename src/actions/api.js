@@ -48,13 +48,17 @@ export function createStartLoginAction() {
   };
 }
 
-const removeLoginFromLocalStorage = () => {
-  if (storageAvailable('localStorage')) {
-    let storage = window.localStorage;
-    storage.removeItem('apiKey');
-    storage.removeItem('analyticsLicenseKey');
+const withLocalStorage = (fn) => (...args) => {
+  if (!storageAvailable('localStorage')) {
+    return null
   }
+  return fn(...args);
 }
+
+const removeLoginFromLocalStorage = withLocalStorage(() => {
+  localStorage.removeItem('apiKey');
+  localStorage.removeItem('analyticsLicenseKey');
+});
 
 export const UNSET_LOGIN = 'UNSET_LOGIN';
 export function unsetApiKey() {
@@ -79,26 +83,11 @@ export const selectAnalyticsLicenseKey = (analyticsLicenseKey) => {
   }
 };
 
-export function persistLogin(apiKey) {
-  if (storageAvailable('localStorage')) {
-    const storage = window.localStorage;
-    storage.setItem('apiKey', apiKey);
-  }
-}
+export const persistLogin = withLocalStorage((apiKey) => localStorage.setItem('apiKey', apiKey));
 
-function getApiKeyFromLocalStorage() {
-  if (!storageAvailable('localStorage')) {
-    return null
-  }
-  return localStorage.getItem('apiKey');
-}
+const getApiKeyFromLocalStorage = withLocalStorage(() => localStorage.getItem('apiKey'));
 
-function getLicenseKeyFromLocalStorage() {
-  if (!storageAvailable('localStorage')) {
-    return null;
-  }
-  return localStorage.getItem('licenseKey');
-}
+const getLicenseKeyFromLocalStorage = withLocalStorage(() => localStorage.getItem('licenseKey'));
 
 function getAccountInformation(apiKey) {
   const api = new Api(apiKey)
