@@ -1,42 +1,97 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import * as rangeActions from './actions/ranges'
+import React, { Component } from 'react';
+import { Modal, Button, FormGroup, ControlLabel } from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
+import { connect } from 'react-redux';
+import { hideChangeRangeDialog, changeRange } from './actions/ranges';
+import 'react-datepicker/dist/react-datepicker.css';
+import './TimeFrameDialog.css';
+
+const utcOffset = new Date().getTimezoneOffset() / 60;
 
 class TimeFrameDialog extends Component {
-	render () {
-		return (<div>
-      <div onClick={::this.props.hideChangeRangeDialog} className="modal-backdrop fade in" style={{zIndex: 1040 }}></div>
-      <div className="modal bootstrap-dialog type-primary fade size-normal in" role="dialog" aria-hidden="true" style={{zIndex: 1250, display: 'block', paddingRight: '15px'}}>
-        <div onClick={::this.props.hideChangeRangeDialog} className="modal fade" style={{ display: 'block', opacity: 1 }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <bold>Change Timeframe</bold>
-              </div>
-              <div className="modal-body">
-                <button onClick={() => { this.props.changeRange({ name: 'Last Week', range: [7, 'days'], interval: 'DAY' }) }} className="btn btn-primary">Last Week</button>
-                <button onClick={() => { this.props.changeRange({ name: 'Last 3 Days', range: [3, 'days'], interval: 'DAY' }) }} className="btn btn-primary">Last 3 Days</button>
-                <button onClick={() => { this.props.changeRange({ name: 'Last 24 Hours', range: [1, 'days'], interval: 'HOUR' }) }} className="btn btn-primary">Last 24 Hours</button>
-                <button onClick={() => { this.props.changeRange({ name: 'Last Hour', range: [1, 'hours'], interval: 'MINUTE' }) }} className="btn btn-primary">Last Hour</button>
-                <button onClick={() => { this.props.changeRange({ name: 'Last 15 Minutes', range: [15, 'minutes'], interval: 'MINUTE' }) }} className="btn btn-primary">Last 15 Minutes</button>
-              </div>
-            </div>
+  handleDateChange = (attr) => (dateMoment) => {
+    const { changeRange, primaryRange } = this.props;
+    const { start, end } = {
+      start: moment(primaryRange.start),
+      end: moment(primaryRange.end),
+      [attr]: dateMoment[`${attr}Of`]('day').subtract(utcOffset, 'hours'),
+    };
+    const name = `${start.utc().format('D. MMM')} – ${end.utc().format('D. MMM')}`;
+    changeRange({ name, start: start.toDate(), end: end.toDate() });
+  };
+
+  changePredefinedRange = ({ name, start }) => () => {
+    const { changeRange, hideChangeRangeDialog } = this.props;
+    changeRange({ name, start });
+    hideChangeRangeDialog();
+  }
+
+  render () {
+    const predefinedRanges = [
+      { name: 'Last Week', start: moment.utc().subtract(7, 'days').endOf('day').toDate() },
+      { name: 'Last 3 Days', start: moment.utc().subtract(3, 'days').endOf('day').toDate() },
+      { name: 'Last 24 Hours', start: moment.utc().subtract(1, 'day').endOf('hour').toDate() },
+      { name: 'Last Hour', start: moment.utc().subtract(1, 'hour').endOf('minute').toDate() },
+      { name: 'Last 15 Minutes', start: moment.utc().subtract(15, 'minutes').endOf('minute').toDate() },
+    ];
+    const { dialogVisible, primaryRange } = this.props;
+    const { start, end } = primaryRange;
+    const [startMoment, endMoment] = [start, end].map(d => moment(d).add(utcOffset, 'hours'));
+    console.log(endMoment);
+
+    return (
+      <Modal show={dialogVisible} onHide={this.props.hideChangeRangeDialog}>
+        <Modal.Header>
+          <Modal.Title>Change Timeframe</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="TimeFrameDialog-dateSelection">
+            <FormGroup controlId="TimeFrameDialog-fromDate">
+              <ControlLabel>From</ControlLabel>
+              <DatePicker
+                selected={startMoment}
+                startDate={startMoment}
+                endDate={endMoment}
+                dateFormat="D. MMM"
+                selectsStart
+                onChange={this.handleDateChange('start')}
+                id="TimeFrameDialog-fromDate"
+              />
+            </FormGroup>
+            <FormGroup controlId="TimeFrameDialog-toDate">
+              <ControlLabel>To</ControlLabel>
+              <DatePicker
+                selected={endMoment}
+                startDate={startMoment}
+                endDate={endMoment}
+                dateFormat="D. MMM"
+                selectsStart
+                onChange={this.handleDateChange('end')}
+                id="TimeFrameDialog-toDate"
+              />
+            </FormGroup>
           </div>
-        </div>
-      </div>
-    </div>)
+          {predefinedRanges.map(({ name, start }) =>
+          	<Button
+              bsStyle="primary"
+              onClick={this.changePredefinedRange({ name, start })}
+              key={name}
+            >
+              {name}
+            </Button>
+          )}
+        </Modal.Body>
+      </Modal>
+    );
 	}
 }
 
-const mapDispatchToProps = (dispatch) => {
-	return {
-    hideChangeRangeDialog: () => {
-      dispatch(rangeActions.hideChangeRangeDialog())
-    },
-    changeRange: (range) => {
-      dispatch(rangeActions.changeRangeRelative(range));
-    }
-	};
-}
+const mapStateToProps = ({ ranges }) => ranges;
 
-export default connect(undefined, mapDispatchToProps)(TimeFrameDialog);
+const mapDispatchToProps = (dispatch) => ({
+  hideChangeRangeDialog: () => dispatch(hideChangeRangeDialog()),
+  changeRange: range => dispatch(changeRange(range)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TimeFrameDialog);
