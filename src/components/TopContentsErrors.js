@@ -2,19 +2,18 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import * as errors from '../api/metrics/errors';
 import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
 import VideoLink from './VideoLink';
 import ReactPaginate from 'react-paginate';
 
 class TopContentsErrors extends PureComponent {
-  constructor (props) {
-    super(props);
-    this.state = {
-      topContents: [],
-      limit: 6,
-      offset: 0,
-      page: 0,
-      orderByOrder: 'DESC'
-    }
+  state = {
+    topContents: [],
+    limit: 6,
+    offset: 0,
+    page: 0,
+    orderByOrder: 'DESC',
+    loading: false,
   }
 
 	componentDidMount () {
@@ -25,7 +24,9 @@ class TopContentsErrors extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+  async loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+    this.setState({ loading: true });
+
     const errorsQuery = {
       ...props.primaryRange,
       groupBy: ['VIDEO_ID'],
@@ -35,32 +36,31 @@ class TopContentsErrors extends PureComponent {
       licenseKey: props.licenseKey
     };
 
-    errors.errorsByVideo(props.apiKey, errorsQuery).then((data) => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          topContents: data,
-          limit,
-          offset,
-          orderByOrder,
-          page: offset / limit
-        };
-      });
+    const topContents = await errors.errorsByVideo(props.apiKey, errorsQuery);
+
+    this.setState({
+      topContents,
+      limit,
+      offset,
+      orderByOrder,
+      page: offset / limit,
+      loading: false,
     });
   }
 
-  toggleSorting() {
+  toggleSorting = () => {
     const orderByOrder = this.state.orderByOrder === 'DESC' ? 'ASC' : 'DESC';
     this.loadData(this.props, undefined, 0, orderByOrder);
   }
 
-  handlePageClick(pagination) {
+  handlePageClick = (pagination) => {
     const offset = this.state.limit * pagination.selected;
     this.loadData(this.props, this.state.limit, offset);
   }
 
   renderTable () {
-    const rows = this.state.topContents.map((video, index) =>
+    const { loading, topContents, page } = this.state;
+    const rows = topContents.map((video, index) =>
       <tr key={index}>
         <td>
           <VideoLink videoId={video[0]} />
@@ -72,29 +72,32 @@ class TopContentsErrors extends PureComponent {
     if (rows.length > 0) {
       tbody = <tbody>{rows}</tbody>;
     }
-    return <div>
-    <table className="table table-hover">
-        <thead>
-          <tr>
-            <th>Video id</th>
-            <th>Errors <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
-          </tr>
-        </thead>
-        {tbody}
-      </table>
-      <ReactPaginate
+    return (
+      <LoadingIndicator loading={loading}>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Video id</th>
+              <th>Errors <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={this.toggleSorting}></i></th>
+            </tr>
+          </thead>
+          {tbody}
+        </table>
+        <ReactPaginate
           ref="table_pagination"
-          previousLabel={"previous"}
-          nextLabel={"next"}
+          previousLabel="previous"
+          nextLabel="next"
           pageCount={300}
-          forcePage={this.state.page}
+          forcePage={page}
           marginPagesDisplayed={0}
           pageRangeDisplayed={0}
-          onPageChange={::this.handlePageClick}
-          containerClassName={"pagination"}
-          subContainerClassName={"pages pagination"}
-          activeClassName={"active"}/>
-    </div>;
+          onPageChange={this.handlePageClick}
+          containerClassName="pagination"
+          subContainerClassName="pages pagination"
+          activeClassName="active"
+        />
+      </LoadingIndicator>
+    );
   }
 
   render () {

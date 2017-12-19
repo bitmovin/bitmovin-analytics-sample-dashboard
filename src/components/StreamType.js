@@ -1,23 +1,16 @@
-import React, { Component } from 'react'
-import {connect} from 'react-redux'
-import * as stats from '../api/stats'
-import ReactHighcharts from 'react-highcharts'
-import Card from './Card'
+import React, { Component } from 'react';
+import {connect} from 'react-redux';
+import * as stats from '../api/stats';
+import ReactHighcharts from 'react-highcharts';
+import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
 
 class StreamType extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      vodSeries: {
-        data: [],
-        name: 'VOD'
-      },
-      liveSeries: {
-        data: [],
-        name: 'Live'
-      }
-    }
-  }
+  state = {
+    vodSeriesData: [],
+    liveSeriesData: [],
+    loading: false,
+  };
 
   componentDidMount () {
     this.loadData(this.props);
@@ -26,7 +19,9 @@ class StreamType extends Component {
     this.loadData(nextProps);
   }
 
-  loadData(props) {
+  async loadData(props) {
+    this.setState({ loading: true });
+
     const baseQuery = {
       ...props.primaryRange,
       interval: props.interval,
@@ -34,30 +29,14 @@ class StreamType extends Component {
       licenseKey: props.licenseKey
     };
 
-    stats.fetchStreamTypesLastDays(this.props.apiKey, baseQuery).then((streamTypes) => {
-      this.setState(prevState => {
-        const convertResultToSeriesData = (series) => {
-          return series.map(row => {
-            return [row[0], row[1]];
-          })
-        };
+    const [vodSeriesData, liveSeriesData] = await stats.fetchStreamTypesLastDays(this.props.apiKey, baseQuery);
 
-        return {
-          ...prevState,
-          vodSeries: {
-            ...prevState.vodSeries,
-            data: convertResultToSeriesData(streamTypes[0])
-          },
-          liveSeries: {
-            ...prevState.liveSeries,
-            data: convertResultToSeriesData(streamTypes[1])
-          }
-        }
-      });
-    });
-
+    this.setState({ vodSeriesData, liveSeriesData, loading: false });
   }
+
   render () {
+    const { vodSeriesData, liveSeriesData, loading } = this.state;
+
     const chartConfig = {
       chart: {
         type: 'spline'
@@ -85,13 +64,20 @@ class StreamType extends Component {
           text: 'Impressions'
         }
       },
-      series: [this.state.vodSeries, this.state.liveSeries],
+      plotOptions: {
+        series: {
+          animation: !loading && { duration: 2000 },
+        },
+      },
+      series: [{ name: 'VOD', data: vodSeriesData }, { name: 'Live', data: liveSeriesData }],
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
     return (
     <Card title="Stream Type" width={{md:12, sm: 12, xs: 12}}>
-      <ReactHighcharts config={chartConfig}/>
+      <LoadingIndicator loading={loading}>
+        <ReactHighcharts config={chartConfig}/>
+      </LoadingIndicator>
     </Card>
     );
   }

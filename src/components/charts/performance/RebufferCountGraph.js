@@ -7,19 +7,19 @@ import * as rebuffer from '../../../api/metrics/rebuffer'
 import * as formats from '../../../formats'
 
 class RebufferCountGraph extends Component {
-  constructor (props) {
-    super(props);
-    this.state = {
-      series: []
-    }
-  }
+  state = {
+    series: [],
+  };
+
 	componentDidMount () {
 		this.loadData(this.props);
 	}
+
 	componentWillReceiveProps (nextProps) {
 		this.loadData(nextProps);
 	}
-  loadData (props) {
+
+  async loadData (props) {
     const convertResultToBufferedSeries = (results) => {
       results.sort((a,b) => { return a[0] - b[0]; });
       return results.map(row => {
@@ -28,24 +28,19 @@ class RebufferCountGraph extends Component {
         return [ts, val];
       });
     }
-    Promise.all([
-      rebuffer.rebufferPercentageOverTime(props.apiKey, { ...props.primaryRange, interval: props.interval })
-    ]).then(results => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          series: [{
-            name: 'Rebuffer Percentage ' + props.rangeName,
-            type: 'spline',
-            data: convertResultToBufferedSeries(results[0])
-          }]
-        }
-      })
+    const results = await rebuffer.rebufferPercentageOverTime(
+      props.apiKey,
+      { ...props.primaryRange, interval: props.interval }
+    );
+    this.setState({
+      series: [{
+        name: 'Rebuffer Percentage ' + props.rangeName,
+        type: 'spline',
+        data: convertResultToBufferedSeries(results[0])
+      }]
     })
   }
-  getSeries() {
-    return this.state.series;
-  }
+
   chartConfig () {
     return {
       chart: {
@@ -74,11 +69,12 @@ class RebufferCountGraph extends Component {
       tooltip    : {
         crosshairs: true
       },
-      series: this.getSeries(),
+      series: this.state.series,
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
   }
+
   render () {
     return <div>
       <Card cardHeight="auto" title="Rebuffer Percentage" width={this.props.width || { sm: 6, md: 6, xs: 12}}>

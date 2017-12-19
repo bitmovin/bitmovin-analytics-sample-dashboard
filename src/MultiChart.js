@@ -1,10 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ReactHighcharts from 'react-highcharts'
-import Card from './components/Card'
-import FiltersDialog from './FiltersDialog'
+import ReactHighcharts from 'react-highcharts';
+import Card from './components/Card';
+import LoadingIndicator from './components/LoadingIndicator';
+import FiltersDialog from './FiltersDialog';
 
-class Chart extends Component {
+class MultiChart extends Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     width: PropTypes.object,
@@ -13,28 +14,32 @@ class Chart extends Component {
     defaultSeriesName: PropTypes.string.isRequired,
     yAxisTitle: PropTypes.string
   };
-  constructor(props) {
-    super(props);
-    this.state = {
-      queries: [{
-        name: props.defaultSeriesName,
-        filters: []
-      }],
-      series: [{
-        name: props.defaultSeriesName,
-        data: []
-      }],
-      showFiltersDialog: false
-    }
+
+  state = {
+    queries: [{
+      name: this.props.defaultSeriesName,
+      filters: []
+    }],
+    series: [{
+      name: this.props.defaultSeriesName,
+      data: []
+    }],
+    showFiltersDialog: false,
+    loading: false,
   }
+
   componentDidMount () {
     this.loadData(this.props, this.state.queries);
   }
+
   componentWillReceiveProps (nextProps) {
     this.loadData(nextProps, this.state.queries);
   }
-  loadData(props, queries) {
-    Promise.all(queries.map(query => {
+
+  async loadData(props, queries) {
+    this.setState({ loading: true });
+
+    const results = await Promise.all(queries.map(query => {
       const baseQuery = {
         ...props.primaryRange,
         interval: props.interval,
@@ -44,42 +49,29 @@ class Chart extends Component {
       };
 
       return props.dataFunction(props.apiKey, query.name, baseQuery)
-    })).then((results) => {
-      let series = results.map(res => {
-        return res.map(s => {
-          return this.props.convertResultToSeries(s.name, props.interval, s.data);
-        });
-      });
-      series = Array.prototype.concat(...series);
+    }))
 
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          showFiltersDialog: false,
-          queries,
-          series
-        }
-      });
-    });
+    const series = results
+      .map(res => res.map(s => this.props.convertResultToSeries(s.name, props.interval, s.data)))
+      .reduce((allSeries, s) => [...allSeries, ...s], []);
+
+    this.setState({ showFiltersDialog: false, series, loading: false });
   }
-  showFiltersDialog() {
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        showFiltersDialog: true
-      }
-    });
-  }
-  callback(queries) {
-    this.loadData(this.props, queries);
-  }
+
+  showFiltersDialog = () => this.setState({ showFiltersDialog: true });
+
+  callback = (queries) => this.loadData(this.props, queries);
+
   renderFilters() {
-    if (this.state.showFiltersDialog !== true) {
+    if (!this.state.showFiltersDialog) {
       return null
     }
-    return <FiltersDialog callback={::this.callback} queries={this.state.queries}/>
+    return <FiltersDialog callback={this.callback} queries={this.state.queries}/>
   }
+
   render () {
+    const { loading } = this.state;
+
     const chartConfig = {
       chart: {
         height: this.props.height
@@ -107,22 +99,27 @@ class Chart extends Component {
           text: this.props.yAxisTitle || ''
         }
       },
+      plotOptions: {
+        series: {
+          animation: !loading && { duration: 2000 },
+        },
+      },
       series: this.state.series,
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
     return (
       <Card title={this.props.title} width={this.props.width || { md:12, sm: 12, xs: 12}} fixedHeight={false} cardHeight="auto">
-        <div>
+        <LoadingIndicator loading={loading}>
           <div>
-            <a className="btn btn-info filters-button" onClick={::this.showFiltersDialog}>
+            <a className="btn btn-info filters-button" onClick={this.showFiltersDialog}>
               <i className="fa fa-filter"></i>
               <span>Filters</span>
             </a>
             {this.renderFilters()}
           </div>
           <ReactHighcharts config={chartConfig}/>
-        </div>
+        </LoadingIndicator>
       </Card>);
   }
 }
@@ -138,4 +135,4 @@ const mapStateToProps = (state) => {
   }
 };
 
-export default connect(mapStateToProps)(Chart);
+export default connect(mapStateToProps)(MultiChart);

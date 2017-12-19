@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import ReactHighcharts from 'react-highcharts';
 import Card from './Card';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingIndicator from './LoadingIndicator';
 import * as impressions from '../api/metrics/impressions';
 
 class VideoImpressionsChart extends Component {
@@ -10,14 +10,10 @@ class VideoImpressionsChart extends Component {
     videoId: PropTypes.string
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      impressionSeries: {
-        data: []
-      }
-    }
-  }
+  state = {
+    data: [],
+    loading: false,
+  };
 
   componentDidMount () {
     this.loadData(this.props);
@@ -28,6 +24,8 @@ class VideoImpressionsChart extends Component {
   }
 
   async loadData({ apiKey, licenseKey, primaryRange, interval, videoId, name }) {
+    this.setState({ loading: true });
+
     let query = impressions.groupedQuery(apiKey)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
@@ -39,18 +37,14 @@ class VideoImpressionsChart extends Component {
     }
 
     const { rows } = await query.query();
+    const data = rows.map(row => row.slice(0, 2));
 
-    const seriesData = rows.map(row => row.slice(0, 2));
-    this.setState({
-      impressionSeries: [{
-        data: seriesData,
-        type: 'spline',
-        name
-      }]
-    });
+    this.setState({ data, loading: false });
   }
 
   render() {
+    const { data, loading } = this.state;
+    const { name } = this.props;
     const chartConfig = {
       title : {
         text: ''
@@ -71,14 +65,21 @@ class VideoImpressionsChart extends Component {
           text: 'Impressions'
         }
       },
-      series: this.state.impressionSeries,
+      plotOptions: {
+        series: {
+          animation: !this.state.loading && { duration: 2000 },
+        },
+      },
+      series: [{ name, type: 'spline', data }],
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
     return (
-    <Card title="Impressions" width={{md:12, sm: 12, xs: 12}} fixedHeight={false}>
-      { this.props.isLoading ? <LoadingSpinner /> : <ReactHighcharts config={chartConfig}/>}
-    </Card>
+      <Card title="Impressions" width={{md:12, sm: 12, xs: 12}} fixedHeight={false}>
+        <LoadingIndicator loading={loading}>
+          <ReactHighcharts config={chartConfig}/>
+        </LoadingIndicator>
+      </Card>
     );
   }
 }

@@ -2,23 +2,19 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import * as stats from '../api/stats';
 import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
 import {push} from 'react-router-redux';
 import ReactPaginate from 'react-paginate';
 
-class VideoInspection extends Component {
+class ImpressionsList extends Component {
   static propTypes = {
     baseQuery: React.PropTypes.object
   };
 
-  constructor(props) {
-    super(props);
-    this.syncTimeout = null;
-
-    this.state = {
-      limit: 20,
-      offset: 0,
-      impressions: []
-    };
+  state = {
+    limit: 20,
+    offset: 0,
+    impressions: []
   }
 
   componentDidMount () {
@@ -29,32 +25,30 @@ class VideoInspection extends Component {
     this.loadImpressions(nextProps, this.state.offset);
   }
 
-  handlePageClick(pagination) {
+  handlePageClick = (pagination) => {
     const newOffset = pagination.selected * this.state.limit;
     this.loadImpressions(this.props, newOffset);
   }
 
-  loadImpressions(props, offset) {
+  async loadImpressions({ baseQuery, primaryRange, apiKey, video, licenseKey }, offset) {
+    this.setState({ loading: true });
+
     const query = {
-      ...this.props.baseQuery,
-      ...props.primaryRange,
+      ...baseQuery,
+      ...primaryRange,
       limit: this.state.limit,
       offset,
-      licenseKey: props.licenseKey
+      licenseKey,
     };
-    stats.fetchLastImpressions(props.apiKey, query, this.props.video).then(impressions => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          offset: offset,
-          impressions: impressions
-        }
-      })
-    });
+
+    const impressions = await stats.fetchLastImpressions(apiKey, query, video && video.videoId);
+
+    this.setState({ offset: offset, impressions: impressions, loading: false });
   }
 
   render () {
-    const rows = this.state.impressions.map((impression, index) => {
+    const { impressions, loading } = this.state;
+    const rows = impressions.map((impression, index) => {
       return <tr onClick={() => { this.props.openImpression(impression.impression_id); }}
                  key={index}
                  className="impression-row">
@@ -71,7 +65,7 @@ class VideoInspection extends Component {
       <div>
         <div className="row">
           <Card title={this.props.title} width={{md:12, sm: 12, xs: 12}} cardHeight="auto">
-            <div>
+            <LoadingIndicator loading={loading}>
               <table className="table table-hover" style={{width:"100%"}}>
                 <thead className="text-warning">
                 <tr>
@@ -88,16 +82,18 @@ class VideoInspection extends Component {
                   {rows}
                 </tbody>
               </table>
-            <ReactPaginate previousLabel={"previous"}
-                           nextLabel={"next"}
-                           pageCount={300}
-                           marginPagesDisplayed={0}
-                           pageRangeDisplayed={0}
-                           onPageChange={::this.handlePageClick}
-                           containerClassName={"pagination"}
-                           subContainerClassName={"pages pagination"}
-                           activeClassName={"active"} />
-            </div>
+              <ReactPaginate
+                previousLabel="previous"
+                nextLabel="next"
+                pageCount={300}
+                marginPagesDisplayed={0}
+                pageRangeDisplayed={0}
+                onPageChange={this.handlePageClick}
+                containerClassName="pagination"
+                subContainerClassName="pages pagination"
+                activeClassName="active"
+              />
+          </LoadingIndicator>
           </Card>
         </div>
       </div>
@@ -122,4 +118,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoInspection);
+export default connect(mapStateToProps, mapDispatchToProps)(ImpressionsList);

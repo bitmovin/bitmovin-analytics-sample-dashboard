@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
 import * as startupDelay from '../api/metrics/startupdelay';
 import {push} from 'react-router-redux';
 import moment from 'moment';
@@ -8,18 +9,16 @@ import ReactPaginate from 'react-paginate';
 import * as util from '../api/util';
 import { shortenString } from '../utils';
 
-class DelaySessions extends Component {
+class DelaySessionsList extends Component {
   static propTypes = {
     width: PropTypes.object
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      limit: 20,
-      offset: 0,
-      sessions: []
-    }
+  state = {
+    limit: 20,
+    offset: 0,
+    sessions: [],
+    loading: false,
   }
 
   componentDidMount () {
@@ -30,34 +29,27 @@ class DelaySessions extends Component {
     this.loadDelayedSessions(nextProps, this.state.offset);
   }
 
-  handlePageClick(pagination) {
+  handlePageClick = (pagination) => {
     const newOffset = pagination.selected * this.state.limit;
     this.loadDelayedSessions(this.props, newOffset);
   }
 
-  loadDelayedSessions(props, offset) {
+  async loadDelayedSessions(props, offset) {
+    this.setState({ loading: true });
+
     const baseQuery = {
       ...props.primaryRange,
       licenseKey: props.licenseKey
     };
 
-    startupDelay.delayedSessions(props.apiKey, baseQuery, this.state.limit, offset).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          offset: offset,
-          sessions: data
-        };
-      })
-    });
+    const data = await startupDelay.delayedSessions(props.apiKey, baseQuery, this.state.limit, offset);
+
+    this.setState({ offset: offset, sessions: data, loading: false });
   }
 
   render () {
     const getInfo = (rows) => {
-      let playedSum = 0;
-      for (let i = 0; i < rows.length; i++) {
-        playedSum += rows[i].played;
-      }
+      const playedSum = rows.reduce((sum, { played }) => sum + played, 0);
 
       let completionRate;
       if (rows[0].video_duration === null) {
@@ -98,37 +90,41 @@ class DelaySessions extends Component {
         <td>{info.completionRate}</td>
         </tr>
     });
-    return <Card title="Sessions delayed" width={this.props.width || { md: 4, sm: 4, xs: 12 }} cardHeight="auto">
-      <div>
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th className="col-md-1">Time</th>
-              <th className="col-md-3">Page</th>
-              <th className="col-md-2">Played Video</th>
-              <th className="col-md-1">Location</th>
-              <th className="col-md-1">Operating System</th>
-              <th className="col-md-1">Browser</th>
-              <th className="col-md-1">Startup Delay</th>
-              <th className="col-md-1">Time Delayed</th>
-              <th className="col-md-1">Completion Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions}
-          </tbody>
-        </table>
-        <ReactPaginate previousLabel={"previous"}
-                       nextLabel={"next"}
-                       pageCount={300}
-                       marginPagesDisplayed={0}
-                       pageRangeDisplayed={0}
-                       onPageChange={::this.handlePageClick}
-                       containerClassName={"pagination"}
-                       subContainerClassName={"pages pagination"}
-                       activeClassName={"active"} />
-      </div>
-    </Card>
+    return (
+      <Card title="Sessions delayed" width={this.props.width || { md: 4, sm: 4, xs: 12 }} cardHeight="auto">
+        <LoadingIndicator loading={this.state.loading}>
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th className="col-md-1">Time</th>
+                <th className="col-md-3">Page</th>
+                <th className="col-md-2">Played Video</th>
+                <th className="col-md-1">Location</th>
+                <th className="col-md-1">Operating System</th>
+                <th className="col-md-1">Browser</th>
+                <th className="col-md-1">Startup Delay</th>
+                <th className="col-md-1">Time Delayed</th>
+                <th className="col-md-1">Completion Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions}
+            </tbody>
+          </table>
+          <ReactPaginate
+            previousLabel="previous"
+            nextLabel="next"
+            pageCount={300}
+            marginPagesDisplayed={0}
+            pageRangeDisplayed={0}
+            onPageChange={this.handlePageClick}
+            containerClassName="pagination"
+            subContainerClassName="pages pagination"
+            activeClassName="active"
+          />
+        </LoadingIndicator>
+      </Card>
+    );
   }
 }
 
@@ -149,4 +145,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DelaySessions);
+export default connect(mapStateToProps, mapDispatchToProps)(DelaySessionsList);

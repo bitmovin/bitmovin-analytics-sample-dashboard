@@ -1,24 +1,21 @@
-import React, { Component, PropTypes } from 'react'
-import {connect} from 'react-redux'
-import * as stats from '../../../api/stats'
-import ReactHighcharts from 'react-highcharts'
-import Card from '../../Card'
-import _ from 'underscore'
+import React, { Component, PropTypes } from 'react';
+import {connect} from 'react-redux';
+import * as stats from '../../../api/stats';
+import ReactHighcharts from 'react-highcharts';
+import Card from '../../Card';
+import LoadingIndicator from '../../LoadingIndicator';
+import _ from 'underscore';
 
-class Scaling extends Component {
+class ScalingGrouped extends Component {
   static propTypes = {
     grouping: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired
   }
-  constructor(props) {
-    super(props);
-    this.state = {
-      scalingSeries: {
-        data: [],
-        name: 'Scaling percentage'
-      }
-    }
-  }
+
+  state = {
+    series: [],
+    loading: false,
+  };
 
   componentDidMount () {
     this.loadData(this.props);
@@ -28,7 +25,9 @@ class Scaling extends Component {
     this.loadData(nextProps);
   }
 
-  loadData(props) {
+  async loadData(props) {
+    this.setState({ loading: true });
+
     const query = {
       ...props.range,
       interval: props.interval,
@@ -36,36 +35,21 @@ class Scaling extends Component {
       licenseKey: props.licenseKey
     };
 
-    stats.fetchScalingLastDays(this.props.apiKey, query).then((scaling) => {
-      scaling = scaling.map((row) => {
-        row[2] = Math.round(row[2] * 100);
-        return row;
-      });
-      scaling = _.groupBy(scaling, (row) => {
-        return row[1];
-      })
-      const series = [];
-      for (let os of Object.keys(scaling)) {
-        const s = {
-          name: os,
-          type: 'spline',
-          data: scaling[os].map(row => {
-            return [row[0], row[2]];
-          })
-        };
-        series.push(s);
-      }
+    const scaling = await stats.fetchScalingLastDays(this.props.apiKey, query);
+    const groups = [...new Set(scaling.map(row => row[1]))];
+    const series = groups.map(group => {
+      const rows = scaling.filter(row => row[1] === group);
+      return {
+        name: group,
+        data: rows.map(row => [row[0], Math.round(row[2] * 100)])
+      };
+    })
 
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          scalingSeries: series
-        }
-      });
-    });
-
+    this.setState({ series, loading: false });
   }
   render () {
+    const { series, loading } = this.state;
+
     const chartConfig = {
       chart: {
         height: this.props.height
@@ -93,18 +77,25 @@ class Scaling extends Component {
           text: 'Percent'
         }
       },
-      series: this.state.scalingSeries,
+      plotOptions: {
+        series: {
+          animation: !loading && { duration: 2000 },
+        },
+      },
+      series: series.map(s => ({ ...s, type: 'spline' })),
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
     return (
-    <Card title={this.props.title} width={this.props.width || {md:6, sm: 6, xs: 12}} cardHeight="auto">
-      <div className="x_content">
-        <div className="dashboard-widget-content">
-          <ReactHighcharts config={chartConfig}/>
-        </div>
-      </div>
-    </Card>
+      <Card title={this.props.title} width={this.props.width || {md:6, sm: 6, xs: 12}} cardHeight="auto">
+        <LoadingIndicator loading={loading}>
+          <div className="x_content">
+            <div className="dashboard-widget-content">
+              <ReactHighcharts config={chartConfig}/>
+            </div>
+          </div>
+        </LoadingIndicator>
+      </Card>
     );
   }
 }
@@ -118,4 +109,4 @@ const mapStateToProps = (state) => {
   }
 };
 
-export default connect(mapStateToProps)(Scaling);
+export default connect(mapStateToProps)(ScalingGrouped);

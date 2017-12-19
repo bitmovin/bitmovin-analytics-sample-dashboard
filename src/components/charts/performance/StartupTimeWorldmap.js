@@ -1,9 +1,10 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux';
-import Card from '../../Card'
-import ReactHighmaps from 'react-highcharts/ReactHighmaps.src'
-import mapdata from '../../../mapdata/world'
-import * as startupdelay from '../../../api/metrics/startupdelay'
+import Card from '../../Card';
+import LoadingIndicator from '../../LoadingIndicator';
+import ReactHighmaps from 'react-highcharts/ReactHighmaps.src';
+import mapdata from '../../../mapdata/world';
+import * as startupdelay from '../../../api/metrics/startupdelay';
 import ReactPaginate from 'react-paginate';
 
 class StartupTimeWorldmap extends Component {
@@ -11,18 +12,16 @@ class StartupTimeWorldmap extends Component {
     width: PropTypes.object
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      data: [],
-      tableData: [],
-      limit: 7,
-      offset: 0,
-      pageCount: 0,
-      page: 0,
-      orderByOrder: 'DESC'
-    }
-  }
+  state = {
+    data: [],
+    tableData: [],
+    limit: 7,
+    offset: 0,
+    pageCount: 0,
+    page: 0,
+    orderByOrder: 'DESC',
+    loading: false,
+  };
 
   componentDidMount () {
 		this.loadData(this.props);
@@ -32,69 +31,51 @@ class StartupTimeWorldmap extends Component {
 		this.loadData(nextProps);
 	}
 
-  loadData (props) {
+  async loadData (props) {
+    this.setState({ loading: true });
+
     const baseQuery = {
       ...props.primaryRange,
       licenseKey: props.licenseKey
     };
 
-    startupdelay.videoStartupTimeByCountry(props.apiKey, baseQuery).then((data) => {
-      this.setState(prevState => {
-        const newData = data.map(row => {
-          return {
-            'hc-key': row[0].toLowerCase(),
-            value: Math.round(row[1])
-          };
-        });
-        const tableData = data.sort((a, b) => {
-          return b[1] - a[1];
-        });
-        return {
-          ...prevState,
-          data: newData,
-          tableData,
-          pageCount: Math.ceil(tableData.length / prevState.limit)
-        };
-      });
-    });
+    const data = await startupdelay.videoStartupTimeByCountry(props.apiKey, baseQuery)
+    const newData = data.map(row => ({
+      'hc-key': row[0].toLowerCase(),
+      value: Math.round(row[1])
+    }));
+    const tableData = data.sort((a, b) => b[1] - a[1]);
+
+    this.setState(prevState => ({
+      data: newData,
+      tableData,
+      pageCount: Math.ceil(tableData.length / prevState.limit),
+      loading: false,
+    }));
   }
 
-  toggleSorting() {
-    let sorting = (a, b) => {
-      return a[1] - b[1];
-    };
-    if (this.state.orderByOrder === 'ASC') {
-      sorting = (a, b) => {
-        return b[1] - a[1];
-      }
+  toggleSorting = () => {
+    const { orderByOrder } = this.state;
+
+    let sorting = (a, b) => a[1] - b[1];
+    if (orderByOrder === 'ASC') {
+      sorting = (a, b) => b[1] - a[1];
     }
 
-    const tableData = this.state.tableData.sort((a, b) => {
-      return sorting(a, b);
+    const tableData = this.state.tableData.sort(sorting);
+
+    this.setState({
+      tableData,
+      orderByOrder: orderByOrder === 'DESC' ? 'ASC' : 'DESC',
+      offset: 0,
+      page: 0,
     });
-
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        tableData,
-        orderByOrder: prevState.orderByOrder==='DESC'?'ASC':'DESC',
-        offset: 0,
-        page: 0
-      }
-    })
   }
 
-  handlePageClick(pagination) {
+  handlePageClick = (pagination) => {
     const offset = this.state.limit * pagination.selected;
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        offset,
-        page: pagination.selected
-      }
-    })
+    this.setState({ offset, page: pagination.selected });
   }
-
 
   renderTable () {
     const top = this.state.tableData.slice(this.state.offset, this.state.offset + this.state.limit);
@@ -107,7 +88,7 @@ class StartupTimeWorldmap extends Component {
           <thead>
           <tr>
             <th>Country</th>
-            <th>Average Startup Delay <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
+            <th>Average Startup Delay <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={this.toggleSorting}></i></th>
           </tr>
           </thead>
           <tbody>
@@ -122,10 +103,11 @@ class StartupTimeWorldmap extends Component {
           forcePage={this.state.page}
           marginPagesDisplayed={0}
           pageRangeDisplayed={0}
-          onPageChange={::this.handlePageClick}
+          onPageChange={this.handlePageClick}
           containerClassName={"pagination"}
           subContainerClassName={"pages pagination"}
-          activeClassName={"active"}/>
+          activeClassName={"active"}
+        />
       </div>);
   }
 
@@ -159,16 +141,16 @@ class StartupTimeWorldmap extends Component {
   }
   render () {
     return (
-    <Card title="Median startup time by country" width={this.props.width || { md: 12, sm: 12, xs: 12 }}>
-      <div>
-        <div className="col-md-6 col-sm-6 col-xs-12">
-          { this.renderTable() }
-        </div>
-        <div className="col-md-6 col-sm-6 col-xs-12">
-          { this.renderChart() }
-        </div>
-      </div>
-    </Card>
+      <Card title="Median startup time by country" width={this.props.width || { md: 12, sm: 12, xs: 12 }}>
+        <LoadingIndicator loading={this.state.loading}>
+          <div className="col-md-6 col-sm-6 col-xs-12">
+            { this.renderTable() }
+          </div>
+          <div className="col-md-6 col-sm-6 col-xs-12">
+            { this.renderChart() }
+          </div>
+        </LoadingIndicator>
+      </Card>
     );
   }
 }

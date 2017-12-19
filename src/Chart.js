@@ -1,8 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import ReactHighcharts from 'react-highcharts'
-import Card from './components/Card'
-import FiltersDialog from './FiltersDialog'
+import ReactHighcharts from 'react-highcharts';
+import Card from './components/Card';
+import FiltersDialog from './FiltersDialog';
+import LoadingIndicator from './components/LoadingIndicator';
 
 class Chart extends Component {
   static propTypes = {
@@ -17,48 +18,48 @@ class Chart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      queries: [{
-        name: props.defaultSeriesName,
-        filters: []
-      }],
       series: [{
         name: props.defaultSeriesName,
         data: []
       }],
-      showFiltersDialog: false
+      showFiltersDialog: false,
+      loading: false,
     }
   }
+
+  defaultQueries = () => [{
+    name: this.props.defaultQueriesName,
+    filters: []
+  }];
+
   componentDidMount () {
-    this.loadData(this.props, this.state.queries);
+    this.loadData(this.props, this.defaultQueries());
   }
+
   componentWillReceiveProps (nextProps) {
-    this.loadData(nextProps, this.state.queries);
+    this.loadData(nextProps, this.defaultQueries());
   }
-  loadData(props, queries) {
-    Promise.all(queries.map(query => {
+
+  async loadData(props, queries) {
+    this.setState({ loading: true });
+    const results = await Promise.all(queries.map(query => {
       const baseQuery = {
         ...props.primaryRange,
         interval: props.interval,
+        licenseKey: props.licenseKey,
         orderBy: [{ name: props.interval, order: 'ASC'}],
         filters: [...query.filters],
       };
 
       return props.dataFunction(props.apiKey, query.name, baseQuery)
 
-    })).then((results) => {
-      const series = results.map(series => {
-        return this.props.convertResultToSeries(series.name, props.interval, series.data);
-      });
+    }));
 
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          showFiltersDialog: false,
-          queries,
-          series
-        }
-      });
+    const series = results.map(series => {
+      return this.props.convertResultToSeries(series.name, props.interval, series.data);
     });
+
+    this.setState({ showFiltersDialog: false, loading: false, series });
   }
   showFiltersDialog() {
     this.setState(prevState => {
@@ -75,12 +76,13 @@ class Chart extends Component {
     if (this.state.showFiltersDialog !== true) {
       return null
     }
-    return <FiltersDialog callback={::this.callback} queries={this.state.queries}/>
+    return <FiltersDialog callback={::this.callback} queries={this.defaultQueries()}/>
   }
   render () {
+    const { series, loading } = this.state;
     const chartConfig = {
       chart: {
-        height: this.props.height
+        height: this.props.height,
       },
       title : {
         text: ''
@@ -106,7 +108,12 @@ class Chart extends Component {
           text: this.props.yAxisTitle || ''
         }
       },
-      series: this.state.series,
+      plotOptions: {
+        series: {
+          animation: !loading && { duration: 2000 },
+        },
+      },
+      series,
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
@@ -120,7 +127,9 @@ class Chart extends Component {
             </a>
             {this.renderFilters()}
           </div>
-          <ReactHighcharts config={chartConfig}/>
+          <LoadingIndicator loading={loading}>
+            <ReactHighcharts config={chartConfig}/>
+          </LoadingIndicator>
         </div>
       </Card>);
   }

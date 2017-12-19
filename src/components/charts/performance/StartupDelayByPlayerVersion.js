@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import Card from '../../Card';
+import LoadingIndicator from '../../LoadingIndicator';
 import ReactHighcharts from 'react-highcharts';
 import * as startupDelay from '../../../api/metrics/startupdelay';
 
@@ -9,53 +10,37 @@ class StartupDelayByPlayerVersion extends Component {
     width: PropTypes.object
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      series: []
-    }
+  state = {
+    series: [],
+    loading: false,
+  };
+
+  componentDidMount() {
+    this.loadData(this.props);
   }
 
-  componentDidMount () {
-    const convertResultToSeries = (result) => {
-      const series = [];
-      for (let key of Object.keys(result)) {
-        result[key].sort((a,b) => { return a[0] - b[0]});
-        series.push({
-          name: key.toUpperCase(),
-          data: result[key].map(row => {
-            row[0] = row[0];
-            row[2] = Math.round(row[2]);
-            return [row[0], row[2]];
-          })
-        })
-      }
-      return series;
-    };
-
-    const baseQuery = {
-      ...this.props.primaryRange,
-      licenseKey: this.props.licenseKey
-    };
-
-    startupDelay.videoStartupDelayByPlayerVersion(this.props.apiKey, baseQuery)
-    .then(results => {
-      const techRows = results.reduce((memo, item) => {
-        memo[item[1]] = memo[item[1]] || [];
-        memo[item[1]].push(item);
-        return memo;
-      }, {});
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          series: convertResultToSeries(techRows)
-        }
-      });
-    })
+  componentWillReceiveProps(nextProps) {
+    this.loadData(nextProps);
   }
-  getSeries () {
-    return this.state.series
+
+  async loadData({ primaryRange, licenseKey, apiKey }) {
+    this.setState({ loading: true });
+
+    const baseQuery = { ...primaryRange, licenseKey };
+
+    const rows = await startupDelay.videoStartupDelayByPlayerVersion(apiKey, baseQuery);
+    const playerVersions = new Set(rows.map(row => row[1]));
+    const series = [...playerVersions].map((playerVersion) => ({
+      name: playerVersion.toUpperCase(),
+      data: rows
+        .filter(r => r[1] === playerVersion)
+        .map(r => [r[0], Math.round(r[2])])
+        .sort((a, b) => a[0] - b[0]),
+    }));
+
+    this.setState({ series, loading: false });
   }
+
   chartConfig () {
     return {
       chart: {
@@ -78,18 +63,26 @@ class StartupDelayByPlayerVersion extends Component {
           text: 'Milliseconds'
         }
       },
+      plotOptions: {
+        series: {
+          animation: !this.state.loading && { duration: 2000 },
+        },
+      },
       tooltip    : {
         shared    : true,
         crosshairs: true
       },
-      series: this.getSeries(),
+      series: this.state.series,
       colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
   }
+
   render () {
     return <Card title="Startup Delay by Player Version" width={this.props.width || {md: 12, sm: 12, xd: 12}} cardHeight="500px">
-      <ReactHighcharts config={this.chartConfig()} />
+      <LoadingIndicator loading={this.state.loading}>
+        <ReactHighcharts config={this.chartConfig()} />
+      </LoadingIndicator>
     </Card>;
   }
 }

@@ -1,24 +1,23 @@
-import React, { Component, PropTypes } from 'react'
-import { connect } from 'react-redux'
-import Card from './Card'
-import * as errors from '../api/metrics/errors'
-import { push } from 'react-router-redux'
-import moment from 'moment'
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+import Card from './Card';
+import LoadingIndicator from './LoadingIndicator';
+import * as errors from '../api/metrics/errors';
+import { push } from 'react-router-redux';
+import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 
-class ErrorSessions extends Component {
+class ErrorSessionsList extends Component {
   static propTypes = {
     width: PropTypes.object
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      limit: 20,
-      offset: 0,
-      sessions: []
-    }
-  }
+  state = {
+    limit: 20,
+    offset: 0,
+    sessions: [],
+    loading: false,
+  };
 
   componentDidMount () {
     this.loadErrorSessions(this.props, this.state.offset);
@@ -28,26 +27,22 @@ class ErrorSessions extends Component {
     this.loadErrorSessions(nextProps, this.state.offset);
   }
 
-  handlePageClick(pagination) {
+  handlePageClick = (pagination) => {
     const newOffset = pagination.selected * this.state.limit;
     this.loadErrorSessions(this.props, newOffset);
   }
 
-  loadErrorSessions(props, offset) {
+  async loadErrorSessions(props, offset) {
+    this.setState({ loading: true });
+
     const baseQuery = {
       ...props.primaryRange,
       licenseKey: props.licenseKey
     };
 
-    errors.errorSessions(props.apiKey, baseQuery, this.state.limit, offset).then(data => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          offset: offset,
-          sessions: data
-        };
-      })
-    });
+    const sessions = await errors.errorSessions(props.apiKey, baseQuery, this.state.limit, offset);
+
+    this.setState({ offset: offset, sessions, loading: false });
   }
 
   render () {
@@ -77,34 +72,38 @@ class ErrorSessions extends Component {
         </tr>
     });
 
-    return <Card title="Error Sessions" width={this.props.width || { md: 4, sm: 4, xs: 12 }} cardHeight="auto">
-      <div>
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th className="col-md-1">Time</th>
-              <th className="col-md-2">Page</th>
-              <th className="col-md-1">Location</th>
-              <th className="col-md-1">Operating System</th>
-              <th className="col-md-1">Browser</th>
-              <th className="col-md-1">Error Code</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions}
-          </tbody>
-        </table>
-        <ReactPaginate previousLabel={"previous"}
-                       nextLabel={"next"}
-                       pageCount={300}
-                       marginPagesDisplayed={0}
-                       pageRangeDisplayed={0}
-                       onPageChange={::this.handlePageClick}
-                       containerClassName={"pagination"}
-                       subContainerClassName={"pages pagination"}
-                       activeClassName={"active"} />
-      </div>
-    </Card>
+    return (
+      <Card title="Error Sessions" width={this.props.width || { md: 4, sm: 4, xs: 12 }} cardHeight="auto">
+        <LoadingIndicator loading={this.state.loading}>
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th className="col-md-1">Time</th>
+                <th className="col-md-2">Page</th>
+                <th className="col-md-1">Location</th>
+                <th className="col-md-1">Operating System</th>
+                <th className="col-md-1">Browser</th>
+                <th className="col-md-1">Error Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions}
+            </tbody>
+          </table>
+          <ReactPaginate
+            previousLabel="previous"
+            nextLabel="next"
+            pageCount={300}
+            marginPagesDisplayed={0}
+            pageRangeDisplayed={0}
+            onPageChange={this.handlePageClick}
+            containerClassName="pagination"
+            subContainerClassName="pages pagination"
+            activeClassName="active"
+          />
+        </LoadingIndicator>
+      </Card>
+    )
   }
 }
 
@@ -125,4 +124,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ErrorSessions);
+export default connect(mapStateToProps, mapDispatchToProps)(ErrorSessionsList);

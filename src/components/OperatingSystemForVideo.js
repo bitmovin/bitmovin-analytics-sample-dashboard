@@ -1,22 +1,20 @@
-import React, { Component, PropTypes } from 'react'
-import {connect} from 'react-redux'
-import * as stats from '../api/stats'
-import Card from './Card'
-import ReactHighcharts from 'react-highcharts'
-import { groupToNBuckets } from '../api/util'
-import LoadingSpinner from './LoadingSpinner'
+import React, { Component, PropTypes } from 'react';
+import {connect} from 'react-redux';
+import * as stats from '../api/stats';
+import Card from './Card';
+import ReactHighcharts from 'react-highcharts';
+import { groupToNBuckets } from '../api/util';
+import LoadingIndicator from './LoadingIndicator';
 
 class OperatingSystemForVideo extends Component {
   static propTypes = {
     videoId: PropTypes.string
   };
 
-  constructor (props) {
-    super(props);
-    this.state = {
-      operatingSystems: [],
-      display: 'chart'
-    }
+  state = {
+    operatingSystems: [],
+    display: 'chart',
+    loading: false,
   }
 
   componentDidMount () {
@@ -27,32 +25,22 @@ class OperatingSystemForVideo extends Component {
     this.loadData(nextProps);
   }
 
-  loadData(props) {
-    stats.fetchOperatingSystemsLastDaysForVideo(props.apiKey, {...props.range}, props.videoId).then((operatingSystems) => {
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          operatingSystems
-        }
-      });
-    });
+  async loadData(props) {
+    this.setState({ loading: true });
+    const operatingSystems = await stats.fetchOperatingSystemsLastDaysForVideo(props.apiKey, props.range, props.videoId)
+    this.setState({ operatingSystems, loading: false });
   }
 
   renderChart () {
-    const selector = (browser, browser2) => {
-      return browser[1] - browser2[1];
-    };
-
+    const selector = (browser, browser2) => browser[1] - browser2[1];
     const reducer = (others) => {
-      return others.reduce((memo, one) => {
-        memo[1] += one[1];
-        return memo;
-      }, ['Others', 0])
+      const sum = others.reduce((memo, one) => memo + one[1], 0);
+      return ['Others', sum];
     };
 
-    const data = groupToNBuckets(this.state.operatingSystems, 5, selector, reducer).map((x) => {
-      return { name: x[0], y: x[1] }
-    });
+    const data = groupToNBuckets(this.state.operatingSystems, 5, selector, reducer)
+      .map(x => ({ name: x[0], y: x[1] }));
+
     const chartConfig = {
       chart: {
         type: 'pie',
@@ -88,7 +76,9 @@ class OperatingSystemForVideo extends Component {
   render () {
     return (
       <Card title="Operating System" width={{md:6, sm: 6, xs: 12}} cardHeight={"auto"}>
-        {this.props.isLoading ? <LoadingSpinner height={220} /> : (this.renderChart())}
+        <LoadingIndicator loading={this.state.loading}>
+          {this.renderChart()}
+        </LoadingIndicator>
       </Card>);
   }
 }

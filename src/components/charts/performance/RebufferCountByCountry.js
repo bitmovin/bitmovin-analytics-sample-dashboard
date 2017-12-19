@@ -5,20 +5,19 @@ import * as rebuffer from '../../../api/metrics/rebuffer';
 import mapdata from '../../../mapdata/world';
 import ReactHighmaps from 'react-highcharts/ReactHighmaps.src';
 import ReactPaginate from 'react-paginate';
+import LoadingIndicator from '../../LoadingIndicator';
 
-class RebufferCountGraphByOs extends Component {
-  constructor (props) {
-    super(props);
-    this.state = {
-      series: { data: [] },
-      tableData: [],
-      limit: 7,
-      offset: 0,
-      pageCount: 0,
-      page: 0,
-      orderByOrder: 'DESC'
-    }
-  }
+class RebufferCountByCountry extends Component {
+  state = {
+    series: { data: [] },
+    tableData: [],
+    limit: 7,
+    offset: 0,
+    pageCount: 0,
+    page: 0,
+    orderByOrder: 'DESC',
+    loading: false,
+  };
 
   componentDidMount () {
     this.loadData(this.props);
@@ -28,7 +27,9 @@ class RebufferCountGraphByOs extends Component {
     this.loadData(nextProps);
   }
 
-  loadData (props) {
+  async loadData (props) {
+    this.setState({ loading: true });
+
     const convertResultToSeries = (result) => {
       return result.map(row => {
         return {
@@ -46,62 +47,38 @@ class RebufferCountGraphByOs extends Component {
       licenseKey: props.licenseKey
     };
 
-    rebuffer.rebufferPercentageOverTime(props.apiKey, baseQuery)
-    .then(result => {
-      const series = { data: convertResultToSeries(result) };
-      const tableData = result.sort((a, b) => {
-        return b[3] - a[3];
-      });
+    const result = await rebuffer.rebufferPercentageOverTime(props.apiKey, baseQuery)
+    const series = { data: convertResultToSeries(result) };
+    const tableData = result.sort((a, b) => b[3] - a[3]);
 
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          series: series,
-          tableData,
-          pageCount: Math.ceil(tableData.length / prevState.limit)
-        }
-      })
-    })
+    this.setState(prevState => ({
+      series: series,
+      tableData,
+      pageCount: Math.ceil(tableData.length / prevState.limit),
+      loading: false,
+    }));
   }
 
   toggleSorting() {
-    let sorting = (a, b) => {
-      return a[3] - b[3];
-    };
-    if (this.state.orderByOrder === 'ASC') {
-      sorting = (a, b) => {
-        return b[3] - a[3];
-      }
+    const { orderByOrder } = this.state;
+    let sorting = (a, b) => a[3] - b[3];
+    if (orderByOrder === 'ASC') {
+      sorting = (a, b) => b[3] - a[3];
     }
 
-    const tableData = this.state.tableData.sort((a, b) => {
-      return sorting(a, b);
-    });
+    const tableData = this.state.tableData.sort(sorting);
 
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        tableData,
-        orderByOrder: prevState.orderByOrder==='DESC'?'ASC':'DESC',
-        offset: 0,
-        page: 0
-      }
-    })
+    this.setState({
+      tableData,
+      orderByOrder: orderByOrder==='DESC' ? 'ASC':'DESC',
+      offset: 0,
+      page: 0,
+    });
   }
 
   handlePageClick(pagination) {
     const offset = this.state.limit * pagination.selected;
-    this.setState(prevState => {
-      return {
-        ...prevState,
-        offset,
-        page: pagination.selected
-      }
-    })
-  }
-
-  getSeries() {
-    return this.state.series;
+    this.setState({ offset, page: pagination.selected });
   }
 
   renderTable () {
@@ -161,21 +138,23 @@ class RebufferCountGraphByOs extends Component {
           }
         }
       },
-      series: [this.getSeries()]
+      series: [this.state.series]
     };
     return <ReactHighmaps config={chartConfig}/>
   }
   render () {
-    return <Card width={this.props.width || { md: 8, sm: 8, xs: 12}} title="Rebuffer Percentage by Country" cardHeight="auto">
-      <div>
-        <div className="col-md-6 col-sm-12 col-xs-12">
-          { this.renderTable() }
-        </div>
-        <div className="col-md-6 col-sm-12 col-xs-12">
-          { this.renderChart() }
-        </div>
-      </div>
-    </Card>;
+    return (
+      <Card width={this.props.width || { md: 8, sm: 8, xs: 12}} title="Rebuffer Percentage by Country" cardHeight="auto">
+        <LoadingIndicator loading={this.state.loading}>
+          <div className="col-md-6 col-sm-12 col-xs-12">
+            { this.renderTable() }
+          </div>
+          <div className="col-md-6 col-sm-12 col-xs-12">
+            { this.renderChart() }
+          </div>
+        </LoadingIndicator>
+      </Card>
+    );
   }
 }
 
@@ -189,4 +168,4 @@ const mapStateToProps = (state) => {
   }
 };
 
-export default connect(mapStateToProps)(RebufferCountGraphByOs);
+export default connect(mapStateToProps)(RebufferCountByCountry);
