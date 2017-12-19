@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Card from './components/Card'
-import * as actions from './actions/api'
+import { login } from './actions/api'
 import LinearProgress from 'material-ui/LinearProgress';
 import GitHubForkRibbon from 'react-github-fork-ribbon'
 
@@ -67,7 +67,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     login: (username, password) => {
-      dispatch(actions.login(username, password));
+      dispatch(login(username, password));
     }
   }
 };

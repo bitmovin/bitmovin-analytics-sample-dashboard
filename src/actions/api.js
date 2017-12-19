@@ -3,26 +3,27 @@ import performLogin from '../api/login'
 import queryString from 'query-string';
 
 const storageAvailable = (type) => {
-	try {
-		let storage = window[type],
-			x = '__storage_test__';
-		storage.setItem(x, x);
-		storage.removeItem(x);
-		return true;
-	}
-	catch(e) {
-		return false;
-	}
+  try {
+  let storage = window[type],
+  x = '__storage_test__';
+  storage.setItem(x, x);
+  storage.removeItem(x);
+  return true;
+  }
+  catch(e) {
+  return false;
+  }
 }
 
 export const SET_LOGIN = 'SET_LOGIN';
 
-export function createSetLoginAction(apiKey, userName, licenseKeys) {
+function createSetLoginAction(apiKey, userName, licenseKeys, licenseKey) {
   return {
     type: SET_LOGIN,
-    apiKey: apiKey,
+    apiKey,
     userName,
-    licenseKeys
+    licenseKeys,
+    licenseKey
   }
 }
 
@@ -51,6 +52,7 @@ const removeLoginFromLocalStorage = () => {
   if (storageAvailable('localStorage')) {
     let storage = window.localStorage;
     storage.removeItem('apiKey');
+    storage.removeItem('analyticsLicenseKey');
   }
 }
 
@@ -64,6 +66,11 @@ export function unsetApiKey() {
 
 export const SELECT_ANALYTICS_LICENSE_KEY = 'SELECT_ANALYTICS_LICENSE_KEY';
 export const selectAnalyticsLicenseKey = (analyticsLicenseKey) => {
+  if (storageAvailable('localStorage')) {
+    const storage = window.localStorage;
+    storage.setItem('licenseKey', analyticsLicenseKey);
+  }
+
   return (dispatch) => {
     dispatch({
       type: SELECT_ANALYTICS_LICENSE_KEY,
@@ -79,13 +86,18 @@ export function persistLogin(apiKey) {
   }
 }
 
-function getKeyFromLocalStorage() {
+function getApiKeyFromLocalStorage() {
   if (!storageAvailable('localStorage')) {
-    return false
+    return null
   }
-  const storage = window.localStorage;
-  const apiKey = storage.getItem('apiKey');
-  return apiKey ? apiKey : false;
+  return localStorage.getItem('apiKey');
+}
+
+function getLicenseKeyFromLocalStorage() {
+  if (!storageAvailable('localStorage')) {
+    return null;
+  }
+  return localStorage.getItem('licenseKey');
 }
 
 function getAccountInformation(apiKey) {
@@ -100,62 +112,38 @@ export const loadAnalyticsLicenseKeys = (apiKey) => {
     return api.getAnalyticsLicenseKeys()
 };
 
-function loginThroughApiKey(dispatch, apiKey, userName) {
-  return loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
-    dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
-  })
+async function loginThroughApiKey(dispatch, apiKey, userName) {
+  persistLogin(apiKey);
+  const licenseKeys = await loadAnalyticsLicenseKeys(apiKey);
+  const storedKey = getLicenseKeyFromLocalStorage();
+  const licenseKey = licenseKeys.map(l => l.licenseKey).find(k => k === storedKey) || licenseKeys[0].licenseKey;
+  dispatch(createSetLoginAction(apiKey, userName, licenseKeys, licenseKey));
 }
 
-const tryLoginFromQueryParam = () => {
-  const {apiKey} = queryString.parse(location.search);
-  return apiKey;
-};
+const getApiKeyFromQueryParam = () => queryString.parse(location.search).apiKey;
 
-export function initializeApplication() {
-	return (dispatch) => {
-   {
-     const keyFromLocalStorage = getKeyFromLocalStorage()
-     const apiKeyFromQueryString = tryLoginFromQueryParam() || keyFromLocalStorage;
-     if (apiKeyFromQueryString) {
-       getAccountInformation(apiKeyFromQueryString).then(info => {
-         const { apiKey, userName } = info
-         loginThroughApiKey(dispatch, apiKey, userName)
-       }).catch(error => {
-         dispatch(createApiKeyInvalidAction())
-       });
-     }
-    }
-	}
-}
-
-export function setLogin(apiKey, userName) {
-  return (dispatch, getState) => {
-    if (getState().api.apiKey === apiKey) {
+export const initializeApplication = () => async (dispatch) => {
+  try {
+    const apiKey = getApiKeyFromQueryParam() || getApiKeyFromLocalStorage();
+    if (!apiKey) {
       return;
     }
 
-    loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
-      dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
-    }).catch((err) => {
-      removeLoginFromLocalStorage();
-      dispatch(createApiKeyInvalidAction(apiKey));
-    });
+    const { userName } = await getAccountInformation(apiKey);
+    loginThroughApiKey(dispatch, apiKey, userName);
+  } catch (error) {
+    dispatch(createApiKeyInvalidAction())
   }
 }
 
-export function login(userName, password) {
-  return (dispatch, getState) => {
-    dispatch(createStartLoginAction());
+export const login = (userName, password) => async (dispatch, getState) => {
+  dispatch(createStartLoginAction());
 
-    performLogin(userName, password).then(response => {
-      const apiKey = response.data.result.apiKeys[0].value;
-
-      loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
-        dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
-      });
-      persistLogin(apiKey);
-    }).catch(err => {
-      dispatch(createLoginfailedAction());
-    });
+  try {
+    const { data } = await performLogin(userName, password);
+    const apiKey = data.result.apiKeys[0].value;
+    loginThroughApiKey(dispatch, apiKey, userName);
+  } catch (err) {
+    dispatch(createLoginfailedAction());
   }
 }
