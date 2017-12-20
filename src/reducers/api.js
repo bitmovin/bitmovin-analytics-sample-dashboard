@@ -18,8 +18,9 @@ const defaultState = {
 function api(state = defaultState, action) {
   switch (action.type) {
     case apiAction.SET_LOGIN:
-      const firstLicenseKey = action.licenseKeys[0].licenseKey;
-      window.bitmovinAnalyticsLicenseKey = firstLicenseKey;
+      const { apiKey, userName, licenseKeys, licenseKey } = action;
+      const selectedLicenseKey = licenseKey || licenseKeys[0].licenseKey;
+      window.bitmovinAnalyticsLicenseKey = selectedLicenseKey;
       return {
         ...state,
         apiKey: action.apiKey,
@@ -29,8 +30,8 @@ function api(state = defaultState, action) {
         apiKeyInvalid: false,
         processingLogin: false,
         loginFailed: false,
-        analyticsLicenseKeys: action.licenseKeys,
-        analyticsLicenseKey: firstLicenseKey
+        analyticsLicenseKeys: licenseKeys,
+        analyticsLicenseKey: selectedLicenseKey
       };
 
     case apiAction.UNSET_LOGIN:

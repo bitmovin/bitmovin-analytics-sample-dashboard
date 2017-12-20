@@ -38,7 +38,6 @@ class TimeFrameDialog extends Component {
     const { dialogVisible, primaryRange } = this.props;
     const { start, end } = primaryRange;
     const [startMoment, endMoment] = [start, end].map(d => moment(d).add(utcOffset, 'hours'));
-    console.log(endMoment);
 
     return (
       <Modal show={dialogVisible} onHide={this.props.hideChangeRangeDialog}>
