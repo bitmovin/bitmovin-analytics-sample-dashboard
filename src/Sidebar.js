@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router';
-import * as actions from './actions/ranges'
-import { toggleQueryBuilder } from './actions/query'
+import { showChangeRangeDialog } from './actions/ranges'
 import { withRouter } from 'react-router'
 import { unsetApiKey, selectAnalyticsLicenseKey } from './actions/api'
 
@@ -145,11 +144,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    toggleQueryBuilder: () => {
-      dispatch(toggleQueryBuilder());
-    },
     showChangeRangeDialog: () => {
-      dispatch(actions.showChangeRangeDialog())
+      dispatch(showChangeRangeDialog())
     },
     logout: () => {
       dispatch(unsetApiKey());

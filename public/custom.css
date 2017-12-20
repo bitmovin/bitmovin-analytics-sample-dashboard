@@ -75,10 +75,6 @@ h4.title {
     margin-bottom: 20px;
 }
 
-.removeColumn {
-    float: right;
-}
-
 .impression-row:hover {
     cursor: pointer;
 }
