@@ -16,25 +16,6 @@ h4.title {
   color: white;
 }
 
-.LoadingSpinner {
-  position: relative;
-  text-align: center;
-  font-size: 30px;
-  color: #3C4858;
-}
-.LoadingSpinner .inner i, .LoadingSpinner .inner span {
-  margin: 10px;
-  display: inline-block;
-}
-.LoadingSpinner .inner {
-  position: absolute;
-  top: 20px;
-  margin: 0 auto;
-  left: 50%;
-  width: 150px;
-  margin-left: -75px;
-}
-
 .pagination {
     float: right;
 }
@@ -66,13 +47,6 @@ h4.title {
 
 .table-metric-sort:hover {
     cursor: pointer;
-}
-
-.columns {
-
-}
-.column {
-    margin-bottom: 20px;
 }
 
 .impression-row:hover {
