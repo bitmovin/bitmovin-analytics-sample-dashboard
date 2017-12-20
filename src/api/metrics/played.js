@@ -1,14 +1,5 @@
 import Api from '../index'
 
-export function totalTimePlayed(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
-
-  return api.fetchAnalytics('SUM', {
-    ...baseQuery,
-    dimension: 'PLAYED'
-  });
-}
-
 export function averagePlayedTimePerVideo(apiKey, videoId, baseQuery = {}) {
   const api = new Api(apiKey);
   const query = {

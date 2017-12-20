@@ -194,16 +194,3 @@ export function fetchAverageStartupDelayThisWeek(apiKey, primaryRange, secondary
       });
   });
 }
-
-export function fetchAverageVideoStartupDelayThisWeek(apiKey, primaryRange, secondaryRange, videoId) {
-  return new Promise((resolve) => {
-    Promise.all([startupDelay.fetchVideoStartupDelay(apiKey, primaryRange, videoId),
-      startupDelay.fetchVideoStartupDelay(apiKey, secondaryRange, videoId),
-      userbase.startuptime(apiKey, primaryRange)])
-      .then((results) => {
-        resolve(formatResult(results[0], results[1], results[2], (val) => {
-          return Math.round(val);
-        }));
-      });
-  });
-}

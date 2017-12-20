@@ -437,38 +437,6 @@ function roundToTwo(num) {
   return +(Math.round(num + "e+2")  + "e-2");
 }
 
-export function fetchVideoImpressionsLastDaysPerDay(apiKey, video, days, offset = 0) {
-  const api = new Api(apiKey);
-  const lastDaysQuery = (days, offset = 0) => {
-    return {
-      dimension: 'IMPRESSION_ID',
-      start: moment.utc().startOf('day').subtract(days + offset, 'day').format(),
-      end: moment.utc().startOf('day').subtract(offset, 'day').format(),
-      interval: 'DAY',
-      filters: [
-        {
-          name: 'VIDEO_ID',
-          operator: 'EQ',
-          value: video
-        }
-      ]
-    }
-  };
-
-  return new Promise((resolve) => {
-    api.fetchAnalytics('COUNT', lastDaysQuery(days, offset))
-    .then((results) => {
-      const data = results.sort((a,b) => {
-        return a[0] - b[0];
-      }).map((row) => {
-        row[0] = moment(row[0]).format('dddd');
-        return row;
-      });
-      resolve(data);
-    })
-  });
-}
-
 export function fetchPossibleValues(apiKey, column) {
   const api = new Api(apiKey);
   const query  = {
