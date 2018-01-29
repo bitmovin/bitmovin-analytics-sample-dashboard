@@ -120,6 +120,7 @@ export function initializeApplication() {
        getAccountInformation(apiKeyFromQueryString).then(info => {
          const { apiKey, userName } = info
          loginThroughApiKey(dispatch, apiKey, userName)
+         persistLogin(apiKey)
        }).catch(error => {
          dispatch(createApiKeyInvalidAction())
        });
