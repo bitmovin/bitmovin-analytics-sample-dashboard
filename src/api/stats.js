@@ -360,7 +360,11 @@ function bufferingFormatter(data) {
 
 function fetchHeatmap(apiKey, video, functionName, dimension, dataFormatter = noopFormatter, filters = []) {
   const api = new Api(apiKey);
-  const chunkSize = 5000;
+  const maxRequests = 20;
+  const chunkSize = Math.floor(video.length * 1000 / maxRequests);
+  if (!video.length) {
+    return Promise.reject({})
+  }
 
   return new Promise((resolve) => {
     const getChunkPromise = function (chunk) {
