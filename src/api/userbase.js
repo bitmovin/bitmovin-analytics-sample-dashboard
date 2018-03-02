@@ -10,16 +10,6 @@ export function errors(apiKey, baseQuery) {
   });
 }
 
-export function impressions(apiKey, baseQuery) {
-  const api = new Api(apiKey);
-
-  return new Promise(resolve => {
-    api.fetchGlobalAnalytics('impressions', { ...baseQuery }).then(data => {
-      resolve(data);
-    })
-  });
-}
-
 export function rebufferPercentage (apiKey, baseQuery) {
   const api = new Api(apiKey);
 

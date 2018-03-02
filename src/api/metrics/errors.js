@@ -113,31 +113,6 @@ export function fetchErrorCount(apiKey, interval, baseQuery = {}) {
   })
 }
 
-export function fetchErrorPercentageGrouped(apiKey, groupBy, interval, baseQuery = {}) {
-  const api = new Api(apiKey);
-  return new Promise(resolve => {
-    Promise.all([
-      api.fetchAnalytics('COUNT', {
-        groupBy: [groupBy],
-        dimension: 'IMPRESSION_ID',
-        interval: interval,
-        ...baseQuery
-      }),
-      fetchErrorCount(apiKey, interval, { ...baseQuery, groupBy: [groupBy] })
-    ]).then(data => {
-      const rows = util.leftJoinOnTwoColumns(data[0], data[1]);
-      const result = rows.map(row => {
-        let ratio = 0;
-        if (row[2] > 0) {
-          ratio = row[3] / row[2];
-        }
-        return [...row, ratio];
-      });
-      resolve(result);
-    })
-  });
-}
-
 export function fetchErrorPercentage(apiKey, name, baseQuery = {}) {
   const api = new Api(apiKey);
   return new Promise(resolve => {

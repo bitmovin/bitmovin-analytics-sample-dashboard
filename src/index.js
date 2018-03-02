@@ -16,8 +16,6 @@ import ImpressionDetail from './ImpressionDetail'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import ValidateSetup from './ValidateSetup'
 import ApiKeyConfiguration from './ApiKeyConfiguration'
-import QueryDashboard from './QueryDashboard'
-import SettingsView from './SettingsView'
 import PlayersDashboard from './PlayersDashboard'
 import ErrorDetail from './ErrorDetail'
 
@@ -35,7 +33,7 @@ import { initializeApplication } from './actions/api'
 //injectTapEventPlugin();
 
 const hist = useRouterHistory(createHistory)({
-	basename: '/'
+  basename: '/'
 });
 
 import reducers from './reducers/index';
@@ -71,8 +69,6 @@ ReactDOM.render(
               <Route path="content" component={ContentDashboard} />
               <Route path="videoinspection" component={VideoInspection} />
               <Route path="impressions/:impressionId" component={ImpressionDetail} />
-              <Route path="querybuilder" component={QueryDashboard} />
-              <Route path="settings" component={SettingsView} />
               <Route path="players" component={PlayersDashboard} />
             </Route>
         </Router>

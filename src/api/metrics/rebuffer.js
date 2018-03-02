@@ -48,53 +48,6 @@ export function rebufferPercentage(apiKey, baseQuery = {}, videoId) {
   });
 }
 
-export function rebufferPercentageGrouped(apiKey, baseQuery = {}, groupBy) {
-  const query = {
-    dimension: 'BUFFERED',
-    interval: 'DAY',
-    groupBy: [groupBy],
-    filters      : [
-      {
-        name    : 'BUFFERED',
-        operator: 'GT',
-        value   : 0
-      }, {
-        name    : 'VIDEOTIME_START',
-        operator: 'GT',
-        value   : 0
-      }, {
-        name    : 'SEEKED',
-        operator: 'EQ',
-        value   : 0
-      }
-    ],
-    ...baseQuery
-  };
-
-  const durationQuery = {
-    interval: 'DAY',
-    dimension: 'PLAYED',
-    groupBy: [groupBy],
-    ...baseQuery
-  };
-
-  const api = new Api(apiKey);
-  const promise = Promise.all([
-    api.fetchAnalytics('sum', query),
-    api.fetchAnalytics('sum', durationQuery)
-  ]);
-
-  return new Promise((resolve, reject) => {
-    promise.then((result) => {
-      const joined = util.leftJoinOnTwoColumns(result[1], result[0]);
-      resolve(joined.map((row) => {
-        row.push(row[3] / row[2]);
-        return row;
-      }));
-    })
-  });
-}
-
 export function rebufferPercentageOverTime(apiKey, baseQuery = {}) {
   const query = {
     dimension: 'BUFFERED',
@@ -139,59 +92,6 @@ export function rebufferPercentageOverTime(apiKey, baseQuery = {}) {
           row.push(0);
         } else {
           row.push(row[2] / row[1]);
-        }
-        return row;
-      }));
-    })
-  });
-}
-
-export function rebufferDurationGrouped(apiKey, baseQuery = {}, groupBy) {
-  const query = {
-    ...baseQuery,
-    dimension: 'BUFFERED',
-    interval: 'DAY',
-    filters      : [
-      ...(baseQuery.filters || []),
-      {
-        name    : 'BUFFERED',
-        operator: 'GT',
-        value   : 0
-      }, {
-        name    : 'VIDEOTIME_START',
-        operator: 'GT',
-        value   : 0
-      }, {
-        name    : 'SEEKED',
-        operator: 'EQ',
-        value   : 0
-      }
-    ],
-    groupBy: [groupBy]
-  };
-
-  const api = new Api(apiKey);
-  const durationQuery = {
-    ...baseQuery,
-    interval: 'DAY',
-    dimension: 'IMPRESSION_ID',
-    filter: [api.filter('PLAYED', 'GT', 0)],
-    groupBy: [groupBy]
-  };
-
-  const promise = Promise.all([
-    api.fetchAnalytics('count', durationQuery),
-    api.fetchAnalytics('sum', query)
-  ]);
-
-  return new Promise((resolve, reject) => {
-    promise.then((result) => {
-      const joined = util.leftJoinOnTwoColumns(result[0], result[1]);
-      resolve(joined.map((row) => {
-        if (row[2] === 0) {
-          row.push(0);
-        } else {
-          row.push(row[3] / row[2]);
         }
         return row;
       }));
