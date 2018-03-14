@@ -7,7 +7,7 @@ export function bounceRate(apiKey, baseQuery, videoId) {
     dimension: 'IMPRESSION_ID',
     filters      : [
       {
-        name    : 'PLAYED',
+        name    : 'VIDEO_STARTUPTIME',
         operator: 'GT',
         value   : 0
       }
@@ -23,6 +23,11 @@ export function bounceRate(apiKey, baseQuery, videoId) {
   const totalImpressionsQuery = {
     ...baseQuery,
     dimension: 'IMPRESSION_ID',
+    filters: [{
+      name: 'PLAYER_STARTUPTIME',
+      operator: 'GT',
+      value: 0
+    }]
   }
   return new Promise(resolve => {
     Promise.all([api.fetchAnalytics('count', playedImpressionsQuery),

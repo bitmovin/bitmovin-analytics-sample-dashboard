@@ -36,7 +36,7 @@ export function fetchErrorPercentageThisWeek(apiKey, primaryRange, secondaryRang
     dimension: 'ERROR_CODE',
   };
   const impressionsQuery = {
-    dimension: 'IMPRESSION_ID'
+    dimension: 'IMPRESSION_ID',
   };
 
   if (videoId) {
@@ -88,7 +88,7 @@ function checkIfNaNAndSetZero(variable) {
 
 export function fetchTotalImpressionsThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') {
   const filters = [{
-    name: 'PLAYED',
+    name: 'VIDEO_STARTUPTIME',
     operator: 'GT',
     value: 0
   }];
@@ -106,7 +106,7 @@ export function fetchTotalImpressionsThisWeek(apiKey, primaryRange, secondaryRan
 
 export function fetchTotalUsersThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') {
   const filters = [{
-    name: 'PLAYED',
+    name: 'VIDEO_STARTUPTIME',
     operator: 'GT',
     value: 0
   }];

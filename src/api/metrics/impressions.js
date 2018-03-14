@@ -4,5 +4,5 @@ export function groupedQuery(apiKey) {
   const bitmovin = new Bitmovin({apiKey});
   return bitmovin.analytics.queries.builder
     .count('IMPRESSION_ID')
-    .filter('PLAYED', 'GT', 0);
+    .filter('VIDEO_STARTUPTIME', 'GT', 0);
 }
