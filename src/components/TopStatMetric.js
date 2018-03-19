@@ -8,7 +8,6 @@ class TopStatMetric extends Component {
     icon: PropTypes.string.isRequired,
     inverse: PropTypes.bool,
     onClick: PropTypes.func,
-    userBaseValue: PropTypes.string,
     formatter: PropTypes.string,
     isPercentage: PropTypes.bool,
     fetchData: PropTypes.func.isRequired,
@@ -18,7 +17,6 @@ class TopStatMetric extends Component {
     primary: 0,
     secondary: 0,
     change: 0,
-    userbase: 0,
     loading: false,
   };
 
@@ -82,30 +80,10 @@ class TopStatMetric extends Component {
   }
 
   render () {
-    const { primary, userbase, secondary, loading } = this.state;
+    const { primary, secondary, loading } = this.state;
     const color = {
       'data-background-color': this.metricColor()
     };
-    let userBase = null;
-    if (this.props.compareUserBase === true ) {
-      let changeToUserBase = (( primary / userbase ) - 1) * 100;
-
-      if (this.props.format === 'pct')
-        changeToUserBase = primary - userbase;
-
-      const color = this.getColor(changeToUserBase);
-      const icon = this.getIcon(changeToUserBase);
-      if (this.props.inverse === true) {
-        changeToUserBase *= -1;
-      }
-
-      const betterOrWorse = changeToUserBase > 0 ? 'better' : 'worse';
-      userBase = (<div className="card-footer">
-        <div className="stats">
-          <i className={color}><i className={icon}></i>{util.round10(changeToUserBase)}% {betterOrWorse}</i> than User Base
-        </div>
-      </div>);
-    }
     return (
       <LoadingIndicator loading={loading}>
         <div className="col-lg-2 col-md-4 col-sm-4 col-xs-6" onClick={this.props.onClick}>
@@ -122,7 +100,6 @@ class TopStatMetric extends Component {
                 <span><i className={this.metricColor()}><i className={this.metricIcon()}></i>{this.formatMetricNumber()}% </i> From before ({this.formatValue(secondary)})</span>
               </div>
             </div>
-            {userBase}
           </div>
         </div>
       </LoadingIndicator>
