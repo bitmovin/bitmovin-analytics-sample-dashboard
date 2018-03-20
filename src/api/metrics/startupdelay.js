@@ -25,6 +25,7 @@ export function fetchStartupDelay(apiKey, baseQuery = {}, videoId) {
     ...baseQuery,
     dimension: 'STARTUPTIME',
     filters: [
+      ...(baseQuery.filters || []),
       api.filter('STARTUPTIME', 'GT', 0),
       api.filter('PAGE_LOAD_TYPE', 'EQ', 1)
     ]
