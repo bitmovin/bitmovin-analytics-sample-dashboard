@@ -5,17 +5,14 @@ export function rebufferPercentage(apiKey, baseQuery = {}, videoId) {
   const api = new Api(apiKey);
   const query = {
     ...baseQuery,
-    dimension: 'BUFFERED',
+    dimension: 'IMPRESSION_ID',
     filters      : [
+      ...(baseQuery.filters || []),
       {
         name    : 'BUFFERED',
         operator: 'GT',
         value   : 0
-      }, {
-        name    : 'VIDEOTIME_START',
-        operator: 'GT',
-        value   : 0
-      }, {
+      },{
         name    : 'SEEKED',
         operator: 'EQ',
         value   : 0
@@ -28,16 +25,19 @@ export function rebufferPercentage(apiKey, baseQuery = {}, videoId) {
 
   const durationQuery = {
     ...baseQuery,
-    dimension: 'PLAYED',
-    filters: []
+    dimension: 'IMPRESSION_ID',
+    filters: [
+      ...(baseQuery.filters || []),
+      api.filter('VIDEO_STARTUPTIME', 'GT', 0)
+    ]
   };
   if (videoId) {
     durationQuery.filters.push(api.filter('VIDEO_ID', 'EQ', videoId))
   }
 
   const promise = Promise.all([
-    api.fetchAnalytics('sum', query),
-    api.fetchAnalytics('sum', durationQuery)
+    api.fetchAnalytics('count', query),
+    api.fetchAnalytics('count', durationQuery)
   ]);
   return new Promise((resolve, reject) => {
     promise.then(function(results) {
@@ -50,7 +50,7 @@ export function rebufferPercentage(apiKey, baseQuery = {}, videoId) {
 
 export function rebufferPercentageGrouped(apiKey, baseQuery = {}, groupBy) {
   const query = {
-    dimension: 'BUFFERED',
+    dimension: 'IMPRESSION_ID',
     interval: 'DAY',
     groupBy: [groupBy],
     filters      : [
@@ -73,15 +73,16 @@ export function rebufferPercentageGrouped(apiKey, baseQuery = {}, groupBy) {
 
   const durationQuery = {
     interval: 'DAY',
-    dimension: 'PLAYED',
+    dimension: 'IMPRESSION_ID',
+    filters: [['VIDEO_STARTUPTIME', 'GT', 0]],
     groupBy: [groupBy],
     ...baseQuery
   };
 
   const api = new Api(apiKey);
   const promise = Promise.all([
-    api.fetchAnalytics('sum', query),
-    api.fetchAnalytics('sum', durationQuery)
+    api.fetchAnalytics('count', query),
+    api.fetchAnalytics('count', durationQuery)
   ]);
 
   return new Promise((resolve, reject) => {
