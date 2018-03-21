@@ -29,7 +29,7 @@ class BitrateChart extends Component {
       interval: props.interval,
       licenseKey: props.licenseKey
     };
-    const [maxBitRates, minBitrates, avgBitrates] = await stats.fetchMinMaxAvgBitrate(props.apiKey, baseQuery);
+    const [minBitrates, maxBitRates, avgBitrates] = await stats.fetchMinMaxAvgBitrate(props.apiKey, baseQuery);
 
     this.setState({ maxBitRates, minBitrates, avgBitrates, loading: false });
   }
