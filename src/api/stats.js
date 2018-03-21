@@ -175,6 +175,20 @@ export function fetchOperatingSystemLastDays(apiKey, baseQuery, os) {
   });
 }
 
+export function fetchPlayerTechnologyGrouped(apiKey, baseQuery) {
+  const api = new Api(apiKey);
+  const lastDaysQuery = {
+    dimension: 'IMPRESSION_ID',
+    ...baseQuery,
+    filters: [
+      api.filter('VIDEO_STARTUPTIME', 'GT', 0)
+    ],
+    groupBy: 'PLAYER_TECH'
+  };
+
+  return api.fetchAnalytics('COUNT', lastDaysQuery);
+}
+
 export function fetchPlayerTechnologyLastDays(apiKey, baseQuery, playerTechnology) {
   const api = new Api(apiKey);
   const lastDaysQuery = {

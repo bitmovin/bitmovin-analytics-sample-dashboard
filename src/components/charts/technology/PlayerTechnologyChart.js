@@ -26,12 +26,9 @@ class PlayerTechnologyChart extends Component {
       ...props.range,
       licenseKey: props.licenseKey
     };
-    const fetchPlayerTechnology = async (streamFormat) => {
-      const data = await stats.fetchPlayerTechnologyLastDays(this.props.apiKey, baseQuery, streamFormat);
-      return { name: streamFormat, y: data };
-    };
 
-    const data = await Promise.all(['html5', 'flash','native'].map(fetchPlayerTechnology));
+    const result = await stats.fetchPlayerTechnologyGrouped(this.props.apiKey, baseQuery)
+    const data = result.filter(x => x[0] !== null)
 
     this.setState({ data, loading: false });
   }
