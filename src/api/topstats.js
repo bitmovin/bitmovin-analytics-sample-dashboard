@@ -3,6 +3,7 @@ import * as rebuffer from './metrics/rebuffer'
 import * as util from './util'
 import * as startupDelay from './metrics/startupdelay'
 import { bounceRate } from './metrics/bounce'
+import deepEqual from 'deep-equal'
 
 function fetchMetric(apiKey, metric, primaryRange, secondaryRange, aQuery = {}, filters = []) {
   const api = new Api(apiKey);
@@ -29,7 +30,7 @@ function fetchMetric(apiKey, metric, primaryRange, secondaryRange, aQuery = {}, 
   });
 }
 
-export function fetchErrorPercentageThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId) {
+export const fetchErrorPercentageThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
   const api = new Api(apiKey);
   const errorQuery = {
     dimension: 'ERROR_CODE',
@@ -75,7 +76,7 @@ export function fetchErrorPercentageThisWeek(apiKey, primaryRange, secondaryRang
       });
     })
   })
-}
+})
 
 function checkIfNaNAndSetZero(variable) {
   if (isNaN(variable))
@@ -84,7 +85,7 @@ function checkIfNaNAndSetZero(variable) {
   return variable;
 }
 
-export function fetchTotalImpressionsThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') {
+export const fetchTotalImpressionsThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') => {
   const filters = [{
     name: 'VIDEO_STARTUPTIME',
     operator: 'GT',
@@ -100,9 +101,9 @@ export function fetchTotalImpressionsThisWeek(apiKey, primaryRange, secondaryRan
   }
 
   return fetchMetric(apiKey, 'IMPRESSION_ID', primaryRange, secondaryRange, baseQuery, filters);
-}
+})
 
-export function fetchTotalUsersThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') {
+export const fetchTotalUsersThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') => {
   const filters = [{
     name: 'VIDEO_STARTUPTIME',
     operator: 'GT',
@@ -118,9 +119,9 @@ export function fetchTotalUsersThisWeek(apiKey, primaryRange, secondaryRange, ba
   }
 
   return fetchMetric(apiKey, 'USER_ID', primaryRange, secondaryRange, baseQuery, filters);
-}
+})
 
-export function fetchRebufferPercentageThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId) {
+export const fetchRebufferPercentageThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
       rebuffer.rebufferPercentage(apiKey, {...primaryRange, ...baseQuery}, videoId),
@@ -138,7 +139,7 @@ export function fetchRebufferPercentageThisWeek(apiKey, primaryRange, secondaryR
       });
     });
   })
-}
+})
 
 function formatResult(primary, secondary, format = (x) => { return x; }) {
     let change = 0;
@@ -152,7 +153,7 @@ function formatResult(primary, secondary, format = (x) => { return x; }) {
     };
 }
 
-export function fetchBounceRateThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId) {
+export const fetchBounceRateThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
       bounceRate(apiKey, {...primaryRange, ...baseQuery}, videoId),
@@ -171,9 +172,9 @@ export function fetchBounceRateThisWeek(apiKey, primaryRange, secondaryRange, ba
       });
     })
   })
-}
+})
 
-export function fetchAverageStartupDelayThisWeek(apiKey, primaryRange, secondaryRange, baseQuery, videoId) {
+export const fetchAverageStartupDelayThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
       startupDelay.fetchStartupDelay(apiKey, {...primaryRange, ...baseQuery}, videoId),
@@ -184,9 +185,9 @@ export function fetchAverageStartupDelayThisWeek(apiKey, primaryRange, secondary
 				}));
       });
   });
-}
+})
 
-export function fetchAverageVideoStartupDelayThisWeek(apiKey, primaryRange, secondaryRange, videoId) {
+export const fetchAverageVideoStartupDelayThisWeek = cached((apiKey, primaryRange, secondaryRange, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
       startupDelay.fetchVideoStartupDelay(apiKey, primaryRange, videoId),
@@ -197,4 +198,19 @@ export function fetchAverageVideoStartupDelayThisWeek(apiKey, primaryRange, seco
         }));
       });
   });
+});
+
+
+export function cached(fn) {
+  let cache = null;
+  let cachedArgs = [];
+  return function() {
+    const args = [...arguments];
+    if (deepEqual(cachedArgs, args)) {
+      return cache;
+    }
+    cache = fn(...args);
+    cachedArgs = args;
+    return cache;
+  }
 }
