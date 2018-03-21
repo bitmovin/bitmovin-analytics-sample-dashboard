@@ -28,8 +28,7 @@ class OperatingSystemChart extends Component {
     const fetchOperatingSystem = (os) =>
       stats.fetchOperatingSystemLastDays(props.apiKey, baseQuery, os);
 
-    const operatingSystems = await Promise.all(['Windows', 'Linux', 'OS X'].map(fetchOperatingSystem));
-    const data = operatingSystems.map(({ name, data }) => ({ name, y: data }));
+    const data = await stats.fetchOperatingSystemGrouped(props.apiKey, baseQuery);
 
     this.setState({ data, loading: false });
   }

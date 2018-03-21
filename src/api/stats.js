@@ -132,6 +132,27 @@ export function fetchBrowserLastDays(apiKey, baseQuery, browser) {
   });
 }
 
+export function fetchOperatingSystemGrouped(apiKey, baseQuery) {
+  const api = new Api(apiKey);
+  const lastDaysQuery = {
+    dimension: 'IMPRESSION_ID',
+    ...baseQuery,
+    filters: [
+      api.filter('VIDEO_STARTUPTIME', 'GT', 0)
+    ],
+    groupBy: 'OPERATINGSYSTEM'
+  };
+
+  return api.fetchAnalytics('COUNT', lastDaysQuery).then((results) => {
+    const sorted = results.sort((a,b) => b[1]-a[1]);
+    const buckets = util.find80Percent(sorted, x => x[1]);
+    return util.groupUnsortedToNBuckets(sorted, buckets, x => {
+      const res = ['Others', x.map(x => x[1]).reduce((a,b) => a+b, 0)]
+      return res
+    });
+  })
+}
+
 export function fetchOperatingSystemLastDays(apiKey, baseQuery, os) {
   const api = new Api(apiKey);
   const lastDaysQuery = {
