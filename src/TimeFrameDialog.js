@@ -21,18 +21,19 @@ class TimeFrameDialog extends Component {
     changeRange({ name, start: start.toDate(), end: end.toDate() });
   };
 
-  changePredefinedRange = ({ name, start }) => () => {
+  changePredefinedRange = ({ name, start, end }) => () => {
     const { changeRange, hideChangeRangeDialog } = this.props;
-    changeRange({ name, start });
+    changeRange({ name, start, end });
     hideChangeRangeDialog();
   }
 
   render () {
+    const yesterdayMidnight = moment.utc().subtract(1, 'days').endOf('day').toDate();
     const predefinedRanges = [
-      { name: 'Last Week', start: moment.utc().subtract(7, 'days').endOf('day').toDate() },
-      { name: 'Last 3 Days', start: moment.utc().subtract(3, 'days').endOf('day').toDate() },
-      { name: 'Last 24 Hours', start: moment.utc().subtract(1, 'day').endOf('hour').toDate() },
-      { name: 'Last Hour', start: moment.utc().subtract(1, 'hour').endOf('minute').toDate() },
+      { name: 'Last Week', start: moment.utc().subtract(7, 'days').startOf('day').toDate(), end: yesterdayMidnight },
+      { name: 'Last 3 Days', start: moment.utc().subtract(3, 'days').startOf('day').toDate(), end: yesterdayMidnight  },
+      { name: 'Last 24 Hours', start: moment.utc().subtract(1, 'day').startOf('hour').toDate(), end: moment.utc().startOf('hour').toDate() },
+      { name: 'Last Hour', start: moment.utc().subtract(1, 'hour').startOf('minute').toDate() },
       { name: 'Last 15 Minutes', start: moment.utc().subtract(15, 'minutes').endOf('minute').toDate() },
     ];
     const { dialogVisible, primaryRange } = this.props;
@@ -72,10 +73,10 @@ class TimeFrameDialog extends Component {
               />
             </FormGroup>
           </div>
-          {predefinedRanges.map(({ name, start }) =>
+          {predefinedRanges.map(({ name, start, end }) =>
           	<Button
               bsStyle="primary"
-              onClick={this.changePredefinedRange({ name, start })}
+              onClick={this.changePredefinedRange({ name, start, end })}
               key={name}
             >
               {name}
