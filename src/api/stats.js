@@ -138,7 +138,7 @@ export function fetchOperatingSystemGrouped(apiKey, baseQuery) {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
     filters: [
-      api.filter('VIDEO_STARTUPTIME', 'GT', 0)
+      api.filter('PLAYED', 'GT', 0)
     ],
     groupBy: 'OPERATINGSYSTEM'
   };
