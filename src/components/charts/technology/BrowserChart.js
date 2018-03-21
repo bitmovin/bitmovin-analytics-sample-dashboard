@@ -26,12 +26,8 @@ class BrowserChart extends Component {
       ...props.range,
       licenseKey: props.licenseKey
     };
-    const fetchBrowser = async (browser) => {
-      const data = await stats.fetchBrowserLastDays(this.props.apiKey, baseQuery, browser);
-      return { name: browser, y: data };
-    };
 
-    const data = await Promise.all(['Chrome', 'Firefox', 'IE', 'Safari', 'Edge'].map(fetchBrowser));
+    const data = await stats.fetchBrowsersGrouped(this.props.apiKey, baseQuery);
     this.setState({ data, loading: false });
   }
 

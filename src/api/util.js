@@ -62,6 +62,25 @@ export function formatTime(time, interval) {
   }
 }
 
+export function find80Percent(data, dataSelector) {
+  const mapped = data.map(dataSelector)
+  const total = mapped.reduce((a,b) => a+b, 0)
+  const threshHold = total * 0.95;
+  let running = 0;
+  let i = 0;
+  mapped.forEach(x => {
+    running += x;
+    if (running < threshHold) {
+      i++;
+    }
+  });
+  return i;
+}
+
+export function groupUnsortedToNBuckets(data, buckets, bucketCreator) {
+  return [...data.slice(0, buckets - 1), bucketCreator(data.slice(buckets))];
+}
+
 export function groupToNBuckets(data, buckets, bucketSelector, bucketCreator) {
   const sortedBuckets = data.sort(bucketSelector).reverse();
   return [...sortedBuckets.slice(0, buckets - 1), bucketCreator(sortedBuckets.slice(buckets))];

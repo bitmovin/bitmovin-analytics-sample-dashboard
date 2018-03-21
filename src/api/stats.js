@@ -1,6 +1,7 @@
 import Api, {filter} from './index';
 import * as ranges from './ranges';
 import moment from 'moment';
+import * as util from './util';
 
 export function fetchUsersLastDaysPerDay(apiKey, baseQuery = {}) {
   const api = new Api(apiKey);
@@ -92,6 +93,26 @@ export function fetchBrowsersLastDaysForVideo(apiKey, baseQuery, videoId) {
   });
 }
 
+export function fetchBrowsersGrouped(apiKey, baseQuery) {
+  const api = new Api(apiKey);
+  const lastDaysQuery = {
+    dimension: 'IMPRESSION_ID',
+    ...baseQuery,
+    filters: [
+      api.filter('VIDEO_STARTUPTIME', 'GT', 0)
+    ],
+    groupBy: 'BROWSER'
+  };
+  return api.fetchAnalytics('COUNT', lastDaysQuery).then(results => {
+    const sorted = results.sort((a,b) => b[1]-a[1]);
+    const buckets = util.find80Percent(sorted, x => x[1]);
+    return util.groupUnsortedToNBuckets(sorted, buckets, x => {
+      const res = ['Others', x.map(x => x[1]).reduce((a,b) => a+b, 0)]
+      return res
+    });
+  });
+}
+
 export function fetchBrowserLastDays(apiKey, baseQuery, browser) {
   const api = new Api(apiKey);
   const lastDaysQuery = {
@@ -99,7 +120,7 @@ export function fetchBrowserLastDays(apiKey, baseQuery, browser) {
     ...baseQuery,
     filters: [
       api.filter('BROWSER', 'CONTAINS', browser),
-      api.filter('PLAYED', 'GT', 0)
+      api.filter('VIDEO_STARTUPTIME', 'GT', 0)
     ]
   };
 
