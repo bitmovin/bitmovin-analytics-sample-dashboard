@@ -94,11 +94,7 @@ class Sidebar extends Component {
       <div className="sidebar" data-color="blue" data-active-color="blue" style={{backgroundColor: "white"}}>
 
         <div className="logo">
-          <img src="/theme/logo.png" width="200px" role="presentation"/>
-          <div className="apiuser" style={{margin: '10px', marginTop: '15px', textAlign: 'center'}}>
-            <i className="fa fa-user"></i>
-            <span style={{fontSize: '1em', marginLeft: '10px', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden' }}>{this.props.userName}</span>
-          </div>
+          // insert your logo here 
           <div>
             {this.renderAnalyticsLicenseKeySelect()}
           </div>

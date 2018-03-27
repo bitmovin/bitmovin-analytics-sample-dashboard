@@ -33,7 +33,6 @@ class App extends Component {
             </div>
           </nav>
           <div className="content">
-            <GitHubForkRibbon href="https://github.com/bitmovin/bitmovin-analytics-sample-dashboard" target="_blank" position="right" color="black">View on GitHub</GitHubForkRibbon>
             <div className="container-fluid">
               {this.props.children}
             </div>

@@ -90,9 +90,7 @@ function getKeyFromLocalStorage() {
 
 function getAccountInformation(apiKey) {
   const api = new Api(apiKey)
-  return api.bitmovin.account.information().then(info => {
-    return { apiKey: apiKey, userName: info.email }
-  })
+  return Promise.resolve({ apiKey: apiKey, userName: 'user' })
 }
 
 export const loadAnalyticsLicenseKeys = (apiKey) => {
