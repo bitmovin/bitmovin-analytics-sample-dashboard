@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import * as rebuffer from '../api/metrics/rebuffer';
+import * as Metrics from '../services/MetricCalculation';
 import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
@@ -51,14 +52,7 @@ class RebufferingSessionsList extends Component {
     const getInfo = (rows) => {
       const playedSum = rows.reduce((sum, { played }) => sum + played, 0);
 
-      let completionRate;
-      if (rows[0].video_duration === null) {
-        completionRate = 'Livestream';
-      } else if (rows[0].video_duration === 0) {
-        completionRate = 'No Data';
-      } else {
-        completionRate = util.roundTo(playedSum / (rows[0].video_duration*100), 2) + '%';
-      }
+      let completionRate = Metrics.calculateCompletionRate(rows[0].video_duration, playedSum);
 
       return {
         os: rows[0].operatingsystem,
