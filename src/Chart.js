@@ -33,6 +33,7 @@ class Chart extends Component {
   }];
 
   componentDidMount () {
+    ReactHighcharts.Highcharts.setOptions({ global: { useUTC: false }});
     this.loadData(this.props, this.defaultQueries());
   }
 
