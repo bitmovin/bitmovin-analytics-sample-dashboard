@@ -1,6 +1,6 @@
 import Api, {filter} from './index';
 import * as ranges from './ranges';
-import * as Metrics from '../services/MetricCalculation';
+import * as Metrics from '../services/MetricsCalculation';
 import moment from 'moment';
 import * as util from './util';
 
@@ -365,9 +365,7 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
             }
           }
 
-          let completionRate = Metrics.calculateCompletionRate(impression[0].video_duration, commulatedImpression.played);
-
-          commulatedImpression.completion_rate =  completionRate;
+          commulatedImpression.completion_rate =  Metrics.calculateCompletionRate(impression);
           commulatedImpression.time = moment(moment(commulatedImpression.time)).local().format('YYYY-MM-DD HH:mm:ss');
           commulatedImpression.samples = impression;
 

@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import * as startupDelay from '../api/metrics/startupdelay';
-import * as Metrics from '../services/MetricCalculation';
+import * as Metrics from '../services/MetricsCalculation';
 import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
@@ -52,7 +52,7 @@ class DelaySessionsList extends Component {
     const getInfo = (rows) => {
       const playedSum = rows.reduce((sum, { played }) => sum + played, 0);
 
-      let completionRate = Metrics.calculateCompletionRate(rows[0].video_duration, playedSum);
+      let completionRate = Metrics.calculateCompletionRate(rows);
 
       return {
         os: rows[0].operatingsystem,
