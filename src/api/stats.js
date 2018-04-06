@@ -365,7 +365,7 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
             }
           }
 
-          commulatedImpression.completion_rate =  Metrics.calculateCompletionRate(impression);
+          commulatedImpression.completion_rate = Metrics.calculateCompletionRate(impression);
           commulatedImpression.time = moment(moment(commulatedImpression.time)).local().format('YYYY-MM-DD HH:mm:ss');
           commulatedImpression.samples = impression;
 

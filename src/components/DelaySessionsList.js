@@ -50,10 +50,6 @@ class DelaySessionsList extends Component {
 
   render () {
     const getInfo = (rows) => {
-      const playedSum = rows.reduce((sum, { played }) => sum + played, 0);
-
-      let completionRate = Metrics.calculateCompletionRate(rows);
-
       return {
         os: rows[0].operatingsystem,
         browser: rows[0].browser,
@@ -63,7 +59,7 @@ class DelaySessionsList extends Component {
         city: rows[0].city,
         page: rows[0].path,
         startuptime: rows[1].startuptime,
-        completionRate
+        completionRate: Metrics.calculateCompletionRate(rows)
       }
     };
 
