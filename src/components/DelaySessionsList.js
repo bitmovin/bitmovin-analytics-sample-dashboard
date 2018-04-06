@@ -7,7 +7,6 @@ import * as Metrics from '../services/MetricsCalculation';
 import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
-import * as util from '../api/util';
 import { shortenString } from '../utils';
 
 class DelaySessionsList extends Component {
