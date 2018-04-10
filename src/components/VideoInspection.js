@@ -36,12 +36,19 @@ class VideoInspection extends Component {
     const videoId = location.query.video;
     const video = await stats.fetchVideoDetails(apiKey, videoId);
 
-    this.setState({ videoLength: video.length, video: { ...video, videoId } });
+    this.setState({
+      isLoading: false,
+      videoLength: video.length,
+      video: { ...video, videoId }
+    });
   }
 
   render () {
     const videoId = this.props.location.query.video;
-    const { video } = this.state;
+    const { video, isLoading } = this.state;
+    if (isLoading === true) {
+      return <div>Loading...</div>
+    }
 
     return (
       <div>
