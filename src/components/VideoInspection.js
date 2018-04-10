@@ -96,4 +96,10 @@ const mapDispatchToProps = (dispatch) => {
     }
   }
 }
-export default connect((state) => { return {apiKey: state.api.apiKey };}, mapDispatchToProps)(VideoInspection);
+const mapStateToProps = (state) => {
+  return {
+    apiKey: state.api.apiKey,
+    licenseKey: state.api.analyticsLicenseKey
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(VideoInspection);
