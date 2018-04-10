@@ -88,6 +88,7 @@ const mapStateToProps = (state) => {
   const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
     apiKey: state.api.apiKey,
+    licenseKey: state.api.analyticsLicenseKey,
     name,
     interval,
     primaryRange,
