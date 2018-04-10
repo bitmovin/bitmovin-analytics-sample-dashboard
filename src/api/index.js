@@ -91,29 +91,7 @@ class Api {
   }
 
   fetchAnalytics (queryFunction, query) {
-    return this.bitmovin.analytics.queries[queryFunction.toLowerCase()](query).then(x => x.rows)
-
-    //const url = urljoin(queriesApi, queryFunction.toLowerCase());
-
-    //const promise = fetch(url, {
-    //  method: 'POST',
-    //  headers: {
-    //    'Content-Type': 'application/json',
-    //    'X-Api-Key': this.apiKey,
-    //  },
-    //  body: JSON.stringify({ ...query, licenseKey: this.getLicenseKey() })
-    //})
-    //.then((response) => {
-    //  return checkResponseStatus(response, queryFunction, query)
-    //})
-    //.then(parseJson)
-    //.then((response) => {
-    //  return response.data.result.rows;
-    //}).catch(err => {
-    //  console.error(url, query, err);
-    //  throw err;
-    //});
-    //return promise;
+    return this.bitmovin.analytics.queries[queryFunction.toLowerCase()]({...query, licenseKey: this.getLicenseKey()}).then(x => x.rows)
   }
 
   fetchGlobalAnalytics(metric, query) {
