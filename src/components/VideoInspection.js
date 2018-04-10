@@ -33,21 +33,32 @@ class VideoInspection extends Component {
   }
 
   async loadData({ location, apiKey }) {
-    const videoId = location.query.video;
-    const video = await stats.fetchVideoDetails(apiKey, videoId);
+    try {
+      const videoId = location.query.video;
+      const video = await stats.fetchVideoDetails(apiKey, videoId);
 
-    this.setState({
-      isLoading: false,
-      videoLength: video.length,
-      video: { ...video, videoId }
-    });
+      this.setState({
+        isLoading: false,
+        isNotFound: false,
+        videoLength: video.length,
+        video: { ...video, videoId }
+      });
+    } catch (e) {
+      this.setState({
+        isLoading: false,
+        isNotFound: true
+      })
+    }
   }
 
   render () {
     const videoId = this.props.location.query.video;
-    const { video, isLoading } = this.state;
+    const { video, isLoading, isNotFound } = this.state;
     if (isLoading === true) {
       return <div>Loading...</div>
+    }
+    if (isNotFound === true) {
+      return <div>Could not find Video - have you selected the correct License?</div>
     }
 
     return (
