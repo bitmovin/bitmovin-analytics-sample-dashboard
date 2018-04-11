@@ -32,17 +32,29 @@ class VideoInspection extends Component {
     this.loadData(newProps);
   }
 
-  async loadData({ location, apiKey }) {
+  async loadData({ location, licenseKey, apiKey }) {
     try {
       const videoId = location.query.video;
-      const video = await stats.fetchVideoDetails(apiKey, videoId);
+      const isLive = await stats.isVideoLive(apiKey, licenseKey, videoId)
 
-      this.setState({
-        isLoading: false,
-        isNotFound: false,
-        videoLength: video.length,
-        video: { ...video, videoId }
-      });
+      if (!isLive) {
+        const video = await stats.fetchVodVideoDetails(apiKey, licenseKey, videoId);
+        this.setState({
+          isLoading: false,
+          isLive: isLive,
+          isNotFound: false,
+          videoLength: video.length,
+          video: { ...video, videoId }
+        });
+      } else {
+        this.setState({
+          isLoading: false,
+          isLive: true,
+          isNotFound: false,
+          videoLength: 0,
+        });
+      }
+
     } catch (e) {
       this.setState({
         isLoading: false,
@@ -53,12 +65,15 @@ class VideoInspection extends Component {
 
   render () {
     const videoId = this.props.location.query.video;
-    const { video, isLoading, isNotFound } = this.state;
+    const { video, isLive, isLoading, isNotFound } = this.state;
     if (isLoading === true) {
       return <div>Loading...</div>
     }
     if (isNotFound === true) {
       return <div>Could not find Video - have you selected the correct License?</div>
+    }
+    if (isLive === true) {
+      return <div>This video is Live</div>
     }
 
     return (

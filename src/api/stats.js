@@ -289,10 +289,32 @@ export function fetchScalingLastDays(apiKey, baseQuery = {}) {
   });
 }
 
-export async function fetchVideoDetails(apiKey, videoId) {
+export async function isVideoLive(apiKey, licenseKey, videoId) {
+  const api = new Api(apiKey);
+  return api.builder()
+    .count('IMPRESSION_ID')
+    .between(ranges.thisWeek.start, ranges.thisWeek.end)
+    .licenseKey(licenseKey)
+    .filter('VIDEO_ID', 'EQ', videoId)
+    .groupBy('IS_LIVE')
+    .filter('VIDEO_STARTUPTIME', 'GT', 0)
+    .query().then(x => {
+      let isLive = x.rows[0][1]
+      let notLive = x.rows[1][1]
+      if (x.rows[0][0] === false) {
+        const tmp = isLive;
+        isLive = notLive;
+        notLive = tmp;
+      }
+      return isLive > notLive;
+    })
+}
+
+export async function fetchVodVideoDetails(apiKey, licenseKey, videoId) {
   const api = new Api(apiKey);
   const query = {
     dimension: 'VIDEO_DURATION',
+    licenseKey: licenseKey,
     groupBy: ['VIDEO_ID', 'MPD_URL', 'M3U8_URL', 'PROG_URL'],
 		...ranges.thisWeek,
     filters: [
