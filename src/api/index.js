@@ -94,6 +94,10 @@ class Api {
     return this.bitmovin.analytics.queries[queryFunction.toLowerCase()]({...query, licenseKey: this.getLicenseKey()}).then(x => x.rows)
   }
 
+  builder () {
+    return this.bitmovin.analytics.queries.builder
+  }
+
   fetchGlobalAnalytics(metric, query) {
     const url = urljoin(globalQueriesApi, metric.toLowerCase());
 
