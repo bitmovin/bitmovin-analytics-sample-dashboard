@@ -25,7 +25,8 @@ class EngagementForVideo extends Component {
 
   async loadData({ apiKey, video }) {
     this.setState({ loading: true });
-    const result = await stats.fetchVideoHeatMapImpressions(apiKey, video);
+    let range = this.props.ranges.primaryRange;
+    const result = await stats.fetchVideoHeatMapImpressions(apiKey, video, range);
     this.setState({ data: result.seconds, loading: false });
   }
 
@@ -89,6 +90,7 @@ class EngagementForVideo extends Component {
 const mapStateToProps = (state) => {
   return {
     apiKey: state.api.apiKey,
+    ranges: state.ranges,
   }
 };
 

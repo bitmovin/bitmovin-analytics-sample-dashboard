@@ -1,5 +1,4 @@
 import Api, {filter} from './index';
-import * as ranges from './ranges';
 import * as Metrics from '../services/MetricsCalculation';
 import moment from 'moment';
 import * as util from './util';
@@ -289,34 +288,30 @@ export function fetchScalingLastDays(apiKey, baseQuery = {}) {
   });
 }
 
-export async function isVideoLive(apiKey, licenseKey, videoId) {
+export async function isVideoLive(apiKey, licenseKey, videoId, range) {
   const api = new Api(apiKey);
   return api.builder()
     .count('IMPRESSION_ID')
-    .between(ranges.thisWeek.start, ranges.thisWeek.end)
+    .between(range.start, range.end)
     .licenseKey(licenseKey)
     .filter('VIDEO_ID', 'EQ', videoId)
-    .groupBy('IS_LIVE')
     .filter('VIDEO_STARTUPTIME', 'GT', 0)
+    .groupBy('IS_LIVE')
+		.orderBy('IS_LIVE', 'DESC')
     .query().then(x => {
       let isLive = x.rows[0][1]
       let notLive = x.rows[1][1]
-      if (x.rows[0][0] === false) {
-        const tmp = isLive;
-        isLive = notLive;
-        notLive = tmp;
-      }
-      return isLive > notLive;
+      return isLive >= notLive;
     })
 }
 
-export async function fetchVodVideoDetails(apiKey, licenseKey, videoId) {
+export async function fetchVodVideoDetails(apiKey, licenseKey, videoId, range) {
   const api = new Api(apiKey);
   const query = {
     dimension: 'VIDEO_DURATION',
     licenseKey: licenseKey,
     groupBy: ['VIDEO_ID', 'MPD_URL', 'M3U8_URL', 'PROG_URL'],
-		...ranges.thisWeek,
+		...range,
     filters: [
       {
         name: 'VIDEO_DURATION',
@@ -339,7 +334,6 @@ export async function fetchVodVideoDetails(apiKey, licenseKey, videoId) {
 
   return  { mpdUrl, m3u8Url, progUrl, length: videoDuration / 1000 };
 }
-
 
 export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
   const api = new Api(apiKey);
@@ -400,20 +394,20 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
   });
 }
 
-export function fetchVideoHeatMapImpressions(apiKey, video) {
-  return fetchHeatmap(apiKey, video, 'COUNT', 'IMPRESSION_ID', noopFormatter, [filter('PLAYED', 'GT', 0)]);
+export function fetchVideoHeatMapImpressions(apiKey, video, range) {
+  return fetchHeatmap(apiKey, video, 'COUNT', 'IMPRESSION_ID', range, noopFormatter, [filter('PLAYED', 'GT', 0)]);
 }
 
-export function fetchVideoHeatMapAvgBitrate(apiKey, video) {
-  return fetchHeatmap(apiKey, video, 'AVG', 'VIDEO_BITRATE', avgBitrateFormatter, [filter('VIDEO_BITRATE', 'GT', 0)]);
+export function fetchVideoHeatMapAvgBitrate(apiKey, video, range) {
+  return fetchHeatmap(apiKey, video, 'AVG', 'VIDEO_BITRATE', range, avgBitrateFormatter, [filter('VIDEO_BITRATE', 'GT', 0)]);
 }
 
-export function fetchVideoHeatMapErrors(apiKey, video) {
-  return fetchHeatmap(apiKey, video, 'COUNT', 'ERROR_CODE');
+export function fetchVideoHeatMapErrors(apiKey, video, range) {
+  return fetchHeatmap(apiKey, video, 'COUNT', 'ERROR_CODE', range);
 }
 
-export function fetchVideoHeatMapBuffering(apiKey, video) {
-  return fetchHeatmap(apiKey, video, 'AVG', 'BUFFERED', bufferingFormatter, [filter('PLAYER_STARTUPTIME', 'EQ', 0), filter('VIDEO_STARTUPTIME', 'EQ', 0)]);
+export function fetchVideoHeatMapBuffering(apiKey, video, range) {
+  return fetchHeatmap(apiKey, video, 'AVG', 'BUFFERED', range, bufferingFormatter, [filter('PLAYER_STARTUPTIME', 'EQ', 0), filter('VIDEO_STARTUPTIME', 'EQ', 0)]);
 }
 
 function noopFormatter(data) {
@@ -428,7 +422,7 @@ function bufferingFormatter(data) {
   return roundToTwo(data);
 }
 
-function fetchHeatmap(apiKey, video, functionName, dimension, dataFormatter = noopFormatter, filters = []) {
+function fetchHeatmap(apiKey, video, functionName, dimension, range, dataFormatter = noopFormatter, filters = []) {
   const api = new Api(apiKey);
   const maxRequests = 20;
   const chunkSize = Math.floor(video.length * 1000 / maxRequests);
@@ -442,7 +436,7 @@ function fetchHeatmap(apiKey, video, functionName, dimension, dataFormatter = no
       const to = (chunk + 1) * chunkSize;
       const query = {
         dimension: dimension,
-				...ranges.thisWeek,
+				...range,
         filters: [{
             name: 'VIDEOTIME_START',
             operator: 'LTE',

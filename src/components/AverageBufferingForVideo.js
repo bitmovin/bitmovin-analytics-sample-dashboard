@@ -25,7 +25,8 @@ class AverageBufferingForVideo extends Component {
 
   async loadData({ apiKey, video }) {
     this.setState({ loading: true });
-    const result = await stats.fetchVideoHeatMapBuffering(apiKey, video);
+    let range = this.props.ranges.primaryRange;
+    const result = await stats.fetchVideoHeatMapBuffering(apiKey, video, range);
     this.setState({ data: result.seconds, loading: false });
   }
 
@@ -90,6 +91,7 @@ class AverageBufferingForVideo extends Component {
 const mapStateToProps = (state) => {
   return {
     apiKey: state.api.apiKey,
+    ranges: state.ranges,
   }
 };
 
