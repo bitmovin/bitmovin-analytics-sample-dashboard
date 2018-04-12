@@ -3,9 +3,9 @@ import {connect} from 'react-redux';
 import ReactHighcharts from 'react-highcharts';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
-import * as impressions from '../api/metrics/impressions';
+import * as concurrentViewers from '../api/metrics/concurrentViewers';
 
-class VideoImpressionsChart extends Component {
+class VideoConcurrentViewersChart extends Component {
   static propTypes = {
     videoId: PropTypes.string
   };
@@ -26,7 +26,7 @@ class VideoImpressionsChart extends Component {
   async loadData({ apiKey, licenseKey, primaryRange, interval, videoId, name }) {
     this.setState({ loading: true });
 
-    let query = impressions.groupedQuery(apiKey)
+    let query = concurrentViewers.groupedQuery(apiKey)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
       .interval(interval)
@@ -62,7 +62,7 @@ class VideoImpressionsChart extends Component {
           color: '#808080'
         }],
         title    : {
-          text: 'Impressions'
+          text: 'Viewers'
         }
       },
       plotOptions: {
@@ -75,7 +75,7 @@ class VideoImpressionsChart extends Component {
         '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
     };
     return (
-      <Card title="Started Streams" width={{md:12, sm: 12, xs: 12}} fixedHeight={false}>
+      <Card title="Concurrent Viewers" width={{md:12, sm: 12, xs: 12}} fixedHeight={false}>
         <LoadingIndicator loading={loading}>
           <ReactHighcharts config={chartConfig}/>
         </LoadingIndicator>
@@ -85,6 +85,7 @@ class VideoImpressionsChart extends Component {
 }
 
 const mapStateToProps = (state) => {
+  console.log(state.ranges);
   const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
     apiKey: state.api.apiKey,
@@ -96,4 +97,4 @@ const mapStateToProps = (state) => {
   }
 };
 
-export default connect(mapStateToProps)(VideoImpressionsChart);
+export default connect(mapStateToProps)(VideoConcurrentViewersChart);

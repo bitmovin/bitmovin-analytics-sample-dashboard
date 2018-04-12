@@ -25,7 +25,8 @@ class ErrorsForVideo extends Component {
 
   async loadData({ apiKey, video }) {
     this.setState({ loading: true });
-    const result = await stats.fetchVideoHeatMapErrors(apiKey, video);
+    let range = this.props.ranges.primaryRange;
+    const result = await stats.fetchVideoHeatMapErrors(apiKey, video, range);
     this.setState({ data: result.seconds, loading: false });
   }
 
@@ -89,6 +90,7 @@ class ErrorsForVideo extends Component {
 const mapStateToProps = (state) => {
   return {
     apiKey: state.api.apiKey,
+    ranges: state.ranges,
   }
 };
 

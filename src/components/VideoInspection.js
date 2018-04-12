@@ -1,16 +1,8 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux'
-import TopStatsForVideo from '../TopStatsForVideo'
 import * as stats from '../api/stats'
-import VideoImpressionsChart from './VideoImpressionsChart'
-import OperatingSystemForVideo from './OperatingSystemForVideo'
-import EngagementForVideo from './EngagementForVideo'
-import AverageBitrateForVideo from './AverageBitrateForVideo'
-import ErrorsForVideo from './ErrorsForVideo'
-import AverageBufferingForVideo from './AverageBufferingForVideo'
-import BrowserForVideo from './BrowserForVideo'
 import { push } from 'react-router-redux'
-import ImpressionsList from './ImpressionsList'
+import VideoInspectionView from './VideoInspectionView'
 
 class VideoInspection extends Component {
   constructor(props) {
@@ -32,17 +24,26 @@ class VideoInspection extends Component {
     this.loadData(newProps);
   }
 
-  async loadData({ location, apiKey }) {
+  async loadData({ location, licenseKey, apiKey }) {
     try {
       const videoId = location.query.video;
-      const video = await stats.fetchVideoDetails(apiKey, videoId);
+      const range = this.props.ranges.primaryRange;
+      const isLive = await stats.isVideoLive(apiKey, licenseKey, videoId, range)
+      let video = undefined;
+      let videoLength = 0;
+      if(!isLive) {
+        video = await stats.fetchVodVideoDetails(apiKey, licenseKey, videoId, range);
+        videoLength = video.length;
+      }
 
       this.setState({
         isLoading: false,
+        isLive: isLive,
         isNotFound: false,
-        videoLength: video.length,
+        videoLength: videoLength,
         video: { ...video, videoId }
       });
+
     } catch (e) {
       this.setState({
         isLoading: false,
@@ -52,40 +53,14 @@ class VideoInspection extends Component {
   }
 
   render () {
-    const videoId = this.props.location.query.video;
-    const { video, isLoading, isNotFound } = this.state;
+    const { video, isLive, isLoading, isNotFound } = this.state;
     if (isLoading === true) {
       return <div>Loading...</div>
     }
     if (isNotFound === true) {
       return <div>Could not find Video - have you selected the correct License?</div>
     }
-
-    return (
-      <div>
-        <TopStatsForVideo videoId={videoId}/>
-        <br></br>
-        <div className="row">
-          <VideoImpressionsChart videoId={videoId}/>
-        </div>
-        <br></br>
-        <div className="row">
-          <OperatingSystemForVideo videoId={videoId}/>
-          <BrowserForVideo videoId={videoId}/>
-        </div>
-        <div className="row">
-          <EngagementForVideo video={video} />
-          <AverageBitrateForVideo video={video} />
-        </div>
-        <div className="row">
-          <ErrorsForVideo video={video} />
-          <AverageBufferingForVideo video={video} />
-        </div>
-        <div className="row">
-          <ImpressionsList title="Last Impressions for this video" video={video} />
-        </div>
-      </div>
-    );
+    return <VideoInspectionView video={video} isLive={isLive} />
   }
 }
 
@@ -99,7 +74,8 @@ const mapDispatchToProps = (dispatch) => {
 const mapStateToProps = (state) => {
   return {
     apiKey: state.api.apiKey,
-    licenseKey: state.api.analyticsLicenseKey
+    licenseKey: state.api.analyticsLicenseKey,
+    ranges: state.ranges,
   }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(VideoInspection);
