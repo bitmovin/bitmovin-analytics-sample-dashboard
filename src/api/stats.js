@@ -317,7 +317,7 @@ export async function fetchVodVideoDetails(apiKey, licenseKey, videoId, range) {
 		...range,
     filters: [
       {
-        name: 'VIDEO_STARTUPTIME',
+        name: 'VIDEO_DURATION',
         operator: 'GT',
         value: 0
       }
