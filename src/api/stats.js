@@ -299,9 +299,12 @@ export async function isVideoLive(apiKey, licenseKey, videoId, range) {
     .groupBy('IS_LIVE')
 		.orderBy('IS_LIVE', 'DESC')
     .query().then(x => {
-      let isLive = x.rows[0][1]
-      let notLive = x.rows[1][1]
-      return isLive >= notLive;
+      if (x.rows.length >= 2) {
+        let isLive = x.rows[0][1]
+        let notLive = x.rows[1][1]
+        return isLive >= notLive;
+      }
+      return x.rows[0][0];
     })
 }
 
@@ -314,7 +317,7 @@ export async function fetchVodVideoDetails(apiKey, licenseKey, videoId, range) {
 		...range,
     filters: [
       {
-        name: 'VIDEO_DURATION',
+        name: 'VIDEO_STARTUPTIME',
         operator: 'GT',
         value: 0
       }

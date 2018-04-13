@@ -76,7 +76,6 @@ export function genericStartupTimeOverTime(aggregation, apiKey, interval, baseQu
   const promise = api.fetchAnalytics(aggregation, query);
   promise.catch(() => { 
     console.log(query, baseQuery);
-    debugger;
   });
   return promise;
 }
