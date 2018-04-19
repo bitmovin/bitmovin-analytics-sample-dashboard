@@ -32,7 +32,7 @@ class TimeFrameDialog extends Component {
     const predefinedRanges = [
       { name: 'Last Week', start: moment.utc().subtract(7, 'days').startOf('day').toDate(), end: yesterdayMidnight },
       { name: 'Last 3 Days', start: moment.utc().subtract(3, 'days').startOf('day').toDate(), end: yesterdayMidnight  },
-      { name: 'Last 24 Hours', start: moment.utc().subtract(1, 'day').startOf('hour').toDate(), end: moment.utc().startOf('hour').toDate() },
+      { name: 'Last 24 Hours', start: moment.utc().subtract(1, 'day').startOf('hour').toDate(), end: moment.utc().toDate() },
       { name: 'Last Hour', start: moment.utc().subtract(1, 'hour').startOf('minute').toDate() },
       { name: 'Last 15 Minutes', start: moment.utc().subtract(15, 'minutes').endOf('minute').toDate() },
     ];
