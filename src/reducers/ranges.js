@@ -6,11 +6,11 @@ const defaultState = {
   name: 'Last 24 Hours',
   primaryRange: {
     start: moment.utc().subtract(1, 'day').startOf('hour').format(),
-    end: moment.utc().startOf('hour').format()
+    end: moment.utc().format()
   },
   secondaryRange: {
     start: moment.utc().subtract(2, 'day').startOf('hour').format(),
-    end: moment.utc().subtract(1, 'day').startOf('hour').format()
+    end: moment.utc().subtract(1, 'day').format()
 	},
 	interval: 'HOUR'
 }
