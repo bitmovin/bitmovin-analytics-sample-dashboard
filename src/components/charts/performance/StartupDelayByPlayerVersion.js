@@ -31,7 +31,7 @@ class StartupDelayByPlayerVersion extends Component {
     const rows = await startupDelay.videoStartupDelayByPlayerVersion(apiKey, baseQuery);
     const playerVersions = new Set(rows.map(row => row[1]));
     const series = [...playerVersions].map((playerVersion) => ({
-      name: playerVersion ? playerVersion.toUpperCase() : '',
+      name: playerVersion ? playerVersion.toUpperCase() : 'Unknown',
       data: rows
         .filter(r => r[1] === playerVersion)
         .map(r => [r[0], Math.round(r[2])])
