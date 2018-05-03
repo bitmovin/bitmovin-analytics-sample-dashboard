@@ -2,6 +2,9 @@ import Api, {filter} from './index';
 import * as Metrics from '../services/MetricsCalculation';
 import moment from 'moment';
 import * as util from './util';
+import Promise from 'bluebird';
+
+const CONCURRENT_REQUESTS_LIMIT = 5;
 
 export function fetchUsersLastDaysPerDay(apiKey, baseQuery = {}) {
   const api = new Api(apiKey);
@@ -359,41 +362,46 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
 
   return new Promise((resolve) => {
     api.fetchAnalytics('MIN', impressions).then((results) => {
-      const promises = [];
-      for (let i = 0; i < results.length; i++) {
-        promises.push(api.getImpression(results[i][0]));
-      }
-
-      Promise.all(promises).then(function (impressions) {
-        const returnImpressions = impressions.map(impression => {
-          const commulatedImpression = {
-            ...impression[0]
-          };
-
-          for (let i = 1; i < impression.length; i++) {
-            commulatedImpression.played += impression[i].played;
-            if (impression[i].videotime_end > 0 && impression[i].video_startuptime === 0 && impression[i].player_startuptime === 0) {
-              commulatedImpression.buffered += impression[i].buffered;
-            }
-            commulatedImpression.ad += impression[i].ad;
-            commulatedImpression.seeked += impression[i].seeked;
-            commulatedImpression.paused += impression[i].paused;
-
-            if (impression[i].video_startuptime > 0) {
-              commulatedImpression.video_startuptime = impression[i].video_startuptime;
-            }
-          }
-
-          commulatedImpression.completion_rate = Metrics.calculateCompletionRate(impression);
-          commulatedImpression.time = moment(moment(commulatedImpression.time)).local().format('YYYY-MM-DD HH:mm:ss');
-          commulatedImpression.samples = impression;
-
-          return commulatedImpression;
+      Promise.map(results, result => {
+        return api.getImpression(result[0]).catch(() => null);
+      }, {
+        concurrency: CONCURRENT_REQUESTS_LIMIT
+      }).then((impressions) => {
+        let filteredImpressions = impressions.filter((impression) => impression);
+        resolve({
+          impressions: createCommulatedImpressions(filteredImpressions),
+          hasMissingImpressions: filteredImpressions.length !== impressions.length
         });
-
-        resolve(returnImpressions);
       });
-    })
+    });
+  });
+}
+
+function createCommulatedImpressions(impressions) {
+  return impressions.map(impression => {
+    const commulatedImpression = {
+      ...impression[0]
+    };
+
+    for (let i = 1; i < impression.length; i++) {
+      commulatedImpression.played += impression[i].played;
+      if (impression[i].videotime_end > 0 && impression[i].video_startuptime === 0 && impression[i].player_startuptime === 0) {
+        commulatedImpression.buffered += impression[i].buffered;
+      }
+      commulatedImpression.ad += impression[i].ad;
+      commulatedImpression.seeked += impression[i].seeked;
+      commulatedImpression.paused += impression[i].paused;
+
+      if (impression[i].video_startuptime > 0) {
+        commulatedImpression.video_startuptime = impression[i].video_startuptime;
+      }
+    }
+
+    commulatedImpression.completion_rate = Metrics.calculateCompletionRate(impression);
+    commulatedImpression.time = moment(moment(commulatedImpression.time)).local().format('YYYY-MM-DD HH:mm:ss');
+    commulatedImpression.samples = impression;
+
+    return commulatedImpression;
   });
 }
 

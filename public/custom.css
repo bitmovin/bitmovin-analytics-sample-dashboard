@@ -16,6 +16,14 @@ h4.title {
   color: white;
 }
 
+.card-header h4.title, .card-header span.subtitle {
+    display: inline-block;
+}
+
+.card-header span.subtitle {
+    margin-left: 24px;
+}
+
 .LoadingSpinner {
   position: relative;
   text-align: center;
