@@ -4,6 +4,8 @@ import moment from 'moment';
 import * as util from './util';
 import Promise from 'bluebird';
 
+const CONCURRENT_REQUESTS_LIMIT = 5;
+
 export function fetchUsersLastDaysPerDay(apiKey, baseQuery = {}) {
   const api = new Api(apiKey);
   const query = {
@@ -361,13 +363,14 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
   return new Promise((resolve) => {
     api.fetchAnalytics('MIN', impressions).then((results) => {
       Promise.map(results, result => {
-        return api.getImpression(result[0]);
+        return api.getImpression(result[0]).catch(() => null);
       }, {
-        concurrency: 10
-      }).then(function (impressions) {
-        resolve(createCommulatedImpressions(impressions));
+        concurrency: CONCURRENT_REQUESTS_LIMIT
+      }).then(function (result) {
+        var impressionsArray = result.filter((impression) => impression);
+        resolve(createCommulatedImpressions(impressionsArray));
       });
-    })
+    });
   });
 }
 
