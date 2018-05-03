@@ -366,8 +366,8 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
         return api.getImpression(result[0]).catch(() => null);
       }, {
         concurrency: CONCURRENT_REQUESTS_LIMIT
-      }).then(function (impressions) {
-        var filteredImpressions = impressions.filter((impression) => impression);
+      }).then((impressions) => {
+        let filteredImpressions = impressions.filter((impression) => impression);
         resolve({
           impressions: createCommulatedImpressions(filteredImpressions),
           hasMissingImpressions: filteredImpressions.length !== impressions.length
