@@ -14,7 +14,8 @@ class ImpressionsList extends Component {
   state = {
     limit: 20,
     offset: 0,
-    impressions: []
+    impressions: [],
+    hasMissingImpressions: false,
   }
 
   componentDidMount () {
@@ -41,13 +42,13 @@ class ImpressionsList extends Component {
       licenseKey,
     };
 
-    const impressions = await stats.fetchLastImpressions(apiKey, query, video && video.videoId);
-
-    this.setState({ offset: offset, impressions: impressions, loading: false });
+    const {impressions, hasMissingImpressions} = await stats.fetchLastImpressions(apiKey, query, video && video.videoId);
+    console.log("Missing: ", hasMissingImpressions)
+    this.setState({ offset: offset, impressions: impressions, hasMissingImpressions: hasMissingImpressions, loading: false });
   }
 
   render () {
-    const { impressions, loading } = this.state;
+    const { impressions, loading, hasMissingImpressions } = this.state;
     const rows = impressions.map((impression, index) => {
       return <tr onClick={() => { this.props.openImpression(impression.impression_id); }}
                  key={index}
@@ -61,10 +62,11 @@ class ImpressionsList extends Component {
         <td>{impression.completion_rate}</td>
       </tr>;
     });
+    let missingImpressionsText = hasMissingImpressions ? "Some Impressions are missing": '';
     return (
       <div>
         <div className="row">
-          <Card title={this.props.title} width={{md:12, sm: 12, xs: 12}} cardHeight="auto">
+          <Card title={this.props.title} subtitle={missingImpressionsText} width={{md:12, sm: 12, xs: 12}} cardHeight="auto">
             <LoadingIndicator loading={loading}>
               <table className="table table-hover" style={{width:"100%"}}>
                 <thead className="text-warning">

@@ -4,6 +4,7 @@ import React, { Component, PropTypes } from 'react'
 class Card extends Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
+    subtitle: PropTypes.string,
     children: PropTypes.element.isRequired,
     switchDisplay: PropTypes.func,
     switchIcon: PropTypes.string,
@@ -42,6 +43,9 @@ class Card extends Component {
       <div className={ innerCardClassName } style={{height: cardHeight}}>
         <div className={cardHeaderClassName} {...backgroundColor}>
           <h4 className="title">{this.props.title}</h4>
+          {this.props.subtitle &&
+            <span className="subtitle">{this.props.subtitle}</span>
+          }
           <p className="category">{switchDisplay}</p>
         </div>
         <div className="card-content">

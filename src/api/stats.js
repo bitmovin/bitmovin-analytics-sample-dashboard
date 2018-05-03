@@ -368,7 +368,10 @@ export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
         concurrency: CONCURRENT_REQUESTS_LIMIT
       }).then(function (impressions) {
         var filteredImpressions = impressions.filter((impression) => impression);
-        resolve(createCommulatedImpressions(filteredImpressions));
+        resolve({
+          impressions: createCommulatedImpressions(filteredImpressions),
+          hasMissingImpressions: filteredImpressions.length !== impressions.length
+        });
       });
     });
   });
