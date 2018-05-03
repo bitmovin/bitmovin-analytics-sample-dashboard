@@ -43,7 +43,6 @@ class ImpressionsList extends Component {
     };
 
     const {impressions, hasMissingImpressions} = await stats.fetchLastImpressions(apiKey, query, video && video.videoId);
-    console.log("Missing: ", hasMissingImpressions)
     this.setState({ offset: offset, impressions: impressions, hasMissingImpressions: hasMissingImpressions, loading: false });
   }
 
