@@ -9,6 +9,7 @@ import * as util from '../api/util';
 import * as errors from '../api/metrics/errors';
 import * as startupdelay from '../api/metrics/startupdelay';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class TopContentsAdvanced extends PureComponent {
   state = {
@@ -56,7 +57,7 @@ class TopContentsAdvanced extends PureComponent {
         Promise.resolve(videoImpression),
         rebuffer.rebufferPercentageOverTime(props.apiKey, rebufferPercentageQuery),
         startupdelay.fetchStartupDelay(props.apiKey, videoStartupTimeByCountray),
-        errors.errorsByVideo(props.apiKey, errorsByVideo)
+        errors.errorsByVideo(props.api, errorsByVideo)
       ]);
     });
 
@@ -161,7 +162,7 @@ class TopContentsAdvanced extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

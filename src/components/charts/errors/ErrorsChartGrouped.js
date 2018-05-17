@@ -7,6 +7,7 @@ import * as ranges from '../../../api/ranges'
 import * as d3 from 'd3'
 import * as util from '../../../api/util'
 import _ from 'underscore'
+import Api from '../../../api';
 
 class ErrorsChartGrouped extends Component {
   constructor (props) {
@@ -24,7 +25,7 @@ class ErrorsChartGrouped extends Component {
     interval: PropTypes.string.isRequired
   }
   loadData (props) {
-    errors.fetchErrorPercentageGrouped(props.apiKey, props.groupBy.toUpperCase(), props.interval, props.primaryRange).then(data => {
+    errors.fetchErrorPercentageGrouped(props.api, props.groupBy.toUpperCase(), props.interval, props.primaryRange).then(data => {
       data = util.sortByFirstColumn(data);
       const grouped = _.groupBy(data, (row) => { return row[1]; });
       let series = [];
@@ -110,7 +111,7 @@ class ErrorsChartGrouped extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     primaryRange: state.ranges.primaryRange,
     interval: state.ranges.interval
   };

@@ -6,6 +6,7 @@ import ReactHighcharts from 'react-highcharts';
 import * as errors from '../../../api/metrics/errors';
 import * as d3 from 'd3-array';
 import { ErrorCodes } from '../../../utils';
+import Api from '../../../api';
 
 class FrequentErrors extends Component {
   static propTypes = {
@@ -39,7 +40,7 @@ class FrequentErrors extends Component {
       licenseKey: props.licenseKey
     };
 
-    const data = await errors.fetchErrorCount(props.apiKey, 'day', baseQuery);
+    const data = await errors.fetchErrorCount(props.api, 'day', baseQuery);
     const filtered = data.filter((row) => row[0] !== null);
     const series = [{
       name: 'Error Codes',
@@ -118,7 +119,7 @@ class FrequentErrors extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey      : state.api.apiKey,
+    api         : new Api(state),
     primaryRange: state.ranges.primaryRange,
     licenseKey  : state.api.analyticsLicenseKey
   };
