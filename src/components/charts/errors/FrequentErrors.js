@@ -120,7 +120,7 @@ const mapStateToProps = (state) => {
   return {
     apiKey      : state.api.apiKey,
     primaryRange: state.ranges.primaryRange,
-    licenseKey: state.api.analyticsLicenseKey
+    licenseKey  : state.api.analyticsLicenseKey
   };
 };
 export default connect(mapStateToProps)(FrequentErrors);

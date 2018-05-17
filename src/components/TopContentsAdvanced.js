@@ -161,7 +161,7 @@ class TopContentsAdvanced extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+    apiKey: state.api.apiKey,
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

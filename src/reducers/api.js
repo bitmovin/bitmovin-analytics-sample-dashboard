@@ -2,6 +2,7 @@ import * as apiAction from '../actions/api.js'
 
 const defaultState = {
   apiKey                       : '',
+  tenantOrgId                  : '',
   isSetup                      : false,
   validationSuccess            : false,
   isValidating                 : true,
@@ -23,6 +24,7 @@ function api(state = defaultState, action) {
       return {
         ...state,
         apiKey: action.apiKey,
+        tenantOrgId: action.tenantOrgId,
         userName: action.userName,
         isSetup: true,
         verifyingApiKey: false,

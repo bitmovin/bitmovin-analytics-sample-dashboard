@@ -27,9 +27,10 @@ export function filter (name, operator, value) {
   return { name, operator: operator.toUpperCase(), value };
 }
 class Api {
-  constructor(apiKey) {
+  constructor(apiKey, tenantOrgId) {
     this.apiKey = apiKey;
-    this.bitmovin = new Bitmovin({apiKey})
+    this.tenantOrgId = tenantOrgId;
+    this.bitmovin = new Bitmovin({ apiKey: this.apiKey, tenantOrgId: this.tenantOrgId });
   }
 
   filter (name, operator, value) {
