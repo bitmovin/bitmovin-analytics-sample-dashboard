@@ -6,6 +6,7 @@ import mapdata from '../../../mapdata/world';
 import ReactHighmaps from 'react-highcharts/ReactHighmaps.src';
 import ReactPaginate from 'react-paginate';
 import LoadingIndicator from '../../LoadingIndicator';
+import Api from '../../../api';
 
 class RebufferCountByCountry extends Component {
   state = {
@@ -47,7 +48,7 @@ class RebufferCountByCountry extends Component {
       licenseKey: props.licenseKey
     };
 
-    const result = await rebuffer.rebufferPercentageOverTime(props.apiKey, baseQuery)
+    const result = await rebuffer.rebufferPercentageOverTime(props.api, baseQuery)
     const series = { data: convertResultToSeries(result) };
     const tableData = result.sort((a, b) => b[3] - a[3]);
 
@@ -160,7 +161,7 @@ class RebufferCountByCountry extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     interval: state.ranges.interval,
     rangeName: state.ranges.name,
     primaryRange: state.ranges.primaryRange,

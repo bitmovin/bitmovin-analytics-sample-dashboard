@@ -5,6 +5,7 @@ import Card from '../../Card'
 import ReactHighcharts from 'react-highcharts'
 import * as startupDelay from '../../../api/metrics/startupdelay'
 import moment from 'moment'
+import Api from '../../../api';
 
 class OverallStartupGraph extends Component {
   static propTypes = {
@@ -32,9 +33,9 @@ class OverallStartupGraph extends Component {
       })
     }
     Promise.all([
-      startupDelay.startupTimeOverTime(props.apiKey, props.interval, { ...props.primaryRange }),
-			startupDelay.videoStartupDelayOverTime(props.apiKey, { ...props.primaryRange, interval: props.interval }),
-			startupDelay.playerStartupDelayOverTime(props.apiKey, props.interval, props.primaryRange)
+      startupDelay.startupTimeOverTime(props.api, props.interval, { ...props.primaryRange }),
+			startupDelay.videoStartupDelayOverTime(props.api, { ...props.primaryRange, interval: props.interval }),
+			startupDelay.playerStartupDelayOverTime(props.api, props.interval, props.primaryRange)
     ]).then(results => {
       this.setState(prevState => {
         const state = {
@@ -120,7 +121,7 @@ class OverallStartupGraph extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+		api: new Api(state),
 		primaryRange: state.ranges.primaryRange,
 		secondaryRange: state.ranges.secondaryRange,
 		interval: state.ranges.interval

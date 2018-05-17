@@ -36,7 +36,7 @@ class StartupTimeGrouped extends Component {
       }
       return series;
     }
-    startupDelay.videoStartupTimeGrouped(this.props.apiKey, this.props.groupBy, this.props.timeRange).then(results => {
+    startupDelay.videoStartupTimeGrouped(this.props.api, this.props.groupBy, this.props.timeRange).then(results => {
       const techRows = results.reduce((memo, item) => {
         memo[item[1]] = memo[item[1]] || [];
         memo[item[1]].push(item);
@@ -99,7 +99,7 @@ class StartupTimeGrouped extends Component {
 
 const mapStateToProps = (state) => { 
 	return {
-		apiKey: state.api.apiKey,
+    api: new Api(state),
 		timeRange: state.ranges.primaryRange,
 		rangeName: state.ranges.name
 	};

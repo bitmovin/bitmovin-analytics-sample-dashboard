@@ -27,8 +27,8 @@ class StartupDelayGraph extends Component {
       })
     }
     Promise.all([
-      startupDelay.videoStartupDelayOverTime(this.props.apiKey, ranges.thisWeek),
-      startupDelay.videoStartupDelayOverTime(this.props.apiKey, ranges.lastWeek)
+      startupDelay.videoStartupDelayOverTime(this.props.api, ranges.thisWeek),
+      startupDelay.videoStartupDelayOverTime(this.props.api, ranges.lastWeek)
     ]).then(results => {
       this.setState(prevState => {
         return {
@@ -86,6 +86,10 @@ class StartupDelayGraph extends Component {
   }
 }
 
-const mapStateToProps = (state) => { return { apiKey: state.api.apiKey }; }
+const mapStateToProps = (state) => {
+  return {
+    api: new Api(state)
+  };
+};
 
 export default connect(mapStateToProps)(StartupDelayGraph);

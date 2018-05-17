@@ -8,6 +8,7 @@ import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 import { shortenString } from '../utils';
+import Api from '../api';
 
 class DelaySessionsList extends Component {
   static propTypes = {
@@ -42,7 +43,7 @@ class DelaySessionsList extends Component {
       licenseKey: props.licenseKey
     };
 
-    const data = await startupDelay.delayedSessions(props.apiKey, baseQuery, this.state.limit, offset);
+    const data = await startupDelay.delayedSessions(props.api, baseQuery, this.state.limit, offset);
 
     this.setState({ offset: offset, sessions: data, loading: false });
   }
@@ -120,7 +121,7 @@ class DelaySessionsList extends Component {
 const mapStateToProps = (state) => {
   const { primaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

@@ -35,7 +35,7 @@ class RebufferDurationByOs extends Component {
       }
       return series;
     }
-    rebuffer.rebufferDurationGrouped(this.props.apiKey, { ...ranges.thisWeek }, 'OPERATINGSYSTEM').then(result => {
+    rebuffer.rebufferDurationGrouped(this.props.api, { ...ranges.thisWeek }, 'OPERATINGSYSTEM').then(result => {
       result.sort((a,b) => { return a[0] - b[0] });
       result = _.groupBy(result, (row) => {
         return row[1];
@@ -108,7 +108,7 @@ class RebufferDurationByOs extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 export default connect(mapStateToProps)(RebufferDurationByOs);

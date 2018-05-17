@@ -24,8 +24,8 @@ class RebufferDurationGraph extends Component {
       });
     }
     Promise.all([
-      rebuffer.rebufferDuration(this.props.apiKey, ranges.thisWeek),
-      rebuffer.rebufferDuration(this.props.apiKey, ranges.lastWeek)
+      rebuffer.rebufferDuration(this.props.api, ranges.thisWeek),
+      rebuffer.rebufferDuration(this.props.api, ranges.lastWeek)
     ]).then(results => {
       this.setState(prevState => {
         return {
@@ -101,7 +101,7 @@ class RebufferDurationGraph extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 export default connect(mapStateToProps)(RebufferDurationGraph);

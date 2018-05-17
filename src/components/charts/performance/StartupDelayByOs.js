@@ -32,7 +32,7 @@ class StartupDelayByOs extends Component {
       }
       return series;
     }
-    startupDelay.videoStartupDelayByOs(this.props.apiKey, ranges.thisWeek).then(results => {
+    startupDelay.videoStartupDelayByOs(this.props.api, ranges.thisWeek).then(results => {
       const techRows = results.reduce((memo, item) => {
         memo[item[1]] = memo[item[1]] || [];
         memo[item[1]].push(item);
@@ -87,6 +87,10 @@ class StartupDelayByOs extends Component {
   }
 }
 
-const mapStateToProps = (state) => { return { apiKey: state.api.apiKey }; }
+const mapStateToProps = (state) => {
+  return {
+    api: new Api(state)
+  };
+};
 
 export default connect(mapStateToProps)(StartupDelayByOs);

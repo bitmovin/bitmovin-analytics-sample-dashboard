@@ -24,9 +24,9 @@ class RebufferCountGraphByStream extends Component {
       });
     }
     Promise.all([
-      rebuffer.rebufferPercentageOverTime(this.props.apiKey, { ...ranges.thisWeek, filters: [filter('STREAM_FORMAT', 'eq', 'hls')] }),
-      rebuffer.rebufferPercentageOverTime(this.props.apiKey, { ...ranges.thisWeek, filters: [filter('STREAM_FORMAT', 'eq', 'dash')] }),
-      rebuffer.rebufferPercentageOverTime(this.props.apiKey, { ...ranges.thisWeek, filters: [filter('STREAM_FORMAT', 'eq', 'progressive')] }),
+      rebuffer.rebufferPercentageOverTime(this.props.api, { ...ranges.thisWeek, filters: [filter('STREAM_FORMAT', 'eq', 'hls')] }),
+      rebuffer.rebufferPercentageOverTime(this.props.api, { ...ranges.thisWeek, filters: [filter('STREAM_FORMAT', 'eq', 'dash')] }),
+      rebuffer.rebufferPercentageOverTime(this.props.api, { ...ranges.thisWeek, filters: [filter('STREAM_FORMAT', 'eq', 'progressive')] }),
     ]).then(results => {
       this.setState(prevState => {
         return {
@@ -95,7 +95,7 @@ class RebufferCountGraphByStream extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 export default connect(mapStateToProps)(RebufferCountGraphByStream);

@@ -22,7 +22,7 @@ class ErrorsByBrowserTable extends Component {
   async loadData (props) {
     this.setState({ loading: true });
 
-    const api = new Api(props.apiKey);
+    const api = props.api;
     const totalQuery = {
       ...props.primaryRange,
       dimension: 'IMPRESSION_ID',
@@ -88,11 +88,10 @@ class ErrorsByBrowserTable extends Component {
 
 const mapStateToProps = (state) => {
   const { primaryRange, interval } = state.ranges;
-  const { apiKey } = state.api;
   return {
+    api: new Api(state),
     primaryRange,
     interval,
-    apiKey,
     licenseKey: state.api.analyticsLicenseKey
   }
 };
