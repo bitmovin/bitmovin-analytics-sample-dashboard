@@ -5,8 +5,7 @@ import * as startupDelay from './metrics/startupdelay'
 import { bounceRate } from './metrics/bounce'
 import deepEqual from 'deep-equal'
 
-function fetchMetric(apiKey, metric, primaryRange, secondaryRange, aQuery = {}, filters = []) {
-  const api = new Api(apiKey);
+function fetchMetric(api, metric, primaryRange, secondaryRange, aQuery = {}, filters = []) {
   const query = {
     ...aQuery,
     ...primaryRange,
@@ -30,8 +29,7 @@ function fetchMetric(apiKey, metric, primaryRange, secondaryRange, aQuery = {}, 
   });
 }
 
-export const fetchErrorPercentageThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
-  const api = new Api(apiKey);
+export const fetchErrorPercentageThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
   const errorQuery = {
     dimension: 'ERROR_CODE',
   };
@@ -85,7 +83,7 @@ function checkIfNaNAndSetZero(variable) {
   return variable;
 }
 
-export const fetchTotalImpressionsThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') => {
+export const fetchTotalImpressionsThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId = '') => {
   const filters = [{
     name: 'VIDEO_STARTUPTIME',
     operator: 'GT',
@@ -100,10 +98,10 @@ export const fetchTotalImpressionsThisWeek = cached((apiKey, primaryRange, secon
     });
   }
 
-  return fetchMetric(apiKey, 'IMPRESSION_ID', primaryRange, secondaryRange, baseQuery, filters);
+  return fetchMetric(api, 'IMPRESSION_ID', primaryRange, secondaryRange, baseQuery, filters);
 })
 
-export const fetchTotalUsersThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId = '') => {
+export const fetchTotalUsersThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId = '') => {
   const filters = [{
     name: 'VIDEO_STARTUPTIME',
     operator: 'GT',
@@ -118,14 +116,14 @@ export const fetchTotalUsersThisWeek = cached((apiKey, primaryRange, secondaryRa
     });
   }
 
-  return fetchMetric(apiKey, 'USER_ID', primaryRange, secondaryRange, baseQuery, filters);
+  return fetchMetric(api, 'USER_ID', primaryRange, secondaryRange, baseQuery, filters);
 })
 
-export const fetchRebufferPercentageThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
+export const fetchRebufferPercentageThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
-      rebuffer.rebufferPercentage(apiKey, {...primaryRange, ...baseQuery}, videoId),
-      rebuffer.rebufferPercentage(apiKey, {...secondaryRange, ...baseQuery}, videoId),
+      rebuffer.rebufferPercentage(api, {...primaryRange, ...baseQuery}, videoId),
+      rebuffer.rebufferPercentage(api, {...secondaryRange, ...baseQuery}, videoId),
     ]).then(result => {
       const rebufferPercentagePrimaryRage = checkIfNaNAndSetZero(result[0] * 100);
       const rebufferPercentageSecondaryRage = checkIfNaNAndSetZero(result[1] * 100);
@@ -153,11 +151,11 @@ function formatResult(primary, secondary, format = (x) => { return x; }) {
     };
 }
 
-export const fetchBounceRateThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
+export const fetchBounceRateThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
-      bounceRate(apiKey, {...primaryRange, ...baseQuery}, videoId),
-      bounceRate(apiKey, {...secondaryRange, ...baseQuery}, videoId),
+      bounceRate(api, {...primaryRange, ...baseQuery}, videoId),
+      bounceRate(api, {...secondaryRange, ...baseQuery}, videoId),
     ])
     .then((result) => {
       const bounceRatePrimaryRage = checkIfNaNAndSetZero(result[0] * 100);
@@ -174,11 +172,11 @@ export const fetchBounceRateThisWeek = cached((apiKey, primaryRange, secondaryRa
   })
 })
 
-export const fetchAverageStartupDelayThisWeek = cached((apiKey, primaryRange, secondaryRange, baseQuery, videoId) => {
+export const fetchAverageStartupDelayThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
-      startupDelay.fetchStartupDelay(apiKey, {...primaryRange, ...baseQuery}, videoId),
-      startupDelay.fetchStartupDelay(apiKey, {...secondaryRange, ...baseQuery}, videoId)
+      startupDelay.fetchStartupDelay(api, {...primaryRange, ...baseQuery}, videoId),
+      startupDelay.fetchStartupDelay(api, {...secondaryRange, ...baseQuery}, videoId)
     ]).then((results) => {
 				resolve(formatResult(results[0], results[1], (val) => {
 					return Math.round(val);
@@ -187,11 +185,11 @@ export const fetchAverageStartupDelayThisWeek = cached((apiKey, primaryRange, se
   });
 })
 
-export const fetchAverageVideoStartupDelayThisWeek = cached((apiKey, primaryRange, secondaryRange, videoId) => {
+export const fetchAverageVideoStartupDelayThisWeek = cached((api, primaryRange, secondaryRange, videoId) => {
   return new Promise((resolve) => {
     Promise.all([
-      startupDelay.fetchVideoStartupDelay(apiKey, primaryRange, videoId),
-      startupDelay.fetchVideoStartupDelay(apiKey, secondaryRange, videoId)
+      startupDelay.fetchVideoStartupDelay(api, primaryRange, videoId),
+      startupDelay.fetchVideoStartupDelay(api, secondaryRange, videoId)
     ]).then((results) => {
         resolve(formatResult(results[0], results[1], (val) => {
           return Math.round(val);
