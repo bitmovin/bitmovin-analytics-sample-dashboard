@@ -26,9 +26,6 @@ class OperatingSystemChart extends Component {
       ...props.range,
       licenseKey: props.licenseKey
     };
-    const fetchOperatingSystem = (os) =>
-      stats.fetchOperatingSystemLastDays(props.api, baseQuery, os);
-
     const data = await stats.fetchOperatingSystemGrouped(props.api, baseQuery);
 
     this.setState({ data, loading: false });

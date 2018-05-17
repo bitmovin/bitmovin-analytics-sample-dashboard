@@ -24,9 +24,8 @@ class AverageBitrateForVideo extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ apiKey, video }) {
+  async loadData({ api, video }) {
     this.setState({ loading: true });
-    let range = this.props.ranges.primaryRange;
     const result = await stats.fetchVideoHeatMapAvgBitrate(this.props.api, video);
     this.setState({ data: result.seconds, loading: false });
   }

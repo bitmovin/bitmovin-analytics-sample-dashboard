@@ -1,4 +1,3 @@
-import Api from './index'
 import * as rebuffer from './metrics/rebuffer'
 import * as util from './util'
 import * as startupDelay from './metrics/startupdelay'

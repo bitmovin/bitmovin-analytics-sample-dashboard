@@ -1,5 +1,3 @@
-import Api from '../index'
-
 export function totalTimePlayed(api, baseQuery = {}) {
   return api.fetchAnalytics('SUM', {
     ...baseQuery,

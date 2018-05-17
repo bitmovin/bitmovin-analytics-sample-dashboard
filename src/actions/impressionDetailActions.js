@@ -2,7 +2,6 @@ export const LOAD_IMPRESSION = 'LOAD_IMPRESSION';
 export const LOADED_TOPBAR_METRIC = 'LOADED_TOPBAR_METRIC';
 export const LOADED_IP_INFORMATION = 'LOADED_IP_INFORMATION';
 
-import Api from '../api'
 import * as impressionstats from '../api/impressionstats'
 import ipLookup from '../api/ispLookup'
 

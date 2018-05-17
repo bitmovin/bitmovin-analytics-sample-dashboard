@@ -1,5 +1,3 @@
-import Bitmovin from 'bitmovin-javascript';
-
 export function groupedQuery(api) {
   return api.bitmovin.analytics.queries.builder
     .count('IMPRESSION_ID')

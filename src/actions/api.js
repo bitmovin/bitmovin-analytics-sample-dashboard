@@ -1,4 +1,4 @@
-import Api, { createApiFromParameters } from '../api/index'
+import { createApiFromParameters } from '../api/index'
 import performLogin from '../api/login'
 import queryString from 'query-string';
 

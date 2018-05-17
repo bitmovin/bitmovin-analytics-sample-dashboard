@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react'
 import LoadingIndicator from './LoadingIndicator';
-import * as util from '../api/util'
 
 class TopStatMetric extends Component {
   static propTypes = {

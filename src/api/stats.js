@@ -1,4 +1,4 @@
-import Api, {filter} from './index';
+import { filter } from './index';
 import * as Metrics from '../services/MetricsCalculation';
 import moment from 'moment';
 import * as util from './util';

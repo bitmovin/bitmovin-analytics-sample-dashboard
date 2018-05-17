@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import ReactSelect from 'react-select';
 import 'react-select/dist/react-select.css';
 import * as stats from '../api/stats';
-import Api, { createApiFromParameters } from '../api';
+import Api from '../api';
 import connect from 'react-redux/lib/connect/connect';
 
 class FilterRow extends Component {

@@ -1,4 +1,3 @@
-import Api from '../index'
 import * as util from '../util'
 
 export function rebufferPercentage(api, baseQuery = {}, videoId) {

@@ -1,5 +1,3 @@
-import Api from '../index'
-
 export function fetchPlayerStartupDelay(api, baseQuery = {}, videoId) {
   const query = {
     ...baseQuery,

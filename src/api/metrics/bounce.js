@@ -1,5 +1,3 @@
-import Api from '../index'
-
 export function bounceRate(api, baseQuery, videoId) {
   const playedImpressionsQuery  = {
     ...baseQuery,
