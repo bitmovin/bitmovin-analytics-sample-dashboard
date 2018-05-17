@@ -1,7 +1,6 @@
 import Api from '../index'
 
-export function fetchPlayerStartupDelay(apiKey, baseQuery = {}, videoId) {
-  const api = new Api(apiKey);
+export function fetchPlayerStartupDelay(api, baseQuery = {}, videoId) {
   const query = {
     ...baseQuery,
     dimension: 'PLAYER_STARTUPTIME',
@@ -19,8 +18,7 @@ export function fetchPlayerStartupDelay(apiKey, baseQuery = {}, videoId) {
   });
 }
 
-export function fetchStartupDelay(apiKey, baseQuery = {}, videoId) {
-  const api = new Api(apiKey);
+export function fetchStartupDelay(api, baseQuery = {}, videoId) {
   const query = {
     ...baseQuery,
     dimension: 'STARTUPTIME',
@@ -40,8 +38,7 @@ export function fetchStartupDelay(apiKey, baseQuery = {}, videoId) {
   });
 }
 
-export function fetchVideoStartupDelay(apiKey, baseQuery = {}, videoId) {
-  const api = new Api(apiKey);
+export function fetchVideoStartupDelay(api, baseQuery = {}, videoId) {
   const query = {
     ...baseQuery,
     dimension: 'VIDEO_STARTUPTIME',
@@ -60,8 +57,7 @@ export function fetchVideoStartupDelay(apiKey, baseQuery = {}, videoId) {
   });
 }
 
-export function genericStartupTimeOverTime(aggregation, apiKey, interval, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function genericStartupTimeOverTime(aggregation, api, interval, baseQuery = {}) {
   const query = {
     dimension: 'STARTUPTIME',
     interval: interval,
@@ -79,12 +75,11 @@ export function genericStartupTimeOverTime(aggregation, apiKey, interval, baseQu
   });
   return promise;
 }
-export function startupTimeOverTime(apiKey, interval, baseQuery = {}) {
-  return genericStartupTimeOverTime('median', apiKey, interval, baseQuery);
+export function startupTimeOverTime(api, interval, baseQuery = {}) {
+  return genericStartupTimeOverTime('median', api, interval, baseQuery);
 }
 
-export function videoStartupDelayOverTime(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupDelayOverTime(api, baseQuery = {}) {
   const query = {
     dimension: 'VIDEO_STARTUPTIME',
     interval: 'DAY',
@@ -97,8 +92,7 @@ export function videoStartupDelayOverTime(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query)
 }
 
-export function videoStartupTimeByCountry(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupTimeByCountry(api, baseQuery = {}) {
   const query = {
     dimension: 'STARTUPTIME',
     filters: [
@@ -113,8 +107,7 @@ export function videoStartupTimeByCountry(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query);
 }
 
-export function videoStartupDelayByCountry(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupDelayByCountry(api, baseQuery = {}) {
   const query = {
     ...baseQuery,
     dimension: 'VIDEO_STARTUPTIME',
@@ -127,8 +120,7 @@ export function videoStartupDelayByCountry(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query);
 }
 
-export function videoStartupDelayByStreamFormat(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupDelayByStreamFormat(api, baseQuery = {}) {
   const query = {
     ...baseQuery,
     dimension: 'VIDEO_STARTUPTIME',
@@ -142,8 +134,7 @@ export function videoStartupDelayByStreamFormat(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query);
 }
 
-export function videoStartupDelayByPlayerVersion(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupDelayByPlayerVersion(api, baseQuery = {}) {
   const query = {
     ...baseQuery,
     dimension: 'VIDEO_STARTUPTIME',
@@ -157,8 +148,7 @@ export function videoStartupDelayByPlayerVersion(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query);
 }
 
-export function videoStartupDelayByBrowser(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupDelayByBrowser(api, baseQuery = {}) {
   const query = {
     ...baseQuery,
     dimension: 'VIDEO_STARTUPTIME',
@@ -172,8 +162,7 @@ export function videoStartupDelayByBrowser(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query);
 }
 
-export function videoStartupDelayByOs(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videoStartupDelayByOs(api, baseQuery = {}) {
   const query = {
     ...baseQuery,
     dimension: 'VIDEO_STARTUPTIME',
@@ -187,8 +176,7 @@ export function videoStartupDelayByOs(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('median', query);
 }
 
-export function playerStartupDelayOverTime(apiKey, interval, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function playerStartupDelayOverTime(api, interval, baseQuery = {}) {
   const query = {
     dimension: 'ACTIVE_PLAYER_STARTUPTIME',
     interval: interval,
@@ -197,8 +185,7 @@ export function playerStartupDelayOverTime(apiKey, interval, baseQuery = {}) {
   return api.fetchAnalytics('median', query)
 }
 
-export function videoStartupTimeGrouped(apiKey, groupBy, baseQuery = {}) {
-	const api = new Api(apiKey);
+export function videoStartupTimeGrouped(api, groupBy, baseQuery = {}) {
 	const query = {
 		dimension: 'STARTUPTIME',
 		filters: [
@@ -213,8 +200,7 @@ export function videoStartupTimeGrouped(apiKey, groupBy, baseQuery = {}) {
 	return api.fetchAnalytics('median', query);
 }
 
-export function delayedSessions(apiKey, baseQuery = {}, limit, offset) {
-  const api = new Api(apiKey);
+export function delayedSessions(api, baseQuery = {}, limit, offset) {
   const query = {
     ...baseQuery,
     dimension: 'STARTUPTIME',

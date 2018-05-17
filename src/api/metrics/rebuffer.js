@@ -1,8 +1,7 @@
 import Api from '../index'
 import * as util from '../util'
 
-export function rebufferPercentage(apiKey, baseQuery = {}, videoId) {
-  const api = new Api(apiKey);
+export function rebufferPercentage(api, baseQuery = {}, videoId) {
   const query = {
     ...baseQuery,
     dimension: 'IMPRESSION_ID',
@@ -48,7 +47,7 @@ export function rebufferPercentage(apiKey, baseQuery = {}, videoId) {
   });
 }
 
-export function rebufferPercentageGrouped(apiKey, baseQuery = {}, groupBy) {
+export function rebufferPercentageGrouped(api, baseQuery = {}, groupBy) {
   const query = {
     dimension: 'IMPRESSION_ID',
     interval: 'DAY',
@@ -79,7 +78,6 @@ export function rebufferPercentageGrouped(apiKey, baseQuery = {}, groupBy) {
     ...baseQuery
   };
 
-  const api = new Api(apiKey);
   const promise = Promise.all([
     api.fetchAnalytics('count', query),
     api.fetchAnalytics('count', durationQuery)
@@ -96,7 +94,7 @@ export function rebufferPercentageGrouped(apiKey, baseQuery = {}, groupBy) {
   });
 }
 
-export function rebufferPercentageOverTime(apiKey, baseQuery = {}) {
+export function rebufferPercentageOverTime(api, baseQuery = {}) {
   const query = {
     dimension: 'BUFFERED',
     interval: 'DAY',
@@ -124,7 +122,6 @@ export function rebufferPercentageOverTime(apiKey, baseQuery = {}) {
     ]
   };
 
-  const api = new Api(apiKey);
   const promise = Promise.all([
     api.fetchAnalytics('sum', query),
     api.fetchAnalytics('sum', durationQuery)
@@ -147,7 +144,7 @@ export function rebufferPercentageOverTime(apiKey, baseQuery = {}) {
   });
 }
 
-export function rebufferDurationGrouped(apiKey, baseQuery = {}, groupBy) {
+export function rebufferDurationGrouped(api, baseQuery = {}, groupBy) {
   const query = {
     ...baseQuery,
     dimension: 'BUFFERED',
@@ -171,7 +168,6 @@ export function rebufferDurationGrouped(apiKey, baseQuery = {}, groupBy) {
     groupBy: [groupBy]
   };
 
-  const api = new Api(apiKey);
   const durationQuery = {
     ...baseQuery,
     interval: 'DAY',
@@ -200,7 +196,7 @@ export function rebufferDurationGrouped(apiKey, baseQuery = {}, groupBy) {
   });
 }
 
-export function rebufferDuration(apiKey, baseQuery = {}) {
+export function rebufferDuration(api, baseQuery = {}) {
   const query = {
     ...baseQuery,
     dimension: 'BUFFERED',
@@ -219,7 +215,6 @@ export function rebufferDuration(apiKey, baseQuery = {}) {
     ]
   };
 
-  const api = new Api(apiKey);
   const durationQuery = {
     ...baseQuery,
     interval: 'DAY',
@@ -247,8 +242,7 @@ export function rebufferDuration(apiKey, baseQuery = {}) {
   });
 }
 
-export function rebufferingSessions(apiKey, baseQuery = {}, limit, offset) {
-  const api = new Api(apiKey);
+export function rebufferingSessions(api, baseQuery = {}, limit, offset) {
   const query = {
     ...baseQuery,
     dimension: 'BUFFERED',

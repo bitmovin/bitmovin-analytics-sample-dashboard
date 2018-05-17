@@ -7,10 +7,11 @@ import urljoin from 'url-join';
 import AdaptationBehaviorGraph from './components/charts/quality/AdaptationBehaviorGraph';
 import PointLocationMap from './components/charts/maps/PointLocationMap';
 import * as actions from './actions/impressionDetailActions';
+import Api from './api';
 
 class ImpressionDetail extends PureComponent {
   componentDidMount () {
-    this.props.loadImpression(this.props.apiKey, this.props.impressionId);
+    this.props.loadImpression(this.props.api, this.props.impressionId);
   }
 
   impressionList () {
@@ -165,7 +166,7 @@ class ImpressionDetail extends PureComponent {
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     impressionId: ownProps.params.impressionId,
     impressions: state.impressionDetail.impressionData,
     isLoaded: state.impressionDetail.isLoaded,
@@ -178,8 +179,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    loadImpression: (apiKey, impressionId) => {
-      dispatch(actions.loadImpression(apiKey, impressionId));
+    loadImpression: (api, impressionId) => {
+      dispatch(actions.loadImpression(api, impressionId));
     }
   }
 };

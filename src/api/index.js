@@ -29,6 +29,8 @@ export function filter (name, operator, value) {
 class Api {
   constructor(state) {
     const { apiKey, tenantOrgId } = state.api;
+    this.apiKey = apiKey;
+    this.tenantOrgId = tenantOrgId;
     this.bitmovin = new Bitmovin({ apiKey: apiKey, tenantOrgId: tenantOrgId });
   }
 

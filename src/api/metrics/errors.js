@@ -1,8 +1,7 @@
 import Api from '../index'
 import * as util from '../util'
 
-export function videosByErrorCode(apiKey, interval, errorCode, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function videosByErrorCode(api, interval, errorCode, baseQuery = {}) {
   const query = {
     dimension: 'IMPRESSION_ID',
     interval: 'MONTH',
@@ -16,9 +15,7 @@ export function videosByErrorCode(apiKey, interval, errorCode, baseQuery = {}) {
   return api.fetchAnalytics('COUNT', query);
 }
 
-export function errorDetailsForVideoId(apiKey, errorCode, videoId, baseQuery = {}) {
-  const api = new Api(apiKey);
-
+export function errorDetailsForVideoId(api, errorCode, videoId, baseQuery = {}) {
   const query = {
     ...baseQuery,
     filters: [
@@ -104,8 +101,7 @@ export function errorDetailsForVideoId(apiKey, errorCode, videoId, baseQuery = {
   })
 }
 
-export function fetchErrorCount(apiKey, interval, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function fetchErrorCount(api, interval, baseQuery = {}) {
   return api.fetchAnalytics('COUNT', {
     dimension: 'ERROR_CODE',
     interval: interval,
@@ -113,8 +109,7 @@ export function fetchErrorCount(apiKey, interval, baseQuery = {}) {
   })
 }
 
-export function fetchErrorPercentageGrouped(apiKey, groupBy, interval, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function fetchErrorPercentageGrouped(api, groupBy, interval, baseQuery = {}) {
   return new Promise(resolve => {
     Promise.all([
       api.fetchAnalytics('COUNT', {
@@ -123,7 +118,7 @@ export function fetchErrorPercentageGrouped(apiKey, groupBy, interval, baseQuery
         interval: interval,
         ...baseQuery
       }),
-      fetchErrorCount(apiKey, interval, { ...baseQuery, groupBy: [groupBy] })
+      fetchErrorCount(api, interval, { ...baseQuery, groupBy: [groupBy] })
     ]).then(data => {
       const rows = util.leftJoinOnTwoColumns(data[0], data[1]);
       const result = rows.map(row => {
@@ -138,15 +133,14 @@ export function fetchErrorPercentageGrouped(apiKey, groupBy, interval, baseQuery
   });
 }
 
-export function fetchErrorPercentage(apiKey, name, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function fetchErrorPercentage(api, name, baseQuery = {}) {
   return new Promise(resolve => {
     const impressions = {
       dimension: 'IMPRESSION_ID',
       ...baseQuery
     };
     Promise.all([
-      fetchErrorCount(apiKey, 'day', baseQuery),
+      fetchErrorCount(api, 'day', baseQuery),
       api.fetchAnalytics('COUNT', impressions)
     ]).then(data => {
       const rows = util.leftJoin(data[0], data[1]);
@@ -158,8 +152,7 @@ export function fetchErrorPercentage(apiKey, name, baseQuery = {}) {
   });
 }
 
-export function errorSessions(apiKey, baseQuery = {}, limit, offset) {
-  const api = new Api(apiKey);
+export function errorSessions(api, baseQuery = {}, limit, offset) {
   const query = {
     ...baseQuery,
     dimension: 'MINUTE',
@@ -192,8 +185,7 @@ export function errorSessions(apiKey, baseQuery = {}, limit, offset) {
   });
 }
 
-export function errorsByVideo(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function errorsByVideo(api, baseQuery = {}) {
   return new Promise(resolve => {
     api.fetchAnalytics('COUNT', {
       dimension: 'IMPRESSION_ID',
