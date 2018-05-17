@@ -27,10 +27,9 @@ export function filter (name, operator, value) {
   return { name, operator: operator.toUpperCase(), value };
 }
 class Api {
-  constructor(apiKey, tenantOrgId) {
-    this.apiKey = apiKey;
-    this.tenantOrgId = tenantOrgId;
-    this.bitmovin = new Bitmovin({ apiKey: this.apiKey, tenantOrgId: this.tenantOrgId });
+  constructor(state) {
+    const { apiKey, tenantOrgId } = state.api;
+    this.bitmovin = new Bitmovin({ apiKey: apiKey, tenantOrgId: tenantOrgId });
   }
 
   filter (name, operator, value) {
@@ -136,3 +135,7 @@ class Api {
   }
 }
 export default Api;
+
+export function createApiFromParameters(apiKey, tenantOrgId) {
+  return new Api({ api: { apiKey: apiKey, tenantOrgId: tenantOrgId }});
+}

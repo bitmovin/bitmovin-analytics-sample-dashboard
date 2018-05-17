@@ -1,4 +1,4 @@
-import Api from '../api/index'
+import Api, { createApiFromParameters } from '../api/index'
 import performLogin from '../api/login'
 import queryString from 'query-string';
 
@@ -92,15 +92,15 @@ function getKeyFromLocalStorage() {
 }
 
 function getAccountInformation(apiKey) {
-  const api = new Api(apiKey)
+  const api = createApiFromParameters(apiKey);
   return api.bitmovin.account.information().then(info => {
     return { apiKey: apiKey, userName: info.email }
   })
 }
 
 export const loadAnalyticsLicenseKeys = (apiKey, tenantOrgId) => {
-    const api = new Api(apiKey, tenantOrgId);
-    return api.getAnalyticsLicenseKeys()
+  const api = createApiFromParameters(apiKey, tenantOrgId);
+  return api.getAnalyticsLicenseKeys()
 };
 
 function loginThroughApiKey(dispatch, apiKey, tenantOrgId, userName) {
