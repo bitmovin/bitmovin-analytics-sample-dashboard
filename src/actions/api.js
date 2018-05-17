@@ -34,6 +34,13 @@ export function createLoginfailedAction() {
   }
 }
 
+export const PERMISSION_DENIED = 'PERMISSION_DENIED';
+export function createPermissionDeniedAction() {
+  return {
+    type: PERMISSION_DENIED
+  }
+}
+
 export const API_KEY_INVALID = 'API_KEY_INVALID';
 export function createApiKeyInvalidAction() {
   return {
@@ -106,6 +113,8 @@ export const loadAnalyticsLicenseKeys = (apiKey, tenantOrgId) => {
 function loginThroughApiKey(dispatch, apiKey, tenantOrgId, userName) {
   return loadAnalyticsLicenseKeys(apiKey, tenantOrgId).then(licenseKeys => {
     dispatch(createSetLoginAction(apiKey, tenantOrgId, userName, licenseKeys));
+  }).catch(error => {
+    dispatch(createLoginfailedAction())
   })
 }
 
