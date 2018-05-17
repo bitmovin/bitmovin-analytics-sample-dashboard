@@ -5,6 +5,7 @@ import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import {push} from 'react-router-redux';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class ImpressionsList extends Component {
   static propTypes = {
@@ -31,7 +32,7 @@ class ImpressionsList extends Component {
     this.loadImpressions(this.props, newOffset);
   }
 
-  async loadImpressions({ baseQuery, primaryRange, apiKey, video, licenseKey }, offset) {
+  async loadImpressions({ baseQuery, primaryRange, api, video, licenseKey }, offset) {
     this.setState({ loading: true });
 
     const query = {
@@ -42,7 +43,7 @@ class ImpressionsList extends Component {
       licenseKey,
     };
 
-    const {impressions, hasMissingImpressions} = await stats.fetchLastImpressions(apiKey, query, video && video.videoId);
+    const {impressions, hasMissingImpressions} = await stats.fetchLastImpressions(api, query, video && video.videoId);
     this.setState({ offset: offset, impressions: impressions, hasMissingImpressions: hasMissingImpressions, loading: false });
   }
 
@@ -105,7 +106,7 @@ class ImpressionsList extends Component {
 const mapStateToProps = (state) => {
   const { primaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

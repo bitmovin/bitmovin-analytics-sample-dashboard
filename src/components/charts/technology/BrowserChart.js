@@ -4,6 +4,7 @@ import * as stats from '../../../api/stats';
 import ReactHighcharts from 'react-highcharts';
 import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
+import Api from '../../../api';
 
 class BrowserChart extends Component {
   state = {
@@ -27,7 +28,7 @@ class BrowserChart extends Component {
       licenseKey: props.licenseKey
     };
 
-    const data = await stats.fetchBrowsersGrouped(this.props.apiKey, baseQuery);
+    const data = await stats.fetchBrowsersGrouped(this.props.api, baseQuery);
     this.setState({ data, loading: false });
   }
 
@@ -71,7 +72,7 @@ class BrowserChart extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

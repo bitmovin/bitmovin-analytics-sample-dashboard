@@ -4,6 +4,7 @@ import * as stats from '../../../api/stats';
 import ReactHighcharts from 'react-highcharts';
 import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
+import Api from '../../../api';
 
 class PlayerTechnologyChart extends Component {
   state = {
@@ -27,7 +28,7 @@ class PlayerTechnologyChart extends Component {
       licenseKey: props.licenseKey
     };
 
-    const result = await stats.fetchPlayerTechnologyGrouped(this.props.apiKey, baseQuery)
+    const result = await stats.fetchPlayerTechnologyGrouped(this.props.api, baseQuery)
     const data = result.filter(x => x[0] !== null)
 
     this.setState({ data, loading: false });
@@ -72,7 +73,7 @@ class PlayerTechnologyChart extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

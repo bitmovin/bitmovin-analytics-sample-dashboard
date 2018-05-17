@@ -6,8 +6,7 @@ import Promise from 'bluebird';
 
 const CONCURRENT_REQUESTS_LIMIT = 5;
 
-export function fetchUsersLastDaysPerDay(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function fetchUsersLastDaysPerDay(api, baseQuery = {}) {
   const query = {
     dimension: 'USER_ID',
     interval: 'DAY',
@@ -17,8 +16,7 @@ export function fetchUsersLastDaysPerDay(apiKey, baseQuery = {}) {
   return api.fetchAnalytics('COUNT', query);
 }
 
-export function fetchOperatingSystemsLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchOperatingSystemsLastDays(api, days) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -38,8 +36,7 @@ export function fetchOperatingSystemsLastDays(apiKey, days) {
   });
 }
 
-export function fetchOperatingSystemsLastDaysForVideo(apiKey, baseQuery, videoId) {
-  const api = new Api(apiKey);
+export function fetchOperatingSystemsLastDaysForVideo(api, baseQuery, videoId) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -67,8 +64,7 @@ export function fetchOperatingSystemsLastDaysForVideo(apiKey, baseQuery, videoId
   });
 }
 
-export function fetchBrowsersLastDaysForVideo(apiKey, baseQuery, videoId) {
-  const api = new Api(apiKey);
+export function fetchBrowsersLastDaysForVideo(api, baseQuery, videoId) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -96,8 +92,7 @@ export function fetchBrowsersLastDaysForVideo(apiKey, baseQuery, videoId) {
   });
 }
 
-export function fetchBrowsersGrouped(apiKey, baseQuery) {
-  const api = new Api(apiKey);
+export function fetchBrowsersGrouped(api, baseQuery) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -116,8 +111,7 @@ export function fetchBrowsersGrouped(apiKey, baseQuery) {
   });
 }
 
-export function fetchBrowserLastDays(apiKey, baseQuery, browser) {
-  const api = new Api(apiKey);
+export function fetchBrowserLastDays(api, baseQuery, browser) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -135,8 +129,7 @@ export function fetchBrowserLastDays(apiKey, baseQuery, browser) {
   });
 }
 
-export function fetchOperatingSystemGrouped(apiKey, baseQuery) {
-  const api = new Api(apiKey);
+export function fetchOperatingSystemGrouped(api, baseQuery) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -156,8 +149,7 @@ export function fetchOperatingSystemGrouped(apiKey, baseQuery) {
   })
 }
 
-export function fetchOperatingSystemLastDays(apiKey, baseQuery, os) {
-  const api = new Api(apiKey);
+export function fetchOperatingSystemLastDays(api, baseQuery, os) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -178,8 +170,7 @@ export function fetchOperatingSystemLastDays(apiKey, baseQuery, os) {
   });
 }
 
-export function fetchPlayerTechnologyGrouped(apiKey, baseQuery) {
-  const api = new Api(apiKey);
+export function fetchPlayerTechnologyGrouped(api, baseQuery) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -192,8 +183,7 @@ export function fetchPlayerTechnologyGrouped(apiKey, baseQuery) {
   return api.fetchAnalytics('COUNT', lastDaysQuery);
 }
 
-export function fetchPlayerTechnologyLastDays(apiKey, baseQuery, playerTechnology) {
-  const api = new Api(apiKey);
+export function fetchPlayerTechnologyLastDays(api, baseQuery, playerTechnology) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -211,8 +201,7 @@ export function fetchPlayerTechnologyLastDays(apiKey, baseQuery, playerTechnolog
   });
 }
 
-export function fetchMinMaxAvgBitrate(apiKey, baseQuery) {
-  const api = new Api(apiKey);
+export function fetchMinMaxAvgBitrate(api, baseQuery) {
   const bitrate = {
     dimension: 'VIDEO_BITRATE',
     ...baseQuery,
@@ -237,8 +226,7 @@ export function fetchMinMaxAvgBitrate(apiKey, baseQuery) {
   });
 }
 
-export function fetchStreamTypesLastDays(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function fetchStreamTypesLastDays(api, baseQuery = {}) {
   const vodQuery = {
     dimension: 'IMPRESSION_ID',
     ...baseQuery,
@@ -271,8 +259,7 @@ export function fetchStreamTypesLastDays(apiKey, baseQuery = {}) {
   });
 }
 
-export function fetchScalingLastDays(apiKey, baseQuery = {}) {
-  const api = new Api(apiKey);
+export function fetchScalingLastDays(api, baseQuery = {}) {
   const query  = {
     dimension: 'SCALE_FACTOR',
     interval: 'DAY',
@@ -291,8 +278,7 @@ export function fetchScalingLastDays(apiKey, baseQuery = {}) {
   });
 }
 
-export async function isVideoLive(apiKey, licenseKey, videoId, range) {
-  const api = new Api(apiKey);
+export async function isVideoLive(api, licenseKey, videoId, range) {
   return api.builder()
     .count('IMPRESSION_ID')
     .between(range.start, range.end)
@@ -311,8 +297,7 @@ export async function isVideoLive(apiKey, licenseKey, videoId, range) {
     })
 }
 
-export async function fetchVodVideoDetails(apiKey, licenseKey, videoId, range) {
-  const api = new Api(apiKey);
+export async function fetchVodVideoDetails(api, licenseKey, videoId, range) {
   const query = {
     dimension: 'VIDEO_DURATION',
     licenseKey: licenseKey,
@@ -341,8 +326,7 @@ export async function fetchVodVideoDetails(apiKey, licenseKey, videoId, range) {
   return  { mpdUrl, m3u8Url, progUrl, length: videoDuration / 1000 };
 }
 
-export function fetchLastImpressions(apiKey, baseQuery = {}, videoId) {
-  const api = new Api(apiKey);
+export function fetchLastImpressions(api, baseQuery = {}, videoId) {
   const impressions = {
     dimension: 'MINUTE',
     ...baseQuery,
@@ -405,20 +389,20 @@ function createCommulatedImpressions(impressions) {
   });
 }
 
-export function fetchVideoHeatMapImpressions(apiKey, video, range) {
-  return fetchHeatmap(apiKey, video, 'COUNT', 'IMPRESSION_ID', range, noopFormatter, [filter('PLAYED', 'GT', 0)]);
+export function fetchVideoHeatMapImpressions(api, video, range) {
+  return fetchHeatmap(api, video, 'COUNT', 'IMPRESSION_ID', range, noopFormatter, [filter('PLAYED', 'GT', 0)]);
 }
 
-export function fetchVideoHeatMapAvgBitrate(apiKey, video, range) {
-  return fetchHeatmap(apiKey, video, 'AVG', 'VIDEO_BITRATE', range, avgBitrateFormatter, [filter('VIDEO_BITRATE', 'GT', 0)]);
+export function fetchVideoHeatMapAvgBitrate(api, video, range) {
+  return fetchHeatmap(api, video, 'AVG', 'VIDEO_BITRATE', range, avgBitrateFormatter, [filter('VIDEO_BITRATE', 'GT', 0)]);
 }
 
-export function fetchVideoHeatMapErrors(apiKey, video, range) {
-  return fetchHeatmap(apiKey, video, 'COUNT', 'ERROR_CODE', range);
+export function fetchVideoHeatMapErrors(api, video, range) {
+  return fetchHeatmap(api, video, 'COUNT', 'ERROR_CODE', range);
 }
 
-export function fetchVideoHeatMapBuffering(apiKey, video, range) {
-  return fetchHeatmap(apiKey, video, 'AVG', 'BUFFERED', range, bufferingFormatter, [filter('PLAYER_STARTUPTIME', 'EQ', 0), filter('VIDEO_STARTUPTIME', 'EQ', 0)]);
+export function fetchVideoHeatMapBuffering(api, video, range) {
+  return fetchHeatmap(api, video, 'AVG', 'BUFFERED', range, bufferingFormatter, [filter('PLAYER_STARTUPTIME', 'EQ', 0), filter('VIDEO_STARTUPTIME', 'EQ', 0)]);
 }
 
 function noopFormatter(data) {
@@ -433,8 +417,7 @@ function bufferingFormatter(data) {
   return roundToTwo(data);
 }
 
-function fetchHeatmap(apiKey, video, functionName, dimension, range, dataFormatter = noopFormatter, filters = []) {
-  const api = new Api(apiKey);
+function fetchHeatmap(api, video, functionName, dimension, range, dataFormatter = noopFormatter, filters = []) {
   const maxRequests = 20;
   const chunkSize = Math.floor(video.length * 1000 / maxRequests);
   if (!video.length) {
@@ -516,8 +499,7 @@ function roundToTwo(num) {
   return +(Math.round(num + "e+2")  + "e-2");
 }
 
-export function fetchVideoImpressionsLastDaysPerDay(apiKey, video, days, offset = 0) {
-  const api = new Api(apiKey);
+export function fetchVideoImpressionsLastDaysPerDay(api, video, days, offset = 0) {
   const lastDaysQuery = (days, offset = 0) => {
     return {
       dimension: 'IMPRESSION_ID',
@@ -548,8 +530,7 @@ export function fetchVideoImpressionsLastDaysPerDay(apiKey, video, days, offset 
   });
 }
 
-export function fetchPossibleValues(apiKey, column) {
-  const api = new Api(apiKey);
+export function fetchPossibleValues(api, column) {
   const query  = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('second').subtract(365, 'day').format(),

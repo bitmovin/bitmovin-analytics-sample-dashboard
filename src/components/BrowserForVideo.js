@@ -5,6 +5,7 @@ import Card from './Card';
 import ReactHighcharts from 'react-highcharts';
 import { groupToNBuckets } from '../api/util';
 import LoadingIndicator from './LoadingIndicator';
+import Api from '../api';
 
 class BrowserForVideo extends Component {
   static propTypes = {
@@ -25,9 +26,9 @@ class BrowserForVideo extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ apiKey, range, videoId }) {
+  async loadData({ api, range, videoId }) {
     this.setState({ loading: true });
-    const browsers = await stats.fetchBrowsersLastDaysForVideo(apiKey, range, videoId);
+    const browsers = await stats.fetchBrowsersLastDaysForVideo(api, range, videoId);
     this.setState({ browsers, loading: false });
   }
 
@@ -82,7 +83,7 @@ class BrowserForVideo extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange
   }
 };

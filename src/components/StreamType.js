@@ -4,6 +4,7 @@ import * as stats from '../api/stats';
 import ReactHighcharts from 'react-highcharts';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
+import Api from '../api';
 
 class StreamType extends Component {
   state = {
@@ -29,7 +30,7 @@ class StreamType extends Component {
       licenseKey: props.licenseKey
     };
 
-    const [vodSeriesData, liveSeriesData] = await stats.fetchStreamTypesLastDays(this.props.apiKey, baseQuery);
+    const [vodSeriesData, liveSeriesData] = await stats.fetchStreamTypesLastDays(this.props.api, baseQuery);
 
     this.setState({ vodSeriesData, liveSeriesData, loading: false });
   }
@@ -86,7 +87,7 @@ class StreamType extends Component {
 const mapStateToProps = (state) => {
   const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     name,
     interval,
     primaryRange,
