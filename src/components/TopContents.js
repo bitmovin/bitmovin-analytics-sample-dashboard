@@ -5,6 +5,7 @@ import VideoLink from './VideoLink';
 import LoadingIndicator from './LoadingIndicator';
 import Card from './Card';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class TopContents extends PureComponent {
   state = {
@@ -23,10 +24,10 @@ class TopContents extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  async loadData({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+  async loadData({ api, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
     this.setState({ loading: true });
 
-    const query = impressions.groupedQuery(apiKey)
+    const query = impressions.groupedQuery(api)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
       .groupBy('VIDEO_ID')
@@ -104,9 +105,10 @@ class TopContents extends PureComponent {
   }
 }
 
-const mapStateToProps = ({ api, ranges }) => {
+const mapStateToProps = (state) => {
+  const { api, ranges } = state;
   return {
-    apiKey: api.apiKey,
+    api: new Api(state),
     licenseKey: api.analyticsLicenseKey,
     interval: ranges.interval,
     rangeName: ranges.name,

@@ -4,6 +4,7 @@ import * as impressions from '../api/metrics/impressions';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class TopPaths extends Component {
   state = {
@@ -23,10 +24,10 @@ class TopPaths extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData ({ apiKey, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
+  async loadData ({ api, licenseKey, primaryRange }, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
     this.setState({ loading: true });
 
-    const { rows } = await impressions.groupedQuery(apiKey)
+    const { rows } = await impressions.groupedQuery(api)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
       .groupBy('PATH')
@@ -99,7 +100,7 @@ class TopPaths extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     interval: state.ranges.interval,
     rangeName: state.ranges.name,
     primaryRange: state.ranges.primaryRange,

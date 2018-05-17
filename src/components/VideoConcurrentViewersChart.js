@@ -4,6 +4,7 @@ import ReactHighcharts from 'react-highcharts';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import * as concurrentViewers from '../api/metrics/concurrentViewers';
+import Api from '../api';
 
 class VideoConcurrentViewersChart extends Component {
   static propTypes = {
@@ -23,10 +24,10 @@ class VideoConcurrentViewersChart extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ apiKey, licenseKey, primaryRange, interval, videoId, name }) {
+  async loadData({ api, licenseKey, primaryRange, interval, videoId, name }) {
     this.setState({ loading: true });
 
-    let query = concurrentViewers.groupedQuery(apiKey)
+    let query = concurrentViewers.groupedQuery(api)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
       .interval(interval)
@@ -85,10 +86,9 @@ class VideoConcurrentViewersChart extends Component {
 }
 
 const mapStateToProps = (state) => {
-  console.log(state.ranges);
   const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     licenseKey: state.api.analyticsLicenseKey,
     name,
     interval,

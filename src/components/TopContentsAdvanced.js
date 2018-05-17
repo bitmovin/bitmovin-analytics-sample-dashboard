@@ -32,7 +32,7 @@ class TopContentsAdvanced extends PureComponent {
   async loadData (props, limit = this.state.limit, offset = this.state.offset, orderByOrder = this.state.orderByOrder) {
     this.setState({ loading: true });
 
-    const query = impressions.groupedQuery(props.apiKey)
+    const query = impressions.groupedQuery(props.api)
       .licenseKey(props.licenseKey)
       .between(props.primaryRange.start, props.primaryRange.end)
       .groupBy('VIDEO_ID')
@@ -55,8 +55,8 @@ class TopContentsAdvanced extends PureComponent {
 
       return Promise.all([
         Promise.resolve(videoImpression),
-        rebuffer.rebufferPercentageOverTime(props.apiKey, rebufferPercentageQuery),
-        startupdelay.fetchStartupDelay(props.apiKey, videoStartupTimeByCountray),
+        rebuffer.rebufferPercentageOverTime(props.api, rebufferPercentageQuery),
+        startupdelay.fetchStartupDelay(props.api, videoStartupTimeByCountray),
         errors.errorsByVideo(props.api, errorsByVideo)
       ]);
     });
