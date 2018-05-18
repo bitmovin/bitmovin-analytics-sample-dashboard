@@ -4,6 +4,7 @@ import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
 import ReactHighcharts from 'react-highcharts';
 import * as rebuffer from '../../../api/metrics/rebuffer';
+import Api from '../../../api';
 
 class StartupDelayByTechGraph extends Component {
   static propTypes = {
@@ -23,7 +24,7 @@ class StartupDelayByTechGraph extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ primaryRange, licenseKey, apiKey }) {
+  async loadData({ primaryRange, licenseKey, api }) {
     this.setState({ loading: true });
 
     const baseQuery = {
@@ -37,7 +38,7 @@ class StartupDelayByTechGraph extends Component {
       licenseKey,
     };
 
-    const rows = await rebuffer.rebufferDuration(apiKey, baseQuery)
+    const rows = await rebuffer.rebufferDuration(api, baseQuery)
     const playerVersions = new Set(rows.map(row => row[1]));
     const series = [...playerVersions].map((playerVersion) => ({
       name: playerVersion.toUpperCase(),
@@ -99,7 +100,7 @@ class StartupDelayByTechGraph extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     interval: state.ranges.interval,
     rangeName: state.ranges.name,
     primaryRange: state.ranges.primaryRange,

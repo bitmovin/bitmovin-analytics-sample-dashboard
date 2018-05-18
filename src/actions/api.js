@@ -1,4 +1,4 @@
-import Api from '../api/index'
+import { createApiFromParameters } from '../api/index'
 import performLogin from '../api/login'
 import queryString from 'query-string';
 
@@ -17,10 +17,11 @@ const storageAvailable = (type) => {
 
 export const SET_LOGIN = 'SET_LOGIN';
 
-export function createSetLoginAction(apiKey, userName, licenseKeys) {
+export function createSetLoginAction(apiKey, tenantOrgId, userName, licenseKeys) {
   return {
     type: SET_LOGIN,
     apiKey: apiKey,
+    tenantOrgId: tenantOrgId,
     userName,
     licenseKeys
   }
@@ -30,6 +31,13 @@ export const LOGIN_FAILED = 'LOGIN_FAILED';
 export function createLoginfailedAction() {
   return {
     type: LOGIN_FAILED
+  }
+}
+
+export const PERMISSION_DENIED = 'PERMISSION_DENIED';
+export function createPermissionDeniedAction() {
+  return {
+    type: PERMISSION_DENIED
   }
 }
 
@@ -72,10 +80,11 @@ export const selectAnalyticsLicenseKey = (analyticsLicenseKey) => {
   }
 };
 
-export function persistLogin(apiKey) {
+export function persistLogin(apiKey, tenantOrgId) {
   if (storageAvailable('localStorage')) {
     const storage = window.localStorage;
     storage.setItem('apiKey', apiKey);
+    storage.setItem('tenantOrgId', tenantOrgId);
   }
 }
 
@@ -85,44 +94,48 @@ function getKeyFromLocalStorage() {
   }
   const storage = window.localStorage;
   const apiKey = storage.getItem('apiKey');
-  return apiKey ? apiKey : false;
+  const tenantOrgId = storage.getItem('tenantOrgId');
+  return { apiKey: apiKey, tenantOrgId: tenantOrgId };
 }
 
 function getAccountInformation(apiKey) {
-  const api = new Api(apiKey)
+  const api = createApiFromParameters(apiKey);
   return api.bitmovin.account.information().then(info => {
     return { apiKey: apiKey, userName: info.email }
   })
 }
 
-export const loadAnalyticsLicenseKeys = (apiKey) => {
-    const api = new Api(apiKey);
-    return api.getAnalyticsLicenseKeys()
+export const loadAnalyticsLicenseKeys = (apiKey, tenantOrgId) => {
+  const api = createApiFromParameters(apiKey, tenantOrgId);
+  return api.getAnalyticsLicenseKeys()
 };
 
-function loginThroughApiKey(dispatch, apiKey, userName) {
-  return loadAnalyticsLicenseKeys(apiKey).then(licenseKeys => {
-    dispatch(createSetLoginAction(apiKey, userName, licenseKeys));
+function loginThroughApiKey(dispatch, apiKey, tenantOrgId, userName) {
+  return loadAnalyticsLicenseKeys(apiKey, tenantOrgId).then(licenseKeys => {
+    dispatch(createSetLoginAction(apiKey, tenantOrgId, userName, licenseKeys));
+  }).catch(error => {
+    dispatch(createLoginfailedAction())
   })
 }
 
 const tryLoginFromQueryParam = () => {
-  const {apiKey} = queryString.parse(location.search);
-  return apiKey;
+  const apiKey = queryString.parse(location.search).apiKey;
+  const tenantOrgId = queryString.parse(location.search).tenantOrgId;
+  return { apiKey: apiKey, tenantOrgId: tenantOrgId };
 };
 
 export function initializeApplication() {
 	return (dispatch) => {
    {
      const keyFromLocalStorage = getKeyFromLocalStorage()
-     const apiKeyFromQueryString = tryLoginFromQueryParam() || keyFromLocalStorage;
-     if (apiKeyFromQueryString) {
-       getAccountInformation(apiKeyFromQueryString).then(info => {
-         const { apiKey, userName } = info
-         loginThroughApiKey(dispatch, apiKey, userName)
-         persistLogin(apiKey)
+     const loginFromQueryString = tryLoginFromQueryParam() || keyFromLocalStorage;
+     if (loginFromQueryString) {
+       const { apiKey, tenantOrgId } = loginFromQueryString;
+       getAccountInformation(apiKey).then(info => {
+         loginThroughApiKey(dispatch, apiKey, tenantOrgId)
+         persistLogin(apiKey, tenantOrgId)
        }).catch(error => {
-         dispatch(createApiKeyInvalidAction())
+        dispatch(createApiKeyInvalidAction())
        });
      }
     }

@@ -2,6 +2,8 @@ import React, {Component, PropTypes} from 'react';
 import ReactSelect from 'react-select';
 import 'react-select/dist/react-select.css';
 import * as stats from '../api/stats';
+import Api from '../api';
+import connect from 'react-redux/lib/connect/connect';
 
 class FilterRow extends Component {
   static propTypes = {
@@ -10,8 +12,7 @@ class FilterRow extends Component {
     filterName: PropTypes.string.isRequired,
     filterOperator: PropTypes.string.isRequired,
     filterValue: PropTypes.string.isRequired,
-    remove: PropTypes.func.isRequired,
-    apiKey: PropTypes.string.isRequired
+    remove: PropTypes.func.isRequired
   };
   constructor(props) {
     super(props);
@@ -231,7 +232,7 @@ class FilterRow extends Component {
     });
   }
   loadPossibleValues(filterName) {
-    stats.fetchPossibleValues(this.props.apiKey, filterName).then(data => {
+    stats.fetchPossibleValues(this.props.api, filterName).then(data => {
       const possibleValues = data.map(row => {
         return { value: row[0], label: row[0] };
       });
@@ -278,4 +279,9 @@ class FilterRow extends Component {
   }
 }
 
-export default FilterRow;
+const mapStateToProps = (state) => {
+  return {
+    api: new Api(state)
+  }
+};
+export default connect(mapStateToProps)(FilterRow);

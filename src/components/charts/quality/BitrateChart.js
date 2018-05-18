@@ -4,6 +4,7 @@ import * as stats from '../../../api/stats';
 import ReactHighcharts from 'react-highcharts';
 import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
+import Api from '../../../api';
 
 class BitrateChart extends Component {
   state = {
@@ -29,7 +30,7 @@ class BitrateChart extends Component {
       interval: props.interval,
       licenseKey: props.licenseKey
     };
-    const [minBitrates, maxBitRates, avgBitrates] = await stats.fetchMinMaxAvgBitrate(props.apiKey, baseQuery);
+    const [minBitrates, maxBitRates, avgBitrates] = await stats.fetchMinMaxAvgBitrate(props.api, baseQuery);
 
     this.setState({ maxBitRates, minBitrates, avgBitrates, loading: false });
   }
@@ -87,7 +88,7 @@ class BitrateChart extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     interval: state.ranges.interval,
     licenseKey: state.api.analyticsLicenseKey

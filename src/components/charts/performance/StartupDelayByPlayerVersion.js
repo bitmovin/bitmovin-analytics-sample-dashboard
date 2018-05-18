@@ -4,6 +4,7 @@ import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
 import ReactHighcharts from 'react-highcharts';
 import * as startupDelay from '../../../api/metrics/startupdelay';
+import Api from '../../../api';
 
 class StartupDelayByPlayerVersion extends Component {
   static propTypes = {
@@ -23,12 +24,12 @@ class StartupDelayByPlayerVersion extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ primaryRange, licenseKey, apiKey }) {
+  async loadData({ primaryRange, licenseKey, api }) {
     this.setState({ loading: true });
 
     const baseQuery = { ...primaryRange, licenseKey };
 
-    const rows = await startupDelay.videoStartupDelayByPlayerVersion(apiKey, baseQuery);
+    const rows = await startupDelay.videoStartupDelayByPlayerVersion(api, baseQuery);
     const playerVersions = new Set(rows.map(row => row[1]));
     const series = [...playerVersions].map((playerVersion) => ({
       name: playerVersion.toUpperCase(),
@@ -89,7 +90,7 @@ class StartupDelayByPlayerVersion extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     interval: state.ranges.interval,
     rangeName: state.ranges.name,
     primaryRange: state.ranges.primaryRange,

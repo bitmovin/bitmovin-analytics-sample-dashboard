@@ -7,6 +7,7 @@ import moment from 'moment'
 import * as d3 from 'd3'
 import * as util from '../api/util'
 import * as formats from '../formats'
+import Api from '../api';
 
 class ErrorsChart extends PureComponent {
   constructor (props) {
@@ -26,7 +27,7 @@ class ErrorsChart extends PureComponent {
 		this.loadData(nextProps);
 	}
   loadData (props) {
-    Promise.all([errors.fetchErrorPercentage(props.apiKey, { ...props.primaryRange, interval: props.interval })]).then(data => {
+    Promise.all([errors.fetchErrorPercentage(props.api, { ...props.primaryRange, interval: props.interval })]).then(data => {
       this.setState(prevState => {
         data[0] = util.sortByFirstColumn(data[0]);
         return {
@@ -83,7 +84,7 @@ class ErrorsChart extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+		api: new Api(state),
 		rangeName: state.ranges.name,
 		interval: state.ranges.interval,
 		primaryRange: state.ranges.primaryRange

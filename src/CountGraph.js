@@ -23,7 +23,7 @@ class CountGraph extends Component {
 		};
 	}
 	componentDidMount() {
-		const api = new Api(this.props.apiKey);
+		const api = this.props.api;
 		let timeRanges = [this.props.range];
 		if (this.props.compareTimeRange) {
 			timeRanges.push(this.props.secondRange);
@@ -95,7 +95,7 @@ class CountGraph extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey
+		api: new Api(state)
 	};
 }
 export default connect(mapStateToProps)(CountGraph);

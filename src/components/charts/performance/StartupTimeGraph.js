@@ -31,7 +31,7 @@ class StartupTimeGraph extends Component {
       })
     }
     Promise.all([
-      startupDelay.startupTimeOverTime(props.apiKey, props.interval, { ...props.primaryRange })
+      startupDelay.startupTimeOverTime(props.api, props.interval, { ...props.primaryRange })
     ]).then(results => {
       this.setState(prevState => {
         return {
@@ -93,7 +93,7 @@ class StartupTimeGraph extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+    api: new Api(state),
 		primaryRange: state.ranges.primaryRange,
 		secondaryRange: state.ranges.secondaryRange,
 		interval: state.ranges.interval

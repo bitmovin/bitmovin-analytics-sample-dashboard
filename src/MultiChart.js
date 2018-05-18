@@ -4,6 +4,7 @@ import ReactHighcharts from 'react-highcharts';
 import Card from './components/Card';
 import LoadingIndicator from './components/LoadingIndicator';
 import FiltersDialog from './FiltersDialog';
+import Api from './api';
 
 class MultiChart extends Component {
   static propTypes = {
@@ -48,7 +49,7 @@ class MultiChart extends Component {
         filters: query.filters
       };
 
-      return props.dataFunction(props.apiKey, query.name, baseQuery)
+      return props.dataFunction(props.api, query.name, baseQuery)
     }))
 
     const series = results
@@ -127,7 +128,7 @@ class MultiChart extends Component {
 const mapStateToProps = (state) => {
   const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     name,
     interval,
     primaryRange,

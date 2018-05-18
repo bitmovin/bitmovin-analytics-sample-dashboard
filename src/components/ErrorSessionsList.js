@@ -6,6 +6,7 @@ import * as errors from '../api/metrics/errors';
 import { push } from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class ErrorSessionsList extends Component {
   static propTypes = {
@@ -40,7 +41,7 @@ class ErrorSessionsList extends Component {
       licenseKey: props.licenseKey
     };
 
-    const sessions = await errors.errorSessions(props.apiKey, baseQuery, this.state.limit, offset);
+    const sessions = await errors.errorSessions(props.api, baseQuery, this.state.limit, offset);
 
     this.setState({ offset: offset, sessions, loading: false });
   }
@@ -110,7 +111,7 @@ class ErrorSessionsList extends Component {
 const mapStateToProps = (state) => {
   const { primaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

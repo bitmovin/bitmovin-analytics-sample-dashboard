@@ -56,7 +56,7 @@ class RebufferDurationByBrowser extends Component {
       return newResult;
 
     }
-    rebuffer.rebufferDurationGrouped(this.props.apiKey, { ...ranges.thisWeek }, 'BROWSER').then(result => {
+    rebuffer.rebufferDurationGrouped(this.props.api, { ...ranges.thisWeek }, 'BROWSER').then(result => {
       result.sort((a,b) => { return a[0] - b[0] });
       result = _.groupBy(result, (row) => {
         return row[1];
@@ -130,7 +130,7 @@ class RebufferDurationByBrowser extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 export default connect(mapStateToProps)(RebufferDurationByBrowser);

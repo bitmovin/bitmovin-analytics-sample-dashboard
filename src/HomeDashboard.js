@@ -6,11 +6,12 @@ import UserLocation from './components/UserLocation'
 import Chart from './Chart'
 import * as impressions from './api/metrics/impressions'
 import * as errors from './api/metrics/errors'
+import Api from './api';
 
 class HomeDashboard extends Component {
   render () {
-    const impressionsDataFunction = async (apiKey, groupBy, baseQuery) => {
-      const intervalQuery = impressions.groupedQuery(apiKey)
+    const impressionsDataFunction = async (api, groupBy, baseQuery) => {
+      const intervalQuery = impressions.groupedQuery(api)
         .licenseKey(this.props.licenseKey)
         .interval(baseQuery.interval)
         .between(baseQuery.start, baseQuery.end)
@@ -25,12 +26,12 @@ class HomeDashboard extends Component {
 
       return { data: rows, name: groupBy };
     };
-    const errorsDataFunction = (apiKey, name, baseQuery) => {
+    const errorsDataFunction = (api, name, baseQuery) => {
       baseQuery = {
         ...baseQuery,
         licenseKey: this.props.licenseKey
       };
-      return errors.fetchErrorPercentage(apiKey, name, baseQuery);
+      return errors.fetchErrorPercentage(api, name, baseQuery);
     };
     const converter = (name, interval, data) => {
       return {
@@ -63,7 +64,7 @@ class HomeDashboard extends Component {
 
 export default connect((state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     licenseKey: state.api.analyticsLicenseKey
   };
 })(HomeDashboard);

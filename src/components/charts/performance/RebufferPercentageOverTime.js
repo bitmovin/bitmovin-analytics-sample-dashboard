@@ -37,7 +37,7 @@ class RebufferPercentageOverTime extends PureComponent {
     };
 
     Promise.all([
-			rebuffer.rebufferPercentageOverTime(props.apiKey, { ...props.primaryRange, interval: props.interval })
+			rebuffer.rebufferPercentageOverTime(props.api, { ...props.primaryRange, interval: props.interval })
     ]).then(results => {
       this.setState(prevState => {
 				const series = results.map((result, index) => {
@@ -95,7 +95,7 @@ class RebufferPercentageOverTime extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+    api: new Api(state),
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

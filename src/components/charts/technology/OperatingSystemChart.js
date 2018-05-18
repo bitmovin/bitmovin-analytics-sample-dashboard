@@ -4,6 +4,7 @@ import * as stats from '../../../api/stats';
 import ReactHighcharts from 'react-highcharts';
 import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
+import Api from '../../../api';
 
 class OperatingSystemChart extends Component {
   state = {
@@ -25,10 +26,7 @@ class OperatingSystemChart extends Component {
       ...props.range,
       licenseKey: props.licenseKey
     };
-    const fetchOperatingSystem = (os) =>
-      stats.fetchOperatingSystemLastDays(props.apiKey, baseQuery, os);
-
-    const data = await stats.fetchOperatingSystemGrouped(props.apiKey, baseQuery);
+    const data = await stats.fetchOperatingSystemGrouped(props.api, baseQuery);
 
     this.setState({ data, loading: false });
   }
@@ -70,7 +68,7 @@ class OperatingSystemChart extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

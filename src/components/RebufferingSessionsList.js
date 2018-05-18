@@ -8,6 +8,7 @@ import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 import { shortenString } from '../utils';
+import Api from '../api';
 
 class RebufferingSessionsList extends Component {
   static propTypes = {
@@ -42,7 +43,7 @@ class RebufferingSessionsList extends Component {
       licenseKey: props.licenseKey
     };
     const sessions = await rebuffer
-      .rebufferingSessions(props.apiKey, baseQuery, this.state.limit, offset);
+      .rebufferingSessions(props.api, baseQuery, this.state.limit, offset);
 
     this.setState({ offset, sessions, loading: false });
   }
@@ -120,7 +121,7 @@ class RebufferingSessionsList extends Component {
 const mapStateToProps = (state) => {
   const { primaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

@@ -6,6 +6,7 @@ import VideoLink from './VideoLink';
 import LoadingIndicator from './LoadingIndicator';
 import * as util from '../api/util';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class TopContentsRebuffering extends PureComponent {
   state = {
@@ -24,7 +25,7 @@ class TopContentsRebuffering extends PureComponent {
 		this.loadData(nextProps);
 	}
 
-  async loadData ({ primaryRange, licenseKey, apiKey }) {
+  async loadData ({ primaryRange, licenseKey, api }) {
     this.setState({ loading: true });
 
     const rebufferQuery = {
@@ -35,7 +36,7 @@ class TopContentsRebuffering extends PureComponent {
       licenseKey: licenseKey
     };
 
-    const result = await rebuffer.rebufferPercentageOverTime(apiKey, rebufferQuery);
+    const result = await rebuffer.rebufferPercentageOverTime(api, rebufferQuery);
 
     this.setState({ topContents: result, loading: false });
   }
@@ -108,7 +109,7 @@ class TopContentsRebuffering extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+    api: new Api(state),
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

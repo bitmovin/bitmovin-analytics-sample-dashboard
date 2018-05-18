@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import FilterRow from './components/FilterRow'
+import Api from './api';
 
 class FiltersDialog extends Component {
   static propTypes = {
@@ -127,7 +128,6 @@ class FiltersDialog extends Component {
                      filterName={filter.name}
                      filterOperator={filter.operator}
                      filterValue={String(filter.value)}
-                     apiKey={this.props.apiKey}
                      remove={::this.removeFilter}
           />
         );
@@ -184,7 +184,7 @@ class FiltersDialog extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 };
 export default connect(mapStateToProps)(FiltersDialog);

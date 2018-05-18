@@ -3,8 +3,9 @@ import { connect } from 'react-redux'
 import * as topstats from './api/topstats'
 import TopStatMetric from './components/TopStatMetric'
 import { push } from 'react-router-redux'
+import Api from './api';
 
-function TopStats({ licenseKey, apiKey, primaryRange, secondaryRange, navigateToRebuffer, navigateToPerformance }){
+function TopStats({ licenseKey, api, primaryRange, secondaryRange, navigateToRebuffer, navigateToPerformance }){
   const baseQuery = { licenseKey };
 
   return (
@@ -13,19 +14,19 @@ function TopStats({ licenseKey, apiKey, primaryRange, secondaryRange, navigateTo
         <TopStatMetric
           title="Users"
           icon="users"
-          fetchData={() => topstats.fetchTotalUsersThisWeek(apiKey, primaryRange, secondaryRange, baseQuery)}
+          fetchData={() => topstats.fetchTotalUsersThisWeek(api, primaryRange, secondaryRange, baseQuery)}
         />
         <TopStatMetric
           title="Impressions"
           icon="user"
-          fetchData={() => topstats.fetchTotalImpressionsThisWeek(apiKey, primaryRange, secondaryRange, baseQuery)}
+          fetchData={() => topstats.fetchTotalImpressionsThisWeek(api, primaryRange, secondaryRange, baseQuery)}
         />
         <TopStatMetric
           format="pct"
           title="Errors"
           icon="exclamation-triangle"
           inverse
-          fetchData={() => topstats.fetchErrorPercentageThisWeek(apiKey, primaryRange, secondaryRange, baseQuery)}
+          fetchData={() => topstats.fetchErrorPercentageThisWeek(api, primaryRange, secondaryRange, baseQuery)}
         />
         <TopStatMetric
           format="pct"
@@ -34,7 +35,7 @@ function TopStats({ licenseKey, apiKey, primaryRange, secondaryRange, navigateTo
           icon="spinner"
           compareUserBase
           inverse
-          fetchData={() => topstats.fetchRebufferPercentageThisWeek(apiKey, primaryRange, secondaryRange, baseQuery)}
+          fetchData={() => topstats.fetchRebufferPercentageThisWeek(api, primaryRange, secondaryRange, baseQuery)}
         />
         <TopStatMetric
           format="ms"
@@ -43,7 +44,7 @@ function TopStats({ licenseKey, apiKey, primaryRange, secondaryRange, navigateTo
           icon="clock-o"
           inverse
           compareUserBase
-          fetchData={() => topstats.fetchAverageStartupDelayThisWeek(apiKey, primaryRange, secondaryRange, baseQuery)}
+          fetchData={() => topstats.fetchAverageStartupDelayThisWeek(api, primaryRange, secondaryRange, baseQuery)}
         />
         <TopStatMetric
           format="pct"
@@ -51,7 +52,7 @@ function TopStats({ licenseKey, apiKey, primaryRange, secondaryRange, navigateTo
           icon="eject"
           inverse
           compareUserBase
-          fetchData={() => topstats.fetchBounceRateThisWeek(apiKey, primaryRange, secondaryRange, baseQuery)}
+          fetchData={() => topstats.fetchBounceRateThisWeek(api, primaryRange, secondaryRange, baseQuery)}
         />
       </div>
     </div>
@@ -60,7 +61,7 @@ function TopStats({ licenseKey, apiKey, primaryRange, secondaryRange, navigateTo
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+		api: new Api(state),
 		primaryRange: state.ranges.primaryRange,
 		secondaryRange: state.ranges.secondaryRange,
     licenseKey: state.api.analyticsLicenseKey

@@ -17,7 +17,7 @@ class StartupDelayWorldmap extends Component {
     width: PropTypes.object
   }
   componentDidMount () {
-    startupdelay.videoStartupDelayByCountry(this.props.apiKey, ranges.thisWeek).then((data) => {
+    startupdelay.videoStartupDelayByCountry(this.props.api, ranges.thisWeek).then((data) => {
       this.setState(prevState => {
         const newData = data.map(row => {
           return {
@@ -106,7 +106,7 @@ class StartupDelayWorldmap extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 

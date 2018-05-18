@@ -2,7 +2,6 @@ export const LOAD_IMPRESSION = 'LOAD_IMPRESSION';
 export const LOADED_TOPBAR_METRIC = 'LOADED_TOPBAR_METRIC';
 export const LOADED_IP_INFORMATION = 'LOADED_IP_INFORMATION';
 
-import Api from '../api'
 import * as impressionstats from '../api/impressionstats'
 import ipLookup from '../api/ispLookup'
 
@@ -22,8 +21,7 @@ export function loadedIpInformation(impressionId, ipData) {
   }
 }
 
-export function loadImpression(apiKey, impressionId) {
-    const api = new Api(apiKey);
+export function loadImpression(api, impressionId) {
     return (dispatch) => {
       api.getImpression(impressionId).then(data => {
         const videoId = data[0].video_id;
@@ -36,30 +34,30 @@ export function loadImpression(apiKey, impressionId) {
           videoId
         });
 
-        impressionstats.fetchTotalTimePlayedThisWeek(apiKey, data, videoId).then((data) => {
+        impressionstats.fetchTotalTimePlayedThisWeek(api, data, videoId).then((data) => {
           dispatch(loadedTopBarMetric('timePlayed', data))
         });
 
-        impressionstats.fetchRebufferPercentage(apiKey, data, videoId).then((data) => {
+        impressionstats.fetchRebufferPercentage(api, data, videoId).then((data) => {
           dispatch(loadedTopBarMetric('rebuffering', data));
         });
 
 
         if (loadedInBackground !== true) {
-          impressionstats.fetchStartupTime(apiKey, data, videoId).then((data) => {
+          impressionstats.fetchStartupTime(api, data, videoId).then((data) => {
             dispatch(loadedTopBarMetric('startupTime', data))
           })
         } else {
-          impressionstats.fetchTimeToFirstFrame(apiKey, data, videoId).then((data) => {
+          impressionstats.fetchTimeToFirstFrame(api, data, videoId).then((data) => {
             dispatch(loadedTopBarMetric('startupTime', data))
           })
         }
 
-        impressionstats.fetchAverageBitrate(apiKey, data, videoId).then(data => {
+        impressionstats.fetchAverageBitrate(api, data, videoId).then(data => {
           dispatch(loadedTopBarMetric('avgBitrate', data));
         });
 
-        ipLookup(apiKey, data[0].ip_address).then(data => {
+        ipLookup(api.apiKey, data[0].ip_address).then(data => {
           dispatch(loadedIpInformation(impressionId, data));
         })
       })

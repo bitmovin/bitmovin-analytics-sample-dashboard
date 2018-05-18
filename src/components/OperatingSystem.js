@@ -4,6 +4,7 @@ import * as stats from '../api/stats'
 import Card from './Card'
 import ReactHighcharts from 'react-highcharts'
 import { groupToNBuckets } from '../api/util'
+import Api from '../api';
 
 class OperatingSystem extends Component {
   constructor (props) {
@@ -14,7 +15,7 @@ class OperatingSystem extends Component {
     }
   }
   componentDidMount () {
-    stats.fetchOperatingSystemsLastDays(this.props.apiKey, 7).then((operatingSystems) => {
+    stats.fetchOperatingSystemsLastDays(this.props.api, 7).then((operatingSystems) => {
       this.setState(prevState => {
         return {
           ...prevState,
@@ -109,7 +110,9 @@ class OperatingSystem extends Component {
   }
 }
 const mapStateToProps = (state) => {
-  return {apiKey: state.api.apiKey}
+  return {
+    api: new Api(state)
+  }
 }
 
 export default connect(mapStateToProps)(OperatingSystem);

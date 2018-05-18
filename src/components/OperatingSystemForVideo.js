@@ -5,6 +5,7 @@ import Card from './Card';
 import ReactHighcharts from 'react-highcharts';
 import { groupToNBuckets } from '../api/util';
 import LoadingIndicator from './LoadingIndicator';
+import Api from '../api';
 
 class OperatingSystemForVideo extends Component {
   static propTypes = {
@@ -27,7 +28,7 @@ class OperatingSystemForVideo extends Component {
 
   async loadData(props) {
     this.setState({ loading: true });
-    const operatingSystems = await stats.fetchOperatingSystemsLastDaysForVideo(props.apiKey, props.range, props.videoId)
+    const operatingSystems = await stats.fetchOperatingSystemsLastDaysForVideo(props.api, props.range, props.videoId)
     this.setState({ operatingSystems, loading: false });
   }
 
@@ -85,7 +86,7 @@ class OperatingSystemForVideo extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange
   }
 };

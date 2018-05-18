@@ -6,6 +6,7 @@ import ReactHighcharts from 'react-highcharts'
 import ReactPaginate from 'react-paginate';
 import { ErrorCodes } from './utils.js';
 import ImpressionsList from './components/ImpressionsList';
+import Api from './api';
 
 class ErrorDetail extends Component {
   constructor(props) {
@@ -50,7 +51,7 @@ class ErrorDetail extends Component {
   }
 
   loadData(props, limit = this.state.limit, offset = this.state.offset) {
-    videosByErrorCode(props.apiKey, props.interval, parseInt(props.errorCode, 10), {...props.primaryRange, limit, offset}).then((data) => {
+    videosByErrorCode(props.api, props.interval, parseInt(props.errorCode, 10), {...props.primaryRange, limit, offset}).then((data) => {
       this.setState(prevState => {
         return {
           ...prevState,
@@ -66,7 +67,7 @@ class ErrorDetail extends Component {
   }
 
   loadErrorDetailsForVideoId(props, videoId) {
-    errorDetailsForVideoId(props.apiKey, parseInt(props.errorCode, 10), videoId, props.primaryRange).then(data => {
+    errorDetailsForVideoId(props.api, parseInt(props.errorCode, 10), videoId, props.primaryRange).then(data => {
       this.setState(prevState => {
         return {
           ...prevState,
@@ -240,7 +241,7 @@ class ErrorDetail extends Component {
 export default connect((state, ownProps) => {
   return {
     errorCode: ownProps.params.errorCode,
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     primaryRange: state.ranges.primaryRange,
     interval: state.ranges.interval
   };

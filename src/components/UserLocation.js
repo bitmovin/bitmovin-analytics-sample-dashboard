@@ -6,6 +6,7 @@ import ReactHighmaps from 'react-highcharts/ReactHighmaps.src';
 import mapdata from '../mapdata/world';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
+import Api from '../api';
 
 const limit = 7;
 
@@ -33,9 +34,9 @@ class UserLocation extends Component {
 		this.loadData(nextProps);
 	}
 
-  async loadData({ apiKey, primaryRange, licenseKey }) {
+  async loadData({ api, primaryRange, licenseKey }) {
     this.setState({ loading: true });
-    const query = impressions.groupedQuery(apiKey)
+    const query = impressions.groupedQuery(api)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
       .groupBy('COUNTRY')
@@ -160,13 +161,13 @@ class UserLocation extends Component {
   }
 }
 
-const mapStateToProps = ({ api, ranges }) => {
+const mapStateToProps = (state) => {
   return {
-    apiKey: api.apiKey,
-    licenseKey: api.analyticsLicenseKey,
-    interval: ranges.interval,
-    rangeName: ranges.name,
-    primaryRange: ranges.primaryRange
+    api: new Api(state),
+    licenseKey: state.api.analyticsLicenseKey,
+    interval: state.ranges.interval,
+    rangeName: state.ranges.name,
+    primaryRange: state.ranges.primaryRange
   }
 }
 

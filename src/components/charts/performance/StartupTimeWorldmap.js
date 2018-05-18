@@ -6,6 +6,7 @@ import ReactHighmaps from 'react-highcharts/ReactHighmaps.src';
 import mapdata from '../../../mapdata/world';
 import * as startupdelay from '../../../api/metrics/startupdelay';
 import ReactPaginate from 'react-paginate';
+import Api from '../../../api';
 
 class StartupTimeWorldmap extends Component {
   static propTypes = {
@@ -39,7 +40,7 @@ class StartupTimeWorldmap extends Component {
       licenseKey: props.licenseKey
     };
 
-    const data = await startupdelay.videoStartupTimeByCountry(props.apiKey, baseQuery)
+    const data = await startupdelay.videoStartupTimeByCountry(props.api, baseQuery)
     const newData = data.map(row => ({
       'hc-key': row[0].toLowerCase(),
       value: Math.round(row[1])
@@ -157,7 +158,7 @@ class StartupTimeWorldmap extends Component {
 
 const mapStateToProps = (state) => {
   return {
-		apiKey: state.api.apiKey,
+    api: new Api(state),
 		primaryRange: state.ranges.primaryRange,
 		secondaryRange: state.ranges.secondaryRange,
 		interval: state.ranges.interval,

@@ -6,6 +6,7 @@ import moment from 'moment'
 import * as rebuffer from '../../../api/metrics/rebuffer'
 import * as ranges from '../../../api/ranges'
 import _ from 'underscore'
+import Api from '../../../api';
 
 class RebufferCountGraphByBrowser extends Component {
   constructor (props) {
@@ -55,7 +56,7 @@ class RebufferCountGraphByBrowser extends Component {
       return newResult;
 
     }
-    rebuffer.rebufferPercentageGrouped(this.props.apiKey, ranges.thisWeek, 'BROWSER').then(result => {
+    rebuffer.rebufferPercentageGrouped(this.props.api, ranges.thisWeek, 'BROWSER').then(result => {
       result.sort((a,b) => { return a[0] - b[0] });
       result = _.groupBy(result, (row) => {
         return row[1];
@@ -117,7 +118,7 @@ class RebufferCountGraphByBrowser extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 export default connect(mapStateToProps)(RebufferCountGraphByBrowser);

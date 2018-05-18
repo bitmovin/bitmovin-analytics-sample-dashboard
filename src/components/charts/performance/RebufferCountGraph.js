@@ -29,7 +29,7 @@ class RebufferCountGraph extends Component {
       });
     }
     const results = await rebuffer.rebufferPercentageOverTime(
-      props.apiKey,
+      props.api,
       { ...props.primaryRange, interval: props.interval }
     );
     this.setState({
@@ -85,7 +85,7 @@ class RebufferCountGraph extends Component {
 }
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+		api: new Api(state),
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

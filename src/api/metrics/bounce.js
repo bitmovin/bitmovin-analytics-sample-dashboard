@@ -1,7 +1,4 @@
-import Api from '../index'
-
-export function bounceRate(apiKey, baseQuery, videoId) {
-  const api = new Api(apiKey);
+export function bounceRate(api, baseQuery, videoId) {
   const playedImpressionsQuery  = {
     ...baseQuery,
     dimension: 'IMPRESSION_ID',

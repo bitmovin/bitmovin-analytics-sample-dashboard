@@ -4,6 +4,7 @@ import * as impressions from '../../../api/metrics/impressions';
 import ReactHighcharts from 'react-highcharts';
 import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
+import Api from '../../../api';
 
 class StreamFormatChart extends Component {
   static propTypes = {
@@ -23,9 +24,9 @@ class StreamFormatChart extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ apiKey, licenseKey, range }) {
+  async loadData({ api, licenseKey, range }) {
     this.setState({ loading: true });
-    const query = impressions.groupedQuery(apiKey)
+    const query = impressions.groupedQuery(api)
       .licenseKey(licenseKey)
       .between(range.start, range.end)
       .groupBy('STREAM_FORMAT')
@@ -77,7 +78,7 @@ class StreamFormatChart extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     licenseKey: state.api.analyticsLicenseKey
   }

@@ -4,6 +4,7 @@ import * as stats from '../api/stats';
 import ReactHighcharts from 'react-highcharts';
 import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
+import Api from '../api';
 
 class Scaling extends Component {
   state = {
@@ -27,7 +28,7 @@ class Scaling extends Component {
       interval: props.interval,
       licenseKey: props.licenseKey
     };
-    const data = await stats.fetchScalingLastDays(props.apiKey, baseQuery)
+    const data = await stats.fetchScalingLastDays(props.api, baseQuery)
 
     this.setState({ data, loading: false });
   }
@@ -91,7 +92,7 @@ class Scaling extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     interval: state.ranges.interval,
     licenseKey: state.api.analyticsLicenseKey

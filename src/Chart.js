@@ -4,6 +4,7 @@ import ReactHighcharts from 'react-highcharts';
 import Card from './components/Card';
 import FiltersDialog from './FiltersDialog';
 import LoadingIndicator from './components/LoadingIndicator';
+import Api from './api';
 
 class Chart extends Component {
   static propTypes = {
@@ -52,7 +53,7 @@ class Chart extends Component {
         filters: [...query.filters],
       };
 
-      return props.dataFunction(props.apiKey, query.name, baseQuery)
+      return props.dataFunction(props.api, query.name, baseQuery)
 
     }));
 
@@ -136,11 +137,11 @@ class Chart extends Component {
   }
 }
 
-const mapStateToProps = ({ api, ranges }) => {
-  const { name, interval, primaryRange, secondaryRange } = ranges;
+const mapStateToProps = (state) => {
+  const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
-    apiKey: api.apiKey,
-    licenseKey: api.analyticsLicenseKey,
+    api: new Api(state),
+    licenseKey: state.api.analyticsLicenseKey,
     name,
     interval,
     primaryRange,

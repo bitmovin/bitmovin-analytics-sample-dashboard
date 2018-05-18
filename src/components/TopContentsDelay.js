@@ -6,6 +6,7 @@ import VideoLink from './VideoLink';
 import LoadingIndicator from './LoadingIndicator';
 import * as util from '../api/util';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class TopContentsDelay extends PureComponent {
   state = {
@@ -38,7 +39,7 @@ class TopContentsDelay extends PureComponent {
       licenseKey: props.licenseKey
     };
 
-    const data = await startupdelay.videoStartupTimeByCountry(props.apiKey, startupDelayQuery)
+    const data = await startupdelay.videoStartupTimeByCountry(props.api, startupDelayQuery)
 
     this.setState({
       topContents: data,
@@ -108,7 +109,7 @@ class TopContentsDelay extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+		api: new Api(state),
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

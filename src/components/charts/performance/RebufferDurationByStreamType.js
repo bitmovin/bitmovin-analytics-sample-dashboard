@@ -25,15 +25,15 @@ class RebufferDurationByStreamType extends Component {
       });
     }
     Promise.all([
-      rebuffer.rebufferDuration(this.props.apiKey, {
+      rebuffer.rebufferDuration(this.props.api, {
         ...ranges.thisWeek,
         filters: [filter('STREAM_FORMAT', 'eq', 'hls')]
       }),
-      rebuffer.rebufferDuration(this.props.apiKey, {
+      rebuffer.rebufferDuration(this.props.api, {
         ...ranges.thisWeek,
         filters: [filter('STREAM_FORMAT', 'eq', 'dash')]
       }),
-      rebuffer.rebufferDuration(this.props.apiKey, {
+      rebuffer.rebufferDuration(this.props.api, {
         ...ranges.thisWeek,
         filters: [filter('STREAM_FORMAT', 'eq', 'progressive')]
       }),
@@ -116,7 +116,7 @@ class RebufferDurationByStreamType extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey
+    api: new Api(state)
   }
 }
 export default connect(mapStateToProps)(RebufferDurationByStreamType);

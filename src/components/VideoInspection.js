@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import * as stats from '../api/stats'
 import { push } from 'react-router-redux'
 import VideoInspectionView from './VideoInspectionView'
+import Api from '../api';
 
 class VideoInspection extends Component {
   constructor(props) {
@@ -24,15 +25,15 @@ class VideoInspection extends Component {
     this.loadData(newProps);
   }
 
-  async loadData({ location, licenseKey, apiKey }) {
+  async loadData({ location, licenseKey, api }) {
     try {
       const videoId = location.query.video;
       const range = this.props.ranges.primaryRange;
-      const isLive = await stats.isVideoLive(apiKey, licenseKey, videoId, range)
+      const isLive = await stats.isVideoLive(api, licenseKey, videoId, range)
       let video = undefined;
       let videoLength = 0;
       if(!isLive) {
-        video = await stats.fetchVodVideoDetails(apiKey, licenseKey, videoId, range);
+        video = await stats.fetchVodVideoDetails(api, licenseKey, videoId, range);
         videoLength = video.length;
       }
 
@@ -73,7 +74,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     licenseKey: state.api.analyticsLicenseKey,
     ranges: state.ranges,
   }

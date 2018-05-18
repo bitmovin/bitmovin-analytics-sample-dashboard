@@ -1,4 +1,3 @@
-import Api from './index'
 import * as ranges from './ranges'
 import * as rebuffer from './metrics/rebuffer'
 import * as util from './util'
@@ -8,8 +7,7 @@ import { mean } from 'd3-array'
 import { bounceRate } from './metrics/bounce'
 import moment from 'moment'
 
-function fetchMetric(apiKey, metric, aQuery = {}) {
-  const api = new Api(apiKey);
+function fetchMetric(api, metric, aQuery = {}) {
   const query = {
     ...aQuery,
     ...ranges.thisWeek,
@@ -37,10 +35,10 @@ function exctractPlayedTimeFromImpression(impression) {
   }, 0);
 }
 
-export function fetchTotalTimePlayedThisWeek(apiKey, impression, videoId) {
+export function fetchTotalTimePlayedThisWeek(api, impression, videoId) {
   return new Promise((resolve) => {
     const totalPlayedTime = exctractPlayedTimeFromImpression(impression);
-    played.averagePlayedTimePerVideo(apiKey, videoId, ranges.thisWeek)
+    played.averagePlayedTimePerVideo(api, videoId, ranges.thisWeek)
     .then((result) => {
       resolve(formatResult(totalPlayedTime, result, (value) => {
         return Math.round(value / 1000) + ' sec';
@@ -62,10 +60,9 @@ function extractRebufferTimeFromImpression (impression) {
   }, 0);
 }
 
-export function fetchRebufferPercentage(apiKey, impression, videoId) {
+export function fetchRebufferPercentage(api, impression, videoId) {
   return new Promise((resolve) => {
     const rebufferPercentage = extractRebufferTimeFromImpression(impression);
-    const api = new Api(apiKey);
 
     const filters = [api.filter('PLAYER_STARTUPTIME', 'EQ', 0),
       api.filter('VIDEO_STARTUPTIME', 'EQ', 0)];
@@ -99,11 +96,9 @@ export function fetchRebufferPercentage(apiKey, impression, videoId) {
   });
 }
 
-export function fetchTimeToFirstFrame(apiKey, impression, videoId) {
+export function fetchTimeToFirstFrame(api, impression, videoId) {
   const timeToFirstFrame = impression.find((x) => { return x.video_startuptime > 0; }).video_startuptime;
   return new Promise((resolve) => {
-    const api = new Api(apiKey);
-
     const filters = [api.filter('VIDEO_STARTUPTIME', 'GT', 0)];
     if (videoId) {
       filters.push(api.filter('VIDEO_ID', 'EQ', videoId))
@@ -124,11 +119,9 @@ export function fetchTimeToFirstFrame(apiKey, impression, videoId) {
   })
 }
 
-export function fetchStartupTime(apiKey, impression, videoId) {
+export function fetchStartupTime(api, impression, videoId) {
   const startupTime = impression.find((x) => { return x.startuptime > 0; }).startuptime;
   return new Promise((resolve) => {
-    const api = new Api(apiKey);
-
     const filters = [api.filter('STARTUPTIME', 'GT', 0),
       api.filter('PAGE_LOAD_TYPE', 'EQ', 1)];
 
@@ -151,11 +144,9 @@ export function fetchStartupTime(apiKey, impression, videoId) {
   })
 }
 
-export function fetchAverageBitrate(apiKey, impressions, videoId) {
+export function fetchAverageBitrate(api, impressions, videoId) {
   const avgBitrate = mean(impressions.map(imp => { return imp.video_bitrate; }).filter(imp => { return imp > 0; }))
   return new Promise(resolve => {
-    const api = new Api(apiKey);
-
     const filters = [api.filter('VIDEO_BITRATE', 'GT', 0)];
 
     if (videoId) {
@@ -174,18 +165,18 @@ export function fetchAverageBitrate(apiKey, impressions, videoId) {
   })
 }
 
-export function fetchTotalImpressionsThisWeek(apiKey) {
-  return fetchMetric(apiKey, 'IMPRESSION_ID');
+export function fetchTotalImpressionsThisWeek(api) {
+  return fetchMetric(api, 'IMPRESSION_ID');
 }
 
-export function fetchTotalUsersThisWeek(apiKey, timeRange) {
-  return fetchMetric(apiKey, timeRange, 'USER_ID');
+export function fetchTotalUsersThisWeek(api, timeRange) {
+  return fetchMetric(api, timeRange, 'USER_ID');
 }
 
-export function fetchRebufferPercentageThisWeek(apiKey) {
+export function fetchRebufferPercentageThisWeek(api) {
   return new Promise((resolve) => {
-    Promise.all([rebuffer.rebufferPercentage(apiKey, ranges.thisWeek),
-    rebuffer.rebufferPercentage(apiKey, ranges.lastWeek)]).then(result => {
+    Promise.all([rebuffer.rebufferPercentage(api, ranges.thisWeek),
+    rebuffer.rebufferPercentage(api, ranges.lastWeek)]).then(result => {
       resolve(formatResult(result[0], result[1], (value) => {
         return util.round10(util.convertToPercentNumber(value));
       }));
@@ -205,12 +196,11 @@ function formatResult(impression, average, format = (x) => { return x; }) {
     };
 }
 
-export function fetchTotalErrorsThisWeek(apiKey) {
-  return fetchMetric(apiKey, 'ERROR_CODE');
+export function fetchTotalErrorsThisWeek(api) {
+  return fetchMetric(api, 'ERROR_CODE');
 }
 
-export function fetchImpressionsLastDaysPerDay(apiKey, days, offset = 0) {
-  const api = new Api(apiKey);
+export function fetchImpressionsLastDaysPerDay(api, days, offset = 0) {
   const lastDaysQuery = (days, offset = 0) => {
     return {
       dimension: 'IMPRESSION_ID',
@@ -234,8 +224,7 @@ export function fetchImpressionsLastDaysPerDay(apiKey, days, offset = 0) {
   });
 }
 
-export function fetchOperatingSystemsLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchOperatingSystemsLastDays(api, days) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -255,8 +244,7 @@ export function fetchOperatingSystemsLastDays(apiKey, days) {
   });
 }
 
-export function fetchTopContentsLastDays(apiKey, days, limit = 10) {
-  const api = new Api(apiKey);
+export function fetchTopContentsLastDays(api, days, limit = 10) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -284,8 +272,7 @@ export function fetchTopContentsLastDays(apiKey, days, limit = 10) {
   });
 }
 
-export function fetchTopPathsLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchTopPathsLastDays(api, days) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -305,8 +292,7 @@ export function fetchTopPathsLastDays(apiKey, days) {
   });
 }
 
-export function fetchUserLocationLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchUserLocationLastDays(api, days) {
   const operatingSystemsQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -329,25 +315,24 @@ export function fetchUserLocationLastDays(apiKey, days) {
   });
 }
 
-export function averagePlayTime(apiKey) {
+export function averagePlayTime(api) {
 }
 
 function percentageRenderer(value) {
   return util.roundTo(util.convertToPercentNumber(value), 2);
 }
 
-export function fetchBounceRateThisWeek(apiKey) {
+export function fetchBounceRateThisWeek(api) {
   return new Promise((resolve) => {
-    Promise.all([bounceRate(apiKey, ranges.thisWeek),
-                 bounceRate(apiKey, ranges.lastWeek)])
+    Promise.all([bounceRate(api, ranges.thisWeek),
+                 bounceRate(api, ranges.lastWeek)])
     .then((result) => {
       resolve(formatResult(result[0], result[1], percentageRenderer));
     })
   })
 }
 
-export function fetchBrowsersLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchBrowsersLastDays(api, days) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -370,8 +355,7 @@ export function fetchBrowsersLastDays(apiKey, days) {
   });
 }
 
-export function fetchBrowserLastDays(apiKey, days, browser) {
-  const api = new Api(apiKey);
+export function fetchBrowserLastDays(api, days, browser) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -393,8 +377,7 @@ export function fetchBrowserLastDays(apiKey, days, browser) {
   });
 }
 
-export function fetchOperatingSystemLastDays(apiKey, days, os) {
-  const api = new Api(apiKey);
+export function fetchOperatingSystemLastDays(api, days, os) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -416,8 +399,7 @@ export function fetchOperatingSystemLastDays(apiKey, days, os) {
   });
 }
 
-export function fetchStreamFormatLastDays(apiKey, days, streamFormat) {
-  const api = new Api(apiKey);
+export function fetchStreamFormatLastDays(api, days, streamFormat) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -439,8 +421,7 @@ export function fetchStreamFormatLastDays(apiKey, days, streamFormat) {
   });
 }
 
-export function fetchPlayerTechnologyLastDays(apiKey, days, playerTechnology) {
-  const api = new Api(apiKey);
+export function fetchPlayerTechnologyLastDays(api, days, playerTechnology) {
   const lastDaysQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -462,8 +443,7 @@ export function fetchPlayerTechnologyLastDays(apiKey, days, playerTechnology) {
   });
 }
 
-export function fetchMinMaxAvgBitrateLastMinutes(apiKey, minutes) {
-  const api = new Api(apiKey);
+export function fetchMinMaxAvgBitrateLastMinutes(api, minutes) {
   const bitrate = {
     dimension: 'VIDEO_BITRATE',
     start: moment.utc().startOf('minute').subtract(minutes, 'minute').format(),
@@ -486,28 +466,27 @@ export function fetchMinMaxAvgBitrateLastMinutes(apiKey, minutes) {
   });
 }
 
-export function fetchAverageStartupDelayThisWeek(apiKey) {
+export function fetchAverageStartupDelayThisWeek(api) {
   return new Promise((resolve) => {
-    Promise.all([startupDelay.fetchPlayerStartupDelay(apiKey, ranges.thisWeek),
-      startupDelay.fetchPlayerStartupDelay(apiKey, ranges.lastWeek)])
+    Promise.all([startupDelay.fetchPlayerStartupDelay(api, ranges.thisWeek),
+      startupDelay.fetchPlayerStartupDelay(api, ranges.lastWeek)])
       .then((results) => {
         resolve(formatResult(results[0], results[1], (val) => { return Math.round(val) + " ms"; }));
       });
   });
 }
 
-export function fetchAverageVideoStartupDelayThisWeek(apiKey) {
+export function fetchAverageVideoStartupDelayThisWeek(api) {
   return new Promise((resolve) => {
-    Promise.all([startupDelay.fetchVideoStartupDelay(apiKey, ranges.thisWeek),
-      startupDelay.fetchVideoStartupDelay(apiKey, ranges.lastWeek)])
+    Promise.all([startupDelay.fetchVideoStartupDelay(api, ranges.thisWeek),
+      startupDelay.fetchVideoStartupDelay(api, ranges.lastWeek)])
       .then((results) => {
         resolve(formatResult(results[0], results[1], (val) => { return Math.round(val) + " ms"; }));
       });
   });
 }
 
-export function fetchStreamTypesLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchStreamTypesLastDays(api, days) {
   const vodQuery = {
     dimension: 'IMPRESSION_ID',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -548,8 +527,7 @@ export function fetchStreamTypesLastDays(apiKey, days) {
   });
 }
 
-export function fetchScalingLastDays(apiKey, days) {
-  const api = new Api(apiKey);
+export function fetchScalingLastDays(api, days) {
   const query  = {
     dimension: 'UPSCALE_FACTOR',
     start: moment.utc().startOf('day').subtract(days, 'day').format(),
@@ -573,17 +551,17 @@ export function fetchScalingLastDays(apiKey, days) {
   });
 }
 
-export function fetchVideoHeatMapImpressions(apiKey, videoId) {
-  return fetchHeatmap(apiKey, 'COUNT', 'IMPRESSION_ID', videoId);
+export function fetchVideoHeatMapImpressions(api, videoId) {
+  return fetchHeatmap(api, 'COUNT', 'IMPRESSION_ID', videoId);
 }
 
-export function fetchVideoHeatMapErrors(apiKey, videoId) {
-  return fetchHeatmap(apiKey, 'COUNT', 'ERROR_CODE', videoId);
+export function fetchVideoHeatMapErrors(api, videoId) {
+  return fetchHeatmap(api, 'COUNT', 'ERROR_CODE', videoId);
 }
 
 
-export function fetchVideoHeatMapAvgBitrate(apiKey, videoId) {
-  return fetchHeatmap(apiKey, 'AVG', 'VIDEO_BITRATE', videoId, avgBitrateFormatter);
+export function fetchVideoHeatMapAvgBitrate(api, videoId) {
+  return fetchHeatmap(api, 'AVG', 'VIDEO_BITRATE', videoId, avgBitrateFormatter);
 }
 
 function noopFormatter(data) {
@@ -594,8 +572,7 @@ function avgBitrateFormatter(data) {
   return roundToTwo(data / 1000);
 }
 
-function fetchHeatmap(apiKey, functionName, dimension, videoId, dataFormatter = noopFormatter) {
-  const api = new Api(apiKey);
+function fetchHeatmap(api, functionName, dimension, videoId, dataFormatter = noopFormatter) {
   const query = {
     dimension: 'VIDEO_DURATION',
     groupBy: ['VIDEO_ID'],
@@ -680,8 +657,7 @@ function roundToTwo(num) {
   return +(Math.round(num + "e+2")  + "e-2");
 }
 
-export function fetchVideoImpressionsLastDaysPerDay(apiKey, video, days, offset = 0) {
-  const api = new Api(apiKey);
+export function fetchVideoImpressionsLastDaysPerDay(api, video, days, offset = 0) {
   const lastDaysQuery = (days, offset = 0) => {
     return {
       dimension: 'IMPRESSION_ID',

@@ -5,6 +5,7 @@ import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import VideoLink from './VideoLink';
 import ReactPaginate from 'react-paginate';
+import Api from '../api';
 
 class TopContentsErrors extends PureComponent {
   state = {
@@ -36,7 +37,7 @@ class TopContentsErrors extends PureComponent {
       licenseKey: props.licenseKey
     };
 
-    const topContents = await errors.errorsByVideo(props.apiKey, errorsQuery);
+    const topContents = await errors.errorsByVideo(props.api, errorsQuery);
 
     this.setState({
       topContents,
@@ -110,7 +111,7 @@ class TopContentsErrors extends PureComponent {
 
 const mapStateToProps = (state) => {
 	return {
-		apiKey: state.api.apiKey,
+		api: new Api(state),
 		interval: state.ranges.interval,
 		rangeName: state.ranges.name,
 		primaryRange: state.ranges.primaryRange,

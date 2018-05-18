@@ -5,6 +5,7 @@ import ReactHighcharts from 'react-highcharts';
 import Card from '../../Card';
 import LoadingIndicator from '../../LoadingIndicator';
 import _ from 'underscore';
+import Api from '../../../api';
 
 class ScalingGrouped extends Component {
   static propTypes = {
@@ -35,7 +36,7 @@ class ScalingGrouped extends Component {
       licenseKey: props.licenseKey
     };
 
-    const scaling = await stats.fetchScalingLastDays(this.props.apiKey, query);
+    const scaling = await stats.fetchScalingLastDays(this.props.api, query);
     const groups = [...new Set(scaling.map(row => row[1]))];
     const series = groups.map(group => {
       const rows = scaling.filter(row => row[1] === group);
@@ -102,7 +103,7 @@ class ScalingGrouped extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     range: state.ranges.primaryRange,
     interval: state.ranges.interval,
     licenseKey: state.api.analyticsLicenseKey

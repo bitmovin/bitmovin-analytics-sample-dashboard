@@ -6,16 +6,17 @@ import RebufferCountByCountry from './components/charts/performance/RebufferCoun
 import * as rebuffer from './api/metrics/rebuffer';
 import Chart from './Chart';
 import TopContentsRebuffering from './components/TopContentsRebuffering'
+import Api from './api';
 
 class RebufferDashboard extends Component {
   render () {
-    const dataFunction = (apiKey, name, baseQuery) => {
+    const dataFunction = (api, name, baseQuery) => {
       baseQuery = {
         ...baseQuery,
         licenseKey: this.props.licenseKey
       };
       return new Promise(resolve => {
-        rebuffer.rebufferPercentageOverTime(apiKey, baseQuery).then(data => {
+        rebuffer.rebufferPercentageOverTime(api, baseQuery).then(data => {
           resolve({
             data: data,
             name
@@ -60,7 +61,7 @@ class RebufferDashboard extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     licenseKey: state.api.analyticsLicenseKey
   }
 };

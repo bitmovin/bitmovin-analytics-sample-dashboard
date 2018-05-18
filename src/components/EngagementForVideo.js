@@ -4,6 +4,7 @@ import * as stats from '../api/stats';
 import Card from './Card';
 import ReactHighcharts from 'react-highcharts';
 import LoadingIndicator from './LoadingIndicator';
+import Api from '../api';
 
 class EngagementForVideo extends Component {
   static propTypes = {
@@ -23,10 +24,10 @@ class EngagementForVideo extends Component {
     this.loadData(nextProps);
   }
 
-  async loadData({ apiKey, video }) {
+  async loadData({ api, video }) {
     this.setState({ loading: true });
     let range = this.props.ranges.primaryRange;
-    const result = await stats.fetchVideoHeatMapImpressions(apiKey, video, range);
+    const result = await stats.fetchVideoHeatMapImpressions(api, video, range);
     this.setState({ data: result.seconds, loading: false });
   }
 
@@ -89,7 +90,7 @@ class EngagementForVideo extends Component {
 }
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     ranges: state.ranges,
   }
 };

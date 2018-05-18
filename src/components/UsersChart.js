@@ -6,6 +6,7 @@ import Card from './Card';
 import LoadingIndicator from './LoadingIndicator';
 import moment from 'moment';
 import * as formats from '../formats';
+import Api from '../api';
 
 class UsersChart extends Component {
   state = {
@@ -31,7 +32,7 @@ class UsersChart extends Component {
       licenseKey: this.props.licenseKey
     };
 
-    const rows = await stats.fetchUsersLastDaysPerDay(this.props.apiKey, baseQuery);
+    const rows = await stats.fetchUsersLastDaysPerDay(this.props.api, baseQuery);
     const data = rows.map(row => [moment(row[0]).format(formats[props.interval]), row[1]]);
 
     this.setState({ data, loading: false });
@@ -92,7 +93,7 @@ class UsersChart extends Component {
 const mapStateToProps = (state) => {
   const { name, interval, primaryRange, secondaryRange } = state.ranges;
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     name,
     interval,
     primaryRange,

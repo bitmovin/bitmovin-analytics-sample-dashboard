@@ -6,11 +6,12 @@ import TopStats from './TopStats';
 import ImpressionsList from './components/ImpressionsList';
 import * as impressions from './api/metrics/impressions';
 import Chart from './Chart';
+import Api from './api';
 
 class UserDashboard extends Component {
   render () {
-    const impressionsDataFunction = async (apiKey, groupBy, baseQuery) => {
-      const intervalQuery = impressions.groupedQuery(apiKey)
+    const impressionsDataFunction = async (api, groupBy, baseQuery) => {
+      const intervalQuery = impressions.groupedQuery(api)
         .licenseKey(this.props.licenseKey)
         .interval(baseQuery.interval)
         .between(baseQuery.start, baseQuery.end)
@@ -49,7 +50,7 @@ class UserDashboard extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    apiKey: state.api.apiKey,
+    api: new Api(state),
     licenseKey: state.api.analyticsLicenseKey
   }
 };

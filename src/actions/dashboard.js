@@ -5,7 +5,7 @@ export const FINISHED_LOADING_DASHBOARD_DATA = 'FINISHED_LOADING_DASHBOARD_DATA'
 
 export function loadDashboardData (boardId, query) {
   return (dispatch, getState) => {
-    const api = new Api(getState().api.apiKey);
+    const api = new Api(getState());
     dispatch(startLoadingDashboardData(boardId, query));
     api.query(query).then((result) => {
       dispatch(finishedLoadingDashboardData(boardId, query, result));
