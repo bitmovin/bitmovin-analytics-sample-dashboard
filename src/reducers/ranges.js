@@ -5,12 +5,12 @@ const defaultState = {
   dialogVisible: false,
   name: 'Last 24 Hours',
   primaryRange: {
-    start: moment.utc().subtract(1, 'day').startOf('hour').format(),
-    end: moment.utc().startOf('hour').format()
+    start: moment(new Date()).subtract(1, 'day').startOf('hour').format(),
+    end: moment(new Date()).startOf('hour').format()
   },
   secondaryRange: {
-    start: moment.utc().subtract(2, 'day').startOf('hour').format(),
-    end: moment.utc().subtract(1, 'day').startOf('hour').format()
+    start: moment(new Date()).subtract(2, 'day').startOf('hour').format(),
+    end: moment(new Date()).subtract(1, 'day').startOf('hour').format()
 	},
 	interval: 'HOUR'
 }
