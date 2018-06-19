@@ -20,7 +20,7 @@ class TopStatMetric extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (!deepEqual(newProps.dep, this.props.dep)) {
+    if (!deepEqual(newProps.dependency, this.props.dependency)) {
       this.props.reLoadTopStat(this.props.title, this.props.fetchData)
     }
   }
@@ -108,15 +108,14 @@ const mapStateToProps = (state, ownprops) => {
       ...state.topstats[ownprops.title].metric
     }
   }
-  const r = {
-    dep: {
+  return {
+    dependency: {
       primaryRange: state.ranges.primaryRange,
       secondaryRange: state.ranges.secondaryRange,
       licenseKey: state.api.analyticsLicenseKey,
     },
     metric
   }
-  return r
 }
 const mapDispatchToProps = (dispatch) => {
   return {
