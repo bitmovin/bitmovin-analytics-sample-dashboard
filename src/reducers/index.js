@@ -6,6 +6,7 @@ import impressionDetail from './impressionDetail'
 import ranges from './ranges'
 import query from './query'
 import dashboard from './dashboard'
+import topstats from './topstats'
 
 const bitanalytics = combineReducers({
 	api,
@@ -13,7 +14,8 @@ const bitanalytics = combineReducers({
 	impressionDetail: impressionDetail,
   ranges,
   query,
-  dashboard
+  dashboard,
+  topstats
 });
 
 export default bitanalytics;
