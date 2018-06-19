@@ -113,6 +113,7 @@ const mapStateToProps = (state, ownprops) => {
       primaryRange: state.ranges.primaryRange,
       secondaryRange: state.ranges.secondaryRange,
       licenseKey: state.api.analyticsLicenseKey,
+      videoId: ownprops.videoId
     },
     metric
   }
