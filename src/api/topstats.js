@@ -27,6 +27,19 @@ function fetchMetric(api, metric, primaryRange, secondaryRange, aQuery = {}, fil
     })
   });
 }
+export const fetchAverageStartupDelayThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
+  return new Promise((resolve) => {
+    Promise.all([
+      startupDelay.fetchStartupDelay(api, {...primaryRange, ...baseQuery}, videoId),
+      startupDelay.fetchStartupDelay(api, {...secondaryRange, ...baseQuery}, videoId)
+    ]).then((results) => {
+				resolve(formatResult(results[0], results[1], (val) => {
+					return Math.round(val);
+				}));
+      });
+  });
+})
+
 
 export const fetchErrorPercentageThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
   const errorQuery = {
@@ -169,19 +182,6 @@ export const fetchBounceRateThisWeek = cached((api, primaryRange, secondaryRange
       });
     })
   })
-})
-
-export const fetchAverageStartupDelayThisWeek = cached((api, primaryRange, secondaryRange, baseQuery, videoId) => {
-  return new Promise((resolve) => {
-    Promise.all([
-      startupDelay.fetchStartupDelay(api, {...primaryRange, ...baseQuery}, videoId),
-      startupDelay.fetchStartupDelay(api, {...secondaryRange, ...baseQuery}, videoId)
-    ]).then((results) => {
-				resolve(formatResult(results[0], results[1], (val) => {
-					return Math.round(val);
-				}));
-      });
-  });
 })
 
 export const fetchAverageVideoStartupDelayThisWeek = cached((api, primaryRange, secondaryRange, videoId) => {

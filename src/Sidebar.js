@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router';
-import * as actions from './actions/ranges'
-import { toggleQueryBuilder } from './actions/query'
+import { showChangeRangeDialog } from './actions/ranges'
 import { withRouter } from 'react-router'
 import { unsetApiKey, selectAnalyticsLicenseKey } from './actions/api'
 
@@ -54,7 +53,7 @@ class Sidebar extends Component {
     const className = active ? 'active' : '';
     const collapsedClassName = this.state.performanceExpanded ? 'collapse in' : 'collapse';
     return <li className={className}>
-      <a onClick={::this.togglePerformanceSubmenu} data-toggle="collapse" aria-expanded={this.state.performanceExpanded}>
+      <a onClick={()=>this.togglePerformanceSubmenu()} data-toggle="collapse" aria-expanded={this.state.performanceExpanded}>
         <i className="fa fa-fighter-jet"></i>
         <p>Performance
           <b className="caret"></b>
@@ -80,11 +79,12 @@ class Sidebar extends Component {
       return <option key={license.id} value={licenseKey}>{displayName}</option>
     });
 
-    return <select defaultValue={this.props.licenseKey} className="form-control" onChange={::this.changeAnalyticsLicenseKey} style={{maxWidth: '100%', width: '200px', margin: '0 auto'}}>
+    return <select defaultValue={this.props.licenseKey} className="form-control" onChange={(event)=>this.changeAnalyticsLicenseKey(event)} style={{maxWidth: '100%', width: '200px', margin: '0 auto'}}>
       {options}
     </select>
   }
 
+  
   changeAnalyticsLicenseKey(event) {
     this.props.selectAnalyticsLicenseKey(event.target.value);
   }
@@ -145,11 +145,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    toggleQueryBuilder: () => {
-      dispatch(toggleQueryBuilder());
-    },
     showChangeRangeDialog: () => {
-      dispatch(actions.showChangeRangeDialog())
+      dispatch(showChangeRangeDialog())
     },
     logout: () => {
       dispatch(unsetApiKey());

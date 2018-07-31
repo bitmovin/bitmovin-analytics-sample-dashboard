@@ -93,7 +93,7 @@ class RebufferCountByCountry extends Component {
         <thead>
           <tr>
             <th>Country</th>
-            <th>Rebuffer Percentage <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
+            <th>Rebuffer Percentage <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={()=>this.toggleSorting()}></i></th>
           </tr>
         </thead>
         <tbody>
@@ -108,7 +108,7 @@ class RebufferCountByCountry extends Component {
         forcePage={this.state.page}
         marginPagesDisplayed={0}
         pageRangeDisplayed={0}
-        onPageChange={::this.handlePageClick}
+        onPageChange={(pagination)=>this.handlePageClick(pagination)}
         containerClassName={"pagination"}
         subContainerClassName={"pages pagination"}
         activeClassName={"active"}/>
