@@ -8,16 +8,6 @@ export function roundTo (number, places) {
   return Math.round(number * base) / base;
 }
 
-export function convertToPercentNumber(number) {
-  return number * 100;
-}
-
-export function convertArrayToObject(rows) {
-  return rows.reduce((total, current) => {
-    total[current[0]] = current[1];
-    return total;
-  }, {});
-}
 export function leftJoin (rows1, rows2, def = () => { return 0 }) {
   return rows1.map((r1) => {
     const row2 = rows2.find((r2) => {
@@ -84,8 +74,4 @@ export function groupUnsortedToNBuckets(data, buckets, bucketCreator) {
 export function groupToNBuckets(data, buckets, bucketSelector, bucketCreator) {
   const sortedBuckets = data.sort(bucketSelector).reverse();
   return [...sortedBuckets.slice(0, buckets - 1), bucketCreator(sortedBuckets.slice(buckets))];
-}
-
-export function sortByFirstColumn(data) {
-  return data.slice(0, data.length).sort((a,b) => { return a[0] - b[0]; });
 }

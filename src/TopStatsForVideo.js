@@ -1,11 +1,11 @@
-import React, { PropTypes } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import * as topstats from './api/topstats'
 import TopStatMetric from './components/TopStatMetric'
 import { push } from 'react-router-redux'
 import Api from './api';
 
-function TopStatsForVideo({ api, primaryRange, secondaryRange, videoId, licenseKey }) {
+function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKey,  navigateToRebuffer, navigateToPerformance }){
   const baseQuery = { licenseKey };
 
   return (
@@ -29,7 +29,6 @@ function TopStatsForVideo({ api, primaryRange, secondaryRange, videoId, licenseK
           videoId={videoId}
           icon="exclamation-triangle"
           inverse
-          compareUserBase
           fetchData={() => topstats.fetchErrorPercentageThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
         />
         <TopStatMetric
@@ -61,11 +60,8 @@ function TopStatsForVideo({ api, primaryRange, secondaryRange, videoId, licenseK
         />
       </div>
     </div>
-  )
+  );
 }
-TopStatsForVideo.propTypes = {
-  videoId: PropTypes.string,
-};
 
 const mapStateToProps = (state) => {
 	return {

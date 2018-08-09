@@ -84,7 +84,13 @@ export function persistLogin(apiKey, tenantOrgId) {
   if (storageAvailable('localStorage')) {
     const storage = window.localStorage;
     storage.setItem('apiKey', apiKey);
-    storage.setItem('tenantOrgId', tenantOrgId);
+    if(tenantOrgId) {
+      storage.setItem('tenantOrgId', tenantOrgId);
+    }
+    else {
+      storage.removeItem('tenantOrgId');
+    }
+ 
   }
 }
 
@@ -121,7 +127,13 @@ function loginThroughApiKey(dispatch, apiKey, tenantOrgId, userName) {
 const tryLoginFromQueryParam = () => {
   const apiKey = queryString.parse(location.search).apiKey;
   const tenantOrgId = queryString.parse(location.search).tenantOrgId;
-  return { apiKey: apiKey, tenantOrgId: tenantOrgId };
+
+  if(apiKey) {
+    return { apiKey: apiKey, tenantOrgId: tenantOrgId };
+  }
+
+  return null;
+  
 };
 
 export function initializeApplication() {
@@ -129,6 +141,7 @@ export function initializeApplication() {
    {
      const keyFromLocalStorage = getKeyFromLocalStorage()
      const loginFromQueryString = tryLoginFromQueryParam() || keyFromLocalStorage;
+     
      if (loginFromQueryString) {
        const { apiKey, tenantOrgId } = loginFromQueryString;
        getAccountInformation(apiKey).then(info => {
