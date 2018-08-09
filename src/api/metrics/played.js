@@ -1,9 +1,3 @@
-export function totalTimePlayed(api, baseQuery = {}) {
-  return api.fetchAnalytics('SUM', {
-    ...baseQuery,
-    dimension: 'PLAYED'
-  });
-}
 
 export function averagePlayedTimePerVideo(api, videoId, baseQuery = {}) {
   const query = {
