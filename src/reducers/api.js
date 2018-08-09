@@ -1,19 +1,19 @@
-import * as apiAction from '../actions/api.js'
+import * as apiAction from '../actions/api.js';
 
 const defaultState = {
-  apiKey                       : '',
-  tenantOrgId                  : '',
-  isSetup                      : false,
-  validationSuccess            : false,
-  isValidating                 : true,
-  validationError              : false,
-  apiKeyInvalid                : false,
-  loginFailed                  : false,
-  processingLogin              : false,
-  analyticsLicenseKey          : '',
+  apiKey: '',
+  tenantOrgId: '',
+  isSetup: false,
+  validationSuccess: false,
+  isValidating: true,
+  validationError: false,
+  apiKeyInvalid: false,
+  loginFailed: false,
+  processingLogin: false,
+  analyticsLicenseKey: '',
   isLoadingAnalyticsLicenseKeys: false,
-  loadedAnalyticsLicenseKeys   : false,
-  analyticsLicenseKeys         : []
+  loadedAnalyticsLicenseKeys: false,
+  analyticsLicenseKeys: [],
 };
 
 function api(state = defaultState, action) {
@@ -32,7 +32,7 @@ function api(state = defaultState, action) {
         processingLogin: false,
         loginFailed: false,
         analyticsLicenseKeys: action.licenseKeys,
-        analyticsLicenseKey: firstLicenseKey
+        analyticsLicenseKey: firstLicenseKey,
       };
 
     case apiAction.UNSET_LOGIN:
@@ -40,26 +40,30 @@ function api(state = defaultState, action) {
 
     case apiAction.LOGIN_FAILED:
       return {
-        ...state, processingLogin: false, loginFailed: true
+        ...state,
+        processingLogin: false,
+        loginFailed: true,
       };
 
     case apiAction.START_LOGIN:
       return {
-        ...state, processingLogin: true, loginFailed: false
+        ...state,
+        processingLogin: true,
+        loginFailed: false,
       };
 
     case apiAction.SELECT_ANALYTICS_LICENSE_KEY:
       window.bitmovinAnalyticsLicenseKey = action.analyticsLicenseKey;
       return {
         ...state,
-        analyticsLicenseKey: action.analyticsLicenseKey
+        analyticsLicenseKey: action.analyticsLicenseKey,
       };
     case apiAction.API_KEY_INVALID:
       return {
         ...state,
         processingLogin: false,
-        loginFailed: true
-      }
+        loginFailed: true,
+      };
 
     default:
       return state;

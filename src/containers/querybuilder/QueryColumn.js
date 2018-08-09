@@ -1,13 +1,13 @@
-import { connect } from 'react-redux'
-import * as actions from '../../actions/query'
-import QueryColumn from '../../components/querybuilder/QueryColumn'
+import {connect} from 'react-redux';
+import * as actions from '../../actions/query';
+import QueryColumn from '../../components/querybuilder/QueryColumn';
 
 const mapStateToProps = (state, ownProps) => {
   return {
     editingTitle: state.query.columns[ownProps.index].editingTitle,
-    renderInGraph: state.query.columns[ownProps.index].renderInGraph
+    renderInGraph: state.query.columns[ownProps.index].renderInGraph,
   };
-}
+};
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     removeColumn: () => {
@@ -16,12 +16,15 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     startTitleEdit: () => {
       dispatch(actions.startEditColumnTitle(ownProps.index));
     },
-    changeTitle: (title) => {
+    changeTitle: title => {
       dispatch(actions.changeColumnTitle(ownProps.index, title));
     },
-    changeRenderInGraph: (visibility) => {
+    changeRenderInGraph: visibility => {
       dispatch(actions.changeColumnRenderInGraph(ownProps.index, visibility));
-    }
+    },
   };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(QueryColumn)
+};
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(QueryColumn);

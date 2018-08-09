@@ -1,4 +1,4 @@
-import * as actions from '../actions/topstats'
+import * as actions from '../actions/topstats';
 
 const defaultState = {};
 
@@ -9,8 +9,8 @@ export default function query(state = defaultState, action) {
         ...state,
         [action.name]: {
           loading: true,
-          loaded: false
-        }
+          loaded: false,
+        },
       };
     }
     case actions.FINISHED_LOADING_TOPSTATS: {
@@ -19,8 +19,8 @@ export default function query(state = defaultState, action) {
         [action.name]: {
           loading: false,
           loaded: true,
-          metric: action.metric
-        }
+          metric: action.metric,
+        },
       };
     }
     default:

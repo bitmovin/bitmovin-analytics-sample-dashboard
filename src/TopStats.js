@@ -1,12 +1,12 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import * as topstats from './api/topstats'
-import TopStatMetric from './components/TopStatMetric'
-import { push } from 'react-router-redux'
+import React from 'react';
+import {connect} from 'react-redux';
+import * as topstats from './api/topstats';
+import TopStatMetric from './components/TopStatMetric';
+import {push} from 'react-router-redux';
 import Api from './api';
 
-function TopStats({ licenseKey, api, primaryRange, secondaryRange, navigateToRebuffer, navigateToPerformance }){
-  const baseQuery = { licenseKey };
+function TopStats({licenseKey, api, primaryRange, secondaryRange, navigateToRebuffer, navigateToPerformance}) {
+  const baseQuery = {licenseKey};
 
   return (
     <div>
@@ -59,24 +59,27 @@ function TopStats({ licenseKey, api, primaryRange, secondaryRange, navigateToReb
   );
 }
 
-const mapStateToProps = (state) => {
-	return {
-		api: new Api(state),
-		primaryRange: state.ranges.primaryRange,
-		secondaryRange: state.ranges.secondaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-	}
+const mapStateToProps = state => {
+  return {
+    api: new Api(state),
+    primaryRange: state.ranges.primaryRange,
+    secondaryRange: state.ranges.secondaryRange,
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     navigateToPerformance: () => {
       dispatch(push('/performance'));
     },
     navigateToRebuffer: () => {
-      dispatch(push('/performance/rebuffer'))
-    }
-  }
+      dispatch(push('/performance/rebuffer'));
+    },
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TopStats);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TopStats);

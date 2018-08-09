@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import * as impressions from '../../../api/metrics/impressions';
 import ReactHighcharts from 'react-highcharts';
@@ -8,49 +8,50 @@ import Api from '../../../api';
 
 class StreamFormatChart extends Component {
   static propTypes = {
-    width: PropTypes.object.isRequired
+    width: PropTypes.object.isRequired,
   };
 
   state = {
     data: [],
     loading: false,
-  }
+  };
 
-  componentDidMount () {
+  componentDidMount() {
     this.loadData(this.props);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     this.loadData(nextProps);
   }
 
-  async loadData({ api, licenseKey, range }) {
-    this.setState({ loading: true });
-    const query = impressions.groupedQuery(api)
+  async loadData({api, licenseKey, range}) {
+    this.setState({loading: true});
+    const query = impressions
+      .groupedQuery(api)
       .licenseKey(licenseKey)
       .between(range.start, range.end)
       .groupBy('STREAM_FORMAT')
       .orderBy('FUNCTION', 'DESC')
       .filter('STREAM_FORMAT', 'NE', 'unknown');
 
-    const { rows } = await query.query();
+    const {rows} = await query.query();
 
-    const data = rows.map(([name, y]) => ({ name, y }));
+    const data = rows.map(([name, y]) => ({name, y}));
 
-    this.setState({ data, loading: false });
+    this.setState({data, loading: false});
   }
 
-  render () {
-    const { data, loading } = this.state;
+  render() {
+    const {data, loading} = this.state;
     const chartConfig = {
-      title : {
-        text: ''
+      title: {
+        text: '',
       },
       chart: {
         plotBackgroundColor: null,
         plotBorderWidth: null,
         plotShadow: false,
-        type: 'pie'
+        type: 'pie',
       },
       plotOptions: {
         pie: {
@@ -58,30 +59,48 @@ class StreamFormatChart extends Component {
           cursor: 'pointer',
           dataLabels: {
             enabled: true,
-            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-          }
-        }
+            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+          },
+        },
       },
-      series: [{ name: 'Impressions', data }],
-      colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
-        '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
+      series: [{name: 'Impressions', data}],
+      colors: [
+        '#2eabe2',
+        '#35ae73',
+        '#f3922b',
+        '#d2347f',
+        '#ad5536',
+        '#2f66f2',
+        '#bd37d1',
+        '#32e0bf',
+        '#670CE8',
+        '#FF0000',
+        '#E8900C',
+        '#9A0DFF',
+        '#100CE8',
+        '#FF0000',
+        '#E8B00C',
+        '#0DFF1A',
+        '#E8440C',
+        '#E80CCE',
+      ],
     };
     return (
-    <Card title="Impressions by Stream Format" width={this.props.width}>
-      <LoadingIndicator loading={loading}>
-        <ReactHighcharts config={chartConfig}/>
-      </LoadingIndicator>
-    </Card>
+      <Card title="Impressions by Stream Format" width={this.props.width}>
+        <LoadingIndicator loading={loading}>
+          <ReactHighcharts config={chartConfig} />
+        </LoadingIndicator>
+      </Card>
     );
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     api: new Api(state),
     range: state.ranges.primaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-  }
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
 export default connect(mapStateToProps)(StreamFormatChart);
