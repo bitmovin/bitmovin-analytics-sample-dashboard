@@ -15,7 +15,7 @@ class UserLocation extends Component {
     super(props);
     this.state = {
       userLocationSeries: {
-        data: []
+        data: [],
       },
       tableData: [],
       offset: 0,
@@ -23,33 +23,34 @@ class UserLocation extends Component {
       page: 0,
       orderByOrder: 'DESC',
       loading: false,
-    }
+    };
   }
 
-	componentDidMount () {
-		this.loadData(this.props);
-	}
+  componentDidMount() {
+    this.loadData(this.props);
+  }
 
-	componentWillReceiveProps (nextProps) {
-		this.loadData(nextProps);
-	}
+  componentWillReceiveProps(nextProps) {
+    this.loadData(nextProps);
+  }
 
-  async loadData({ api, primaryRange, licenseKey }) {
-    this.setState({ loading: true });
-    const query = impressions.groupedQuery(api)
+  async loadData({api, primaryRange, licenseKey}) {
+    this.setState({loading: true});
+    const query = impressions
+      .groupedQuery(api)
       .licenseKey(licenseKey)
       .between(primaryRange.start, primaryRange.end)
       .groupBy('COUNTRY')
-      .orderBy('FUNCTION', 'DESC')
+      .orderBy('FUNCTION', 'DESC');
 
-    const { rows } = await query.query();
+    const {rows} = await query.query();
 
     const mapData = rows.map(([hcKey, value]) => ({
       'hc-key': hcKey.toLowerCase(),
-      value
+      value,
     }));
     this.setState({
-      userLocationSeries: { data: mapData },
+      userLocationSeries: {data: mapData},
       tableData: rows,
       pageCount: Math.ceil(rows.length / limit),
       loading: false,
@@ -57,14 +58,14 @@ class UserLocation extends Component {
   }
 
   toggleSorting() {
-    const { orderByOrder } = this.state;
+    const {orderByOrder} = this.state;
     let sorting = (a, b) => {
       return a[1] - b[1];
     };
     if (orderByOrder === 'ASC') {
       sorting = (a, b) => {
         return b[1] - a[1];
-      }
+      };
     }
 
     const tableData = this.state.tableData.sort(sorting);
@@ -73,102 +74,113 @@ class UserLocation extends Component {
       tableData,
       orderByOrder: orderByOrder === 'DESC' ? 'ASC' : 'DESC',
       offset: 0,
-      page: 0
+      page: 0,
     });
   }
 
   handlePageClick(pagination) {
     const offset = limit * pagination.selected;
-    this.setState({ offset, page: pagination.selected });
+    this.setState({offset, page: pagination.selected});
   }
 
-  renderTable () {
+  renderTable() {
     const top = this.state.tableData.slice(this.state.offset, this.state.offset + limit);
 
     const rows = top.map((row, index) => {
-      return <tr key={index}><td><div className={'img-thumbnail flag flag-icon-background flag-icon-' + row[0].toLowerCase()} style={{border: "none", width: "15px", height: "15px", marginRight: "10px"}}></div>{row[0]}</td><td>{row[1]}</td></tr>;
+      return (
+        <tr key={index}>
+          <td>
+            <div
+              className={'img-thumbnail flag flag-icon-background flag-icon-' + row[0].toLowerCase()}
+              style={{border: 'none', width: '15px', height: '15px', marginRight: '10px'}}
+            />
+            {row[0]}
+          </td>
+          <td>{row[1]}</td>
+        </tr>
+      );
     });
 
     return (
       <div>
         <table className="table table-hover">
           <thead>
-          <tr>
-            <th>Country</th>
-            <th>Impressions <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
-          </tr>
+            <tr>
+              <th>Country</th>
+              <th>
+                Impressions{' '}
+                <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting} />
+              </th>
+            </tr>
           </thead>
-          <tbody>
-          {rows}
-          </tbody>
+          <tbody>{rows}</tbody>
         </table>
         <ReactPaginate
           ref="table_pagination"
-          previousLabel={"previous"}
-          nextLabel={"next"}
+          previousLabel={'previous'}
+          nextLabel={'next'}
           pageCount={this.state.pageCount}
           forcePage={this.state.page}
           marginPagesDisplayed={0}
           pageRangeDisplayed={0}
           onPageChange={::this.handlePageClick}
-          containerClassName={"pagination"}
-          subContainerClassName={"pages pagination"}
-          activeClassName={"active"}/>
-      </div>);
+          containerClassName={'pagination'}
+          subContainerClassName={'pages pagination'}
+          activeClassName={'active'}
+        />
+      </div>
+    );
   }
 
-  renderChart () {
+  renderChart() {
     const chartConfig = {
       chart: {
-        height: 400
+        height: 400,
       },
-      title : {
-        text: ''
+      title: {
+        text: '',
       },
       colorAxis: {
-        min: 0
+        min: 0,
       },
       plotOptions: {
         map: {
-          joinBy : ['hc-key'],
+          joinBy: ['hc-key'],
           dataLabels: {
-            enabled: false
+            enabled: false,
           },
           mapData: mapdata,
           tooltip: {
             headerFormat: '',
-            pointFormat: '{point.name}: <b>{point.value}</b>'
-          }
-        }
+            pointFormat: '{point.name}: <b>{point.value}</b>',
+          },
+        },
       },
-      series: [this.state.userLocationSeries]
+      series: [this.state.userLocationSeries],
     };
-    return <ReactHighmaps config={chartConfig}/>
+    return <ReactHighmaps config={chartConfig} />;
   }
 
   render() {
     return (
       <Card width={this.props.width || {md: 8, sm: 8, xs: 12}} title="Visitor Location" cardHeight="500px">
         <LoadingIndicator loading={this.state.loading}>
-          <div className="col-md-6 col-sm-6 col-xs-12">
-            { this.renderTable() }
-          </div>
-          <div className="col-md-6 col-sm-6 col-xs-12">
-            { this.renderChart() }
-          </div>
+          <div className="col-md-6 col-sm-6 col-xs-12">{this.renderTable()}</div>
+          <div className="col-md-6 col-sm-6 col-xs-12">{this.renderChart()}</div>
         </LoadingIndicator>
-      </Card>);
+      </Card>
+    );
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     api: new Api(state),
     licenseKey: state.api.analyticsLicenseKey,
     interval: state.ranges.interval,
     rangeName: state.ranges.name,
-    primaryRange: state.ranges.primaryRange
-  }
-}
+    primaryRange: state.ranges.primaryRange,
+  };
+};
 
 export default connect(mapStateToProps)(UserLocation);

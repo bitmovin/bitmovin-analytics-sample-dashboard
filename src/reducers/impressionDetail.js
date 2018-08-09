@@ -1,4 +1,4 @@
-import * as impressionDetailActions from '../actions/impressionDetailActions.js'
+import * as impressionDetailActions from '../actions/impressionDetailActions.js';
 
 const defaultState = {
   impressionId: '',
@@ -6,20 +6,18 @@ const defaultState = {
   impressionData: [],
   videoId: null,
   isLive: false,
-  topBar: {
-  },
+  topBar: {},
   ipinfo: {
     loaded: false,
     isp: null,
-    as: null
-  }
+    as: null,
+  },
 };
 
 function impressionDetail(state = defaultState, action) {
   switch (action.type) {
-    case impressionDetailActions.LOAD_IMPRESSION:
-    {
-      const isLive = action.impressionData.filter(x => x.is_live === true).length > 0
+    case impressionDetailActions.LOAD_IMPRESSION: {
+      const isLive = action.impressionData.filter(x => x.is_live === true).length > 0;
       const newState = {
         ...state,
         impressionId: action.impressionId,
@@ -27,23 +25,21 @@ function impressionDetail(state = defaultState, action) {
         isLoaded: true,
         topBar: {},
         loadedInBackground: action.loadedInBackground,
-        isLive
+        isLive,
       };
       return newState;
     }
-    case impressionDetailActions.LOADED_TOPBAR_METRIC:
-    {
+    case impressionDetailActions.LOADED_TOPBAR_METRIC: {
       const newState = {
         ...state,
         topBar: {
-          ...state.topBar
-        }
-      }
-      newState.topBar[action.metric] = action.metricData
+          ...state.topBar,
+        },
+      };
+      newState.topBar[action.metric] = action.metricData;
       return newState;
     }
-    case impressionDetailActions.LOADED_IP_INFORMATION:
-    {
+    case impressionDetailActions.LOADED_IP_INFORMATION: {
       return {
         ...state,
         ipinfo: {
@@ -51,9 +47,9 @@ function impressionDetail(state = defaultState, action) {
           isp: action.ipData.isp,
           as: action.ipData.as,
           city: action.ipData.city,
-          country: action.ipData.country
-        }
-      }
+          country: action.ipData.country,
+        },
+      };
     }
     default:
       return state;

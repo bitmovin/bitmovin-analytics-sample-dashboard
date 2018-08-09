@@ -1,8 +1,8 @@
-import urljoin from 'url-join'
-import * as functions from './functions'
-import * as util from './util'
-import { nameOptions } from '../constants/queryfields'
-import Bitmovin from 'bitmovin-javascript'
+import urljoin from 'url-join';
+import * as functions from './functions';
+import * as util from './util';
+import {nameOptions} from '../constants/queryfields';
+import Bitmovin from 'bitmovin-javascript';
 
 export const apiBasePath = 'https://api.bitmovin.com/v1/';
 export const analyticsApi = urljoin(apiBasePath, 'analytics');
@@ -10,35 +10,37 @@ const globalQueriesApi = urljoin(analyticsApi, 'globalqueries');
 
 export const checkResponseStatus = (response, query, queryFunction) => {
   if (response.status >= 200 && response.status < 300) {
-    return response
+    return response;
   } else {
     let error = new Error(response.statusText);
     error.response = response;
-    throw error
+    throw error;
   }
 };
 
-export const parseJson = (response) => { return response.json() };
+export const parseJson = response => {
+  return response.json();
+};
 
-export function orderBy (column, order) {
-  return { name: column, order };
+export function orderBy(column, order) {
+  return {name: column, order};
 }
-export function filter (name, operator, value) {
-  return { name, operator: operator.toUpperCase(), value };
+export function filter(name, operator, value) {
+  return {name, operator: operator.toUpperCase(), value};
 }
 class Api {
   constructor(state) {
-    const { apiKey, tenantOrgId } = state.api;
+    const {apiKey, tenantOrgId} = state.api;
     this.apiKey = apiKey;
     this.tenantOrgId = tenantOrgId;
-    this.bitmovin = new Bitmovin({ apiKey: apiKey, tenantOrgId: tenantOrgId });
+    this.bitmovin = new Bitmovin({apiKey: apiKey, tenantOrgId: tenantOrgId});
   }
 
-  filter (name, operator, value) {
+  filter(name, operator, value) {
     return filter(name, operator, value);
   }
 
-  orderBy (column, order) {
+  orderBy(column, order) {
     return orderBy(column, order);
   }
 
@@ -50,20 +52,22 @@ class Api {
     return {
       name: filter.name,
       operator: filter.operator,
-      value
-    }
+      value,
+    };
   }
 
   query(query) {
-    const { start, end, interval } = query;
-    const q = { start: start.format(), end: end.format(), interval };
+    const {start, end, interval} = query;
+    const q = {start: start.format(), end: end.format(), interval};
     const promises = [];
-    const results = query.columns.map((column) => {
+    const results = query.columns.map(column => {
       if (column.type === 'query') {
         const newQuery = {
           ...q,
           dimension: column.queryField,
-          filters: column.filters.map(filter => { return this.mapFilterColumns(filter) })
+          filters: column.filters.map(filter => {
+            return this.mapFilterColumns(filter);
+          }),
         };
         const promise = this.fetchAnalytics(column.queryFunction.toLowerCase(), newQuery);
         promises.push(promise);
@@ -76,7 +80,7 @@ class Api {
       return null;
     });
     return new Promise((resolve, reject) => {
-      Promise.all(results).then((res) => {
+      Promise.all(results).then(res => {
         const combined = res.reduce((total, one) => {
           return util.leftJoin(total, one);
         }, util.sliceRows(res[0], 0, 1));
@@ -92,12 +96,15 @@ class Api {
     });
   }
 
-  fetchAnalytics (queryFunction, query) {
-    return this.bitmovin.analytics.queries[queryFunction.toLowerCase()]({...query, licenseKey: this.getLicenseKey()}).then(x => x.rows)
+  fetchAnalytics(queryFunction, query) {
+    return this.bitmovin.analytics.queries[queryFunction.toLowerCase()]({
+      ...query,
+      licenseKey: this.getLicenseKey(),
+    }).then(x => x.rows);
   }
 
-  builder () {
-    return this.bitmovin.analytics.queries.builder
+  builder() {
+    return this.bitmovin.analytics.queries.builder;
   }
 
   fetchGlobalAnalytics(metric, query) {
@@ -109,27 +116,28 @@ class Api {
         'Content-Type': 'application/json',
         'X-Api-Key': this.apiKey,
       },
-      body: JSON.stringify(query)
+      body: JSON.stringify(query),
     })
-    .then((response) => {
-      return checkResponseStatus(response, metric, query)
-    })
-    .then(parseJson)
-    .then((response) => {
-      return response.data.result.rows;
-    }).catch(err => {
-      console.error(url, query, err);
-      throw err;
-    });
+      .then(response => {
+        return checkResponseStatus(response, metric, query);
+      })
+      .then(parseJson)
+      .then(response => {
+        return response.data.result.rows;
+      })
+      .catch(err => {
+        console.error(url, query, err);
+        throw err;
+      });
     return promise;
   }
 
-  getImpression (impressionId) {
-    return this.bitmovin.analytics.impressions(impressionId, this.getLicenseKey())
+  getImpression(impressionId) {
+    return this.bitmovin.analytics.impressions(impressionId, this.getLicenseKey());
   }
 
   getAnalyticsLicenseKeys() {
-    return this.bitmovin.analytics.licenses.list().then(response => response.items)
+    return this.bitmovin.analytics.licenses.list().then(response => response.items);
   }
 
   getLicenseKey() {
@@ -139,5 +147,5 @@ class Api {
 export default Api;
 
 export function createApiFromParameters(apiKey, tenantOrgId) {
-  return new Api({ api: { apiKey: apiKey, tenantOrgId: tenantOrgId }});
+  return new Api({api: {apiKey: apiKey, tenantOrgId: tenantOrgId}});
 }

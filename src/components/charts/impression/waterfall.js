@@ -1,11 +1,11 @@
-import React, { Component } from 'react'
-import * as d3 from 'd3'
+import React, {Component} from 'react';
+import * as d3 from 'd3';
 
 class Waterfall extends Component {
-  drawWaterfall () {
+  drawWaterfall() {
     if (this.state.impression.length === 0) return;
 
-    var durations = this.state.impression.map(function (row) {
+    var durations = this.state.impression.map(function(row) {
       return {
         videoTimeStart: row.videotime_start,
         videoTimeEnd: row.videotime_end,
@@ -16,23 +16,23 @@ class Waterfall extends Component {
         videoDuration: row.video_duration,
         src: row,
         player_startuptime: row.player_startuptime,
-        seeked: row.seeked
+        seeked: row.seeked,
       };
     });
     durations = durations.sort((a, b) => {
       return a.time - b.time;
     });
 
-    const filterStartupSample = (samples) => {
-      return samples.filter((sample) => {
-        return (sample.player_startuptime === 0);
-      })
-    }
+    const filterStartupSample = samples => {
+      return samples.filter(sample => {
+        return sample.player_startuptime === 0;
+      });
+    };
 
     const container = this.refs.container;
     const data = durations;
 
-    var margin = { top: 20, left: 20, bottom: 20, right: 20 };
+    var margin = {top: 20, left: 20, bottom: 20, right: 20};
     var width = 800 - margin.left - margin.right;
     var height = 300 - margin.top - margin.bottom;
 
@@ -44,33 +44,54 @@ class Waterfall extends Component {
     var hue = d3.scaleLinear().range([0, 1]);
 
     d3.select(container)
-      .selectAll('svg').remove();
-    const parentSvg = d3.select(container)
+      .selectAll('svg')
+      .remove();
+    const parentSvg = d3
+      .select(container)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.bottom + margin.top)
       .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
     var svg = parentSvg.append('g');
 
-    x.domain([0, d3.max(data, function (d) { return d.videoDuration; })]);
-    y.domain([d3.min(filterStartupSample(data), function (d) { return d.time - d.duration; }), d3.max(filterStartupSample(data), (d) => { return d.time; })]);
+    x.domain([
+      0,
+      d3.max(data, function(d) {
+        return d.videoDuration;
+      }),
+    ]);
+    y.domain([
+      d3.min(filterStartupSample(data), function(d) {
+        return d.time - d.duration;
+      }),
+      d3.max(filterStartupSample(data), d => {
+        return d.time;
+      }),
+    ]);
 
     var seconds = [];
-    var videoDuration = d3.max(data, function (d) { return d.videoDuration; });
+    var videoDuration = d3.max(data, function(d) {
+      return d.videoDuration;
+    });
     const addSecond = (second, data) => {
-      data.forEach(function (row) {
+      data.forEach(function(row) {
         if (row.videoTimeStart <= second * 1000 && row.videoTimeEnd > second * 1000) {
           seconds[second].count += 1;
         }
       });
-    }
-    for(var second = 0; second < Math.ceil(videoDuration / 1000); second += 1) {
-      seconds[second] = { second: second, count: 0 };
+    };
+    for (var second = 0; second < Math.ceil(videoDuration / 1000); second += 1) {
+      seconds[second] = {second: second, count: 0};
       addSecond(second, data);
     }
 
     x2.domain([0, Math.ceil(videoDuration / 1000)]);
-    hue.domain([0, d3.max(seconds, function(d) { return d.count; })]);
+    hue.domain([
+      0,
+      d3.max(seconds, function(d) {
+        return d.count;
+      }),
+    ]);
 
     // svg.selectAll('.tile2')
     //   .data(seconds)
@@ -96,39 +117,39 @@ class Waterfall extends Component {
         time: x.time,
         buffered: x.buffered,
         seeked: x.seeked,
-        played: x.played
+        played: x.played,
       };
-    })
-    const color = (type) => {
+    });
+    const color = type => {
       switch (type) {
-        case ('SEEKED'):
+        case 'SEEKED':
           return '#d2347f';
-        case ('BUFFERED'):
+        case 'BUFFERED':
           return '#E8440C';
-        case ('PLAYBACK'):
+        case 'PLAYBACK':
           return '#35ae73';
         default:
           return '#2eabe2';
       }
-    }
-    const type = (row) => {
-      if (row.seeked > 0 )  {
-        return 'SEEKED'
+    };
+    const type = row => {
+      if (row.seeked > 0) {
+        return 'SEEKED';
       } else if (row.buffered > 0) {
-        return 'BUFFERED'
+        return 'BUFFERED';
       } else if (row.played > 0) {
-        return 'PLAYBACK'
+        return 'PLAYBACK';
       } else {
         return 'IDLE';
       }
-    }
-    const dd = fixedDurations.map((d) => {
+    };
+    const dd = fixedDurations.map(d => {
       return {
         x: x(d.start),
         y: y(d.time - d.duration),
         xValue: d.start,
         yValue: d.time - d.duration,
-        width: Math.max(4, (x(d.end) - x(d.start))),
+        width: Math.max(4, x(d.end) - x(d.start)),
         height: Math.max(4, y(d.time) - y(d.time - d.duration)),
         type: type(d),
         color: color(type(d)),
@@ -136,56 +157,85 @@ class Waterfall extends Component {
         time: d.time,
         played: d.played,
         old: d.old,
-        fixed: d
-      }
+        fixed: d,
+      };
     });
     const defs = parentSvg.append('defs');
 
-    defs.append('pattern')
+    defs
+      .append('pattern')
       .attr('id', 'pattern-stripe')
       .attr('width', 4)
       .attr('height', 4)
       .attr('patternUnits', 'userSpaceOnUse')
-      .attr('patternTransform', 'roRebuffer Duration is the amount of time in seconds that viewers wait for rebuffering per video view. Videos with longer durations have more opportunities for rebuffing events to occur and can make comparisons with shorter videos difficult, making Total Rebuffer Percentage the safer metric to optimize with. However Rebuffer Duration can be a useful metric for understanding the true viewer experience because it’s measured in seconds as opposed to a percentage.tate(45)')
+      .attr(
+        'patternTransform',
+        'roRebuffer Duration is the amount of time in seconds that viewers wait for rebuffering per video view. Videos with longer durations have more opportunities for rebuffing events to occur and can make comparisons with shorter videos difficult, making Total Rebuffer Percentage the safer metric to optimize with. However Rebuffer Duration can be a useful metric for understanding the true viewer experience because it’s measured in seconds as opposed to a percentage.tate(45)'
+      )
       .append('rect')
-        .attr('width', 2)
-        .attr('height', 4)
-        .attr('transform', 'translate(0,0)')
-        .attr('fill', 'white')
+      .attr('width', 2)
+      .attr('height', 4)
+      .attr('transform', 'translate(0,0)')
+      .attr('fill', 'white');
 
-    defs.append('mask')
+    defs
+      .append('mask')
       .attr('id', 'mask-stripe')
       .append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .attr('fill', 'url(#pattern-stripe)')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('fill', 'url(#pattern-stripe)');
 
-    svg.selectAll('.time')
+    svg
+      .selectAll('.time')
       .data(dd)
-      .enter().append('rect')
+      .enter()
+      .append('rect')
       .attr('class', 'time')
-      .attr('transform', function (d) { return 'translate(' + margin.left + ', ' + (margin.top) + ')';})
-      .attr('x', (d) => { return d.x; })
-      .attr('y', (d) => { return d.y; })
-      .attr('width', (d) => { return d.width; })
-      .attr('height', (d) => { return d.height; })
-      .attr('data-buffered', (d) => { return d.buffered; })
-      .attr('data-time', (d) => { return d.time })
-      .attr('fill', (d) => { return d.color })
-      .attr('mask', (d) => { return (d.played > 0 && d.buffered > 0) ? 'url(#mask-stripe)' : null })
-      .attr('data-type', (d) => { return d.type; })
+      .attr('transform', function(d) {
+        return 'translate(' + margin.left + ', ' + margin.top + ')';
+      })
+      .attr('x', d => {
+        return d.x;
+      })
+      .attr('y', d => {
+        return d.y;
+      })
+      .attr('width', d => {
+        return d.width;
+      })
+      .attr('height', d => {
+        return d.height;
+      })
+      .attr('data-buffered', d => {
+        return d.buffered;
+      })
+      .attr('data-time', d => {
+        return d.time;
+      })
+      .attr('fill', d => {
+        return d.color;
+      })
+      .attr('mask', d => {
+        return d.played > 0 && d.buffered > 0 ? 'url(#mask-stripe)' : null;
+      })
+      .attr('data-type', d => {
+        return d.type;
+      })
       .append('svg:title')
-        .text(function (d) { return d.type + ' ' + d.buffered; });
+      .text(function(d) {
+        return d.type + ' ' + d.buffered;
+      });
 
-
-    svg.append('g')
+    svg
+      .append('g')
       .attr('class', 'x axis')
-      .attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top ) + ')')
+      .attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')')
       .call(d3.axisBottom(x).scale(x))
       .attr('color', 'black')
-    .append('text')
+      .append('text')
       .attr('class', 'label')
       .attr('x', width)
       .attr('y', -6)
@@ -196,7 +246,7 @@ class Waterfall extends Component {
     this.drawHeatmap2();
   }
 
-  render () {
-    return <div ref="container" style={{ width: 800, height: 400 }}></div>
+  render() {
+    return <div ref="container" style={{width: 800, height: 400}} />;
   }
 }

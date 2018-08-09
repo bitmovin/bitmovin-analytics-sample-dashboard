@@ -12,94 +12,116 @@ class UsersChart extends Component {
   state = {
     data: [],
     loading: false,
-  }
+  };
 
-  componentDidMount () {
+  componentDidMount() {
     this.loadData(this.props);
   }
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     this.loadData(nextProps);
   }
 
   async loadData(props) {
-    this.setState({ loading: true });
+    this.setState({loading: true});
 
     const baseQuery = {
       ...props.primaryRange,
       interval: props.interval,
       groupBy: [],
-      orderBy: [{ name: props.interval, order: 'ASC'}],
-      licenseKey: this.props.licenseKey
+      orderBy: [{name: props.interval, order: 'ASC'}],
+      licenseKey: this.props.licenseKey,
     };
 
     const rows = await stats.fetchUsersLastDaysPerDay(this.props.api, baseQuery);
     const data = rows.map(row => [moment(row[0]).format(formats[props.interval]), row[1]]);
 
-    this.setState({ data, loading: false });
+    this.setState({data, loading: false});
   }
 
   render() {
-    const { data, loading } = this.state;
+    const {data, loading} = this.state;
     const chartConfig = {
       chart: {
-        height: this.props.height
+        height: this.props.height,
       },
-      title : {
-        text: ''
+      title: {
+        text: '',
       },
       tooltip: {
-        shared: true
+        shared: true,
       },
-      xAxis : {
-        type : 'category',
+      xAxis: {
+        type: 'category',
         dateTimeLabelFormats: {
           month: '%e. %b',
-          year : '%b'
-        }
+          year: '%b',
+        },
       },
-      yAxis : {
-        plotLines: [{
-          value: 0,
-          width: 1,
-          color: '#808080'
-        }],
-        title    : {
-          text: 'Users'
-        }
+      yAxis: {
+        plotLines: [
+          {
+            value: 0,
+            width: 1,
+            color: '#808080',
+          },
+        ],
+        title: {
+          text: 'Users',
+        },
       },
       plotOptions: {
         series: {
-          animation: !loading && { duration: 2000 },
+          animation: !loading && {duration: 2000},
         },
       },
-      series: [{
-        name: 'Users',
-        type: 'spline',
-        data,
-      }],
-      colors: ['#2eabe2', '#35ae73', '#f3922b', '#d2347f', '#ad5536', '#2f66f2', '#bd37d1', '#32e0bf', '#670CE8',
-        '#FF0000', '#E8900C', '#9A0DFF', '#100CE8', '#FF0000', '#E8B00C', '#0DFF1A', '#E8440C', '#E80CCE']
+      series: [
+        {
+          name: 'Users',
+          type: 'spline',
+          data,
+        },
+      ],
+      colors: [
+        '#2eabe2',
+        '#35ae73',
+        '#f3922b',
+        '#d2347f',
+        '#ad5536',
+        '#2f66f2',
+        '#bd37d1',
+        '#32e0bf',
+        '#670CE8',
+        '#FF0000',
+        '#E8900C',
+        '#9A0DFF',
+        '#100CE8',
+        '#FF0000',
+        '#E8B00C',
+        '#0DFF1A',
+        '#E8440C',
+        '#E80CCE',
+      ],
     };
     return (
-      <Card title="Users" width={this.props.width || {md:12, sm: 12, xs: 12}} fixedHeight={false} cardHeight="auto">
+      <Card title="Users" width={this.props.width || {md: 12, sm: 12, xs: 12}} fixedHeight={false} cardHeight="auto">
         <LoadingIndicator loading={loading}>
-          <ReactHighcharts config={chartConfig}/>
+          <ReactHighcharts config={chartConfig} />
         </LoadingIndicator>
       </Card>
     );
   }
 }
 
-const mapStateToProps = (state) => {
-  const { name, interval, primaryRange, secondaryRange } = state.ranges;
+const mapStateToProps = state => {
+  const {name, interval, primaryRange, secondaryRange} = state.ranges;
   return {
     api: new Api(state),
     name,
     interval,
     primaryRange,
     secondaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-  }
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
 export default connect(mapStateToProps)(UsersChart);

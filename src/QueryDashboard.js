@@ -4,24 +4,24 @@ import {addDashboard} from './actions/dashboard';
 import QueryBuilder from './components/querybuilder/QueryBuilder';
 import DashboardList from './containers/querybuilder/DashboardList';
 
-
 class QueryDashboard extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.props.setupDefaultDashboard();
   }
-  render () {
-    return <div>
-      <DashboardList />
-      <QueryBuilder />
-    </div>
+  render() {
+    return (
+      <div>
+        <DashboardList />
+        <QueryBuilder />
+      </div>
+    );
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-  }
+const mapStateToProps = state => {
+  return {};
 };
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     setupDefaultDashboard: () => {
       dispatch((dispatch, getState) => {
@@ -29,7 +29,10 @@ const mapDispatchToProps = (dispatch) => {
           dispatch(addDashboard(getState().query, 'chart'));
         }
       });
-    }
+    },
   };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(QueryDashboard);
+};
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(QueryDashboard);

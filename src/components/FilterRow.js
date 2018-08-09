@@ -12,32 +12,36 @@ class FilterRow extends Component {
     filterName: PropTypes.string.isRequired,
     filterOperator: PropTypes.string.isRequired,
     filterValue: PropTypes.string.isRequired,
-    remove: PropTypes.func.isRequired
+    remove: PropTypes.func.isRequired,
   };
   constructor(props) {
     super(props);
     const filterParams = this.getFilterParams(this.props.filterName);
     this.state = {
-      filterName    : this.props.filterName,
+      filterName: this.props.filterName,
       filterOperator: this.props.filterOperator,
-      filterValue   : this.props.filterValue,
+      filterValue: this.props.filterValue,
       filterValueType: filterParams.filterValueType,
-      possibleValues: filterParams.possibleValues
+      possibleValues: filterParams.possibleValues,
     };
   }
 
   getFilterParams(filterName) {
     const filterParams = {
       filterValueType: 'text',
-      possibleValues: []
+      possibleValues: [],
     };
 
-    for(let i = 0; i < this.nameOptions.length; i++) {
+    for (let i = 0; i < this.nameOptions.length; i++) {
       if (this.nameOptions[i].value === filterName) {
         filterParams.filterValueType = this.nameOptions[i].type;
         filterParams.possibleValues = this.nameOptions[i].possibleValues;
 
-        if (filterParams.possibleValues.length <= 0 && filterName !== '' && this.nameOptions[i].loadPossibleValues !== false) {
+        if (
+          filterParams.possibleValues.length <= 0 &&
+          filterName !== '' &&
+          this.nameOptions[i].loadPossibleValues !== false
+        ) {
           this.loadPossibleValues(filterName);
         }
 
@@ -76,54 +80,66 @@ class FilterRow extends Component {
     {value: 'PATH', label: 'PATH', type: 'text', possibleValues: []},
     {value: 'LANGUAGE', label: 'LANGUAGE', type: 'text', possibleValues: []},
     {
-      value         : 'PLAYER_TECH',
-      label         : 'PLAYER TECHNOLOGY',
-      type          : 'text',
+      value: 'PLAYER_TECH',
+      label: 'PLAYER TECHNOLOGY',
+      type: 'text',
       possibleValues: [
         {value: 'html5', label: 'html5'},
         {value: 'flash', label: 'flash'},
-        {value: 'native', label: 'native'}
-      ]
+        {value: 'native', label: 'native'},
+      ],
     },
     {value: 'SCREEN_WIDTH', label: 'SCREEN WIDTH', type: 'number', possibleValues: [], loadPossibleValues: false},
     {value: 'SCREEN_HEIGHT', label: 'SCREEN HEIGHT', type: 'number', possibleValues: [], loadPossibleValues: false},
     {value: 'IP_ADDRESS', label: 'IP ADDRESS', type: 'text', possibleValues: []},
     {
-      value         : 'STREAM_FORMAT',
-      label         : 'STREAM FORMAT',
-      type          : 'text',
+      value: 'STREAM_FORMAT',
+      label: 'STREAM FORMAT',
+      type: 'text',
       possibleValues: [
         {value: 'dash', label: 'dash'},
         {value: 'hls', label: 'hls'},
         {value: 'progressive', label: 'progressive'},
-        {value: 'unknown', label: 'unknown'}
-      ]
+        {value: 'unknown', label: 'unknown'},
+      ],
     },
     {value: 'PLAYER', label: 'PLAYER', type: 'text', possibleValues: []},
     {value: 'PLAYER_VERSION', label: 'PLAYER VERSION', type: 'text', possibleValues: []},
     {value: 'VIDEO_DURATION', label: 'VIDEO DURATION', type: 'number', possibleValues: []},
     {
-      value         : 'IS_LIVE',
-      label         : 'LIVE',
-      type          : 'boolean',
-      possibleValues: [{value: 'true', label: 'true'}, {value: 'false', label: 'false'}]
+      value: 'IS_LIVE',
+      label: 'LIVE',
+      type: 'boolean',
+      possibleValues: [{value: 'true', label: 'true'}, {value: 'false', label: 'false'}],
     },
     {
-      value         : 'IS_CASTING',
-      label         : 'CASTING',
-      type          : 'boolean',
-      possibleValues: [{value: 'true', label: 'true'}, {value: 'false', label: 'false'}]
+      value: 'IS_CASTING',
+      label: 'CASTING',
+      type: 'boolean',
+      possibleValues: [{value: 'true', label: 'true'}, {value: 'false', label: 'false'}],
     },
     {value: 'VIDEO_ID', label: 'VIDEO ID', type: 'text', possibleValues: []},
-    {value: 'PLAYER_STARTUPTIME', label: 'PLAYER STARTUPTIME', type: 'number', possibleValues: [], loadPossibleValues: false},
-    {value: 'VIDEO_STARTUPTIME', label: 'VIDEO STARTUPTIME', type: 'number', possibleValues: [], loadPossibleValues: false},
+    {
+      value: 'PLAYER_STARTUPTIME',
+      label: 'PLAYER STARTUPTIME',
+      type: 'number',
+      possibleValues: [],
+      loadPossibleValues: false,
+    },
+    {
+      value: 'VIDEO_STARTUPTIME',
+      label: 'VIDEO STARTUPTIME',
+      type: 'number',
+      possibleValues: [],
+      loadPossibleValues: false,
+    },
     {value: 'CUSTOM_USER_ID', label: 'CUSTOM USER ID', type: 'text', possibleValues: []},
     {value: 'CLIENT_TIME', label: 'CLIENT TIME', type: 'number', possibleValues: [], loadPossibleValues: false},
     {
-      value         : 'SIZE',
-      label         : 'SIZE',
-      type          : 'text',
-      possibleValues: [{value: 'WINDOW', label: 'WINDOW'}, {value: 'FULLSCREEN', label: 'FULLSCREEN'}]
+      value: 'SIZE',
+      label: 'SIZE',
+      type: 'text',
+      possibleValues: [{value: 'WINDOW', label: 'WINDOW'}, {value: 'FULLSCREEN', label: 'FULLSCREEN'}],
     },
     {value: 'VIDEO_WINDOW_WIDTH', label: 'VIDEO WINDOW WIDTH', type: 'number', possibleValues: []},
     {value: 'VIDEO_WINDOW_HEIGHT', label: 'VIDEO WINDOW HEIGHT', type: 'number', possibleValues: []},
@@ -160,11 +176,11 @@ class FilterRow extends Component {
     {value: 'MONTH', label: 'MONTH', type: 'number', possibleValues: [], loadPossibleValues: false},
     {value: 'PAGE_LOAD_TIME', label: 'PAGE LOAD TIME', type: 'number', possibleValues: [], loadPossibleValues: false},
     {
-      value         : 'PAGE_LOAD_TYPE',
-      label         : 'PAGE LOAD TYPE',
-      type          : 'number',
-      possibleValues: [{value: '1', label: 'Foreground'}, {value: '2', label: 'Background'}]
-    }
+      value: 'PAGE_LOAD_TYPE',
+      label: 'PAGE LOAD TYPE',
+      type: 'number',
+      possibleValues: [{value: '1', label: 'Foreground'}, {value: '2', label: 'Background'}],
+    },
   ];
   operatorOptions = [
     {value: 'EQ', label: 'equals'},
@@ -174,22 +190,30 @@ class FilterRow extends Component {
     {value: 'GT', label: 'greater than'},
     {value: 'GTE', label: 'greater than or eq'},
     {value: 'CONTAINS', label: 'CONTAINS'},
-    {value: 'NOTCONTAINS', label: 'NOTCONTAINS'}
+    {value: 'NOTCONTAINS', label: 'NOTCONTAINS'},
   ];
   renderFilterValueInput() {
     if (this.state.possibleValues.length <= 0) {
-      return <input className='form-control' type={this.state.filterValueType} ref={'filterValue_' + this.props.queryIndex + '_' + this.props.filterIndex} defaultValue={this.state.filterValue} />;
+      return (
+        <input
+          className="form-control"
+          type={this.state.filterValueType}
+          ref={'filterValue_' + this.props.queryIndex + '_' + this.props.filterIndex}
+          defaultValue={this.state.filterValue}
+        />
+      );
     }
 
-    return <ReactSelect
-      ref={'filterValue_' + this.props.queryIndex + '_' + this.props.filterIndex}
-      name="form-field-name"
-      value={this.state.filterValue}
-      options={this.state.possibleValues}
-      onChange={::this.filterValueChange}
-      clearable={false}
-    />
-
+    return (
+      <ReactSelect
+        ref={'filterValue_' + this.props.queryIndex + '_' + this.props.filterIndex}
+        name="form-field-name"
+        value={this.state.filterValue}
+        options={this.state.possibleValues}
+        onChange={::this.filterValueChange}
+        clearable={false}
+      />
+    );
   }
   getCastedFilterValue(unCastedValue, filterValueType = this.state.filterValueType) {
     switch (filterValueType) {
@@ -205,16 +229,16 @@ class FilterRow extends Component {
     this.setState(prevState => {
       return {
         ...prevState,
-        filterValue: value.value
-      }
+        filterValue: value.value,
+      };
     });
   }
   filterOperatorChange(operator) {
     this.setState(prevState => {
       return {
         ...prevState,
-        filterOperator: operator.value
-      }
+        filterOperator: operator.value,
+      };
     });
   }
   filterNameChange(name) {
@@ -227,28 +251,28 @@ class FilterRow extends Component {
         ...prevState,
         filterName: name.value,
         possibleValues,
-        filterValueType: name.type
-      }
+        filterValueType: name.type,
+      };
     });
   }
   loadPossibleValues(filterName) {
     stats.fetchPossibleValues(this.props.api, filterName).then(data => {
       const possibleValues = data.map(row => {
-        return { value: row[0], label: row[0] };
+        return {value: row[0], label: row[0]};
       });
 
       this.setState(prevState => {
         return {
           ...prevState,
-          possibleValues
-        }
-      })
+          possibleValues,
+        };
+      });
     });
   }
-  render () {
+  render() {
     return (
       <tr key={this.props.queryIndex + '_' + this.props.filterIndex}>
-        <td style={{width: "200px"}}>
+        <td style={{width: '200px'}}>
           <ReactSelect
             ref={'filterName_' + this.props.queryIndex + '_' + this.props.filterIndex}
             name="form-field-name"
@@ -258,7 +282,7 @@ class FilterRow extends Component {
             clearable={false}
           />
         </td>
-        <td style={{width: "116px"}}>
+        <td style={{width: '116px'}}>
           <ReactSelect
             ref={'filterOperator_' + this.props.queryIndex + '_' + this.props.filterIndex}
             name="form-field-name"
@@ -266,22 +290,26 @@ class FilterRow extends Component {
             options={this.operatorOptions}
             onChange={::this.filterOperatorChange}
             clearable={false}
-            />
+          />
         </td>
-        <td style={{width: "190px"}}>
-          {this.renderFilterValueInput()}
-        </td>
-        <td style={{width: "66px"}}>
-          <button className='btn btn-danger btn-simple btn-xs' onClick={() => {::this.remove()}}><i className='fa fa-times'></i></button>
+        <td style={{width: '190px'}}>{this.renderFilterValueInput()}</td>
+        <td style={{width: '66px'}}>
+          <button
+            className="btn btn-danger btn-simple btn-xs"
+            onClick={() => {
+              ::this.remove();
+            }}>
+            <i className="fa fa-times" />
+          </button>
         </td>
       </tr>
     );
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
-    api: new Api(state)
-  }
+    api: new Api(state),
+  };
 };
 export default connect(mapStateToProps)(FilterRow);

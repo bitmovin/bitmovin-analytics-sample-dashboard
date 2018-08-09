@@ -1,73 +1,73 @@
-import Api from '../api'
-export const ADD_DASHBOARD = 'ADD_DASHBOARD'
+import Api from '../api';
+export const ADD_DASHBOARD = 'ADD_DASHBOARD';
 export const START_LOADING_DASHBOARD_DATA = 'START_LOADING_DASHBOARD_DATA';
 export const FINISHED_LOADING_DASHBOARD_DATA = 'FINISHED_LOADING_DASHBOARD_DATA';
 
-export function loadDashboardData (boardId, query) {
+export function loadDashboardData(boardId, query) {
   return (dispatch, getState) => {
     const api = new Api(getState());
     dispatch(startLoadingDashboardData(boardId, query));
-    api.query(query).then((result) => {
+    api.query(query).then(result => {
       dispatch(finishedLoadingDashboardData(boardId, query, result));
     });
-  }
+  };
 }
 
-export function startLoadingDashboardData (boardId, query) {
+export function startLoadingDashboardData(boardId, query) {
   return {
     type: START_LOADING_DASHBOARD_DATA,
     boardId: boardId,
-    query: query
+    query: query,
   };
 }
-export function finishedLoadingDashboardData (boardId, query, data) {
+export function finishedLoadingDashboardData(boardId, query, data) {
   return {
     type: FINISHED_LOADING_DASHBOARD_DATA,
     boardId,
     query,
-    data
+    data,
   };
 }
 
-export function addDashboard (query, boardType) {
-  return function (dispatch, getState) {
+export function addDashboard(query, boardType) {
+  return function(dispatch, getState) {
     const boardId = Math.round(Math.random() * 100);
     dispatch({
       type: ADD_DASHBOARD,
       query: query,
       boardId,
-      boardType: boardType
-    })
+      boardType: boardType,
+    });
     dispatch(loadDashboardData(boardId, query));
-  }
+  };
 }
 
 export const REMOVE_DASHBOARD = 'REMOVE_DASHBOARD';
-export function removeDashboard (boardId) {
+export function removeDashboard(boardId) {
   return {
     type: REMOVE_DASHBOARD,
-    boardId
-  }
+    boardId,
+  };
 }
 
 export const EDIT_DASHBOARD = 'EDIT_DASHBOARD';
-export function editDashboard (boardId, query) {
+export function editDashboard(boardId, query) {
   return {
     type: EDIT_DASHBOARD,
     boardId,
-    query
-  }
+    query,
+  };
 }
 
 export const FINISH_EDIT_DASHBOARD = 'FINISH_EDIT_DASHBOARD';
-export function updateDashboard () {
+export function updateDashboard() {
   return (dispatch, getState) => {
     const boardId = getState().query.editingDashboard;
     const query = getState().query;
     dispatch({
       type: FINISH_EDIT_DASHBOARD,
       boardId,
-      query
+      query,
     });
     dispatch(loadDashboardData(boardId, query));
   };

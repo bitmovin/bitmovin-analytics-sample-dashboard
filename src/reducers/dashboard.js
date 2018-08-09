@@ -1,8 +1,8 @@
-import * as actions from '../actions/dashboard.js'
+import * as actions from '../actions/dashboard.js';
 
 const defaultState = {
-  boards: []
-}
+  boards: [],
+};
 
 export default function dashboard(state = defaultState, action) {
   switch (action.type) {
@@ -13,16 +13,16 @@ export default function dashboard(state = defaultState, action) {
         data: [],
         boardType: action.boardType,
         isLoading: false,
-        isLoaded: false
+        isLoaded: false,
       };
       const newState = {
         ...state,
-        boards: [...state.boards, board]
+        boards: [...state.boards, board],
       };
       return newState;
     }
     case actions.START_LOADING_DASHBOARD_DATA: {
-      const index = state.boards.findIndex(board => board.boardId === action.boardId)
+      const index = state.boards.findIndex(board => board.boardId === action.boardId);
       const newState = {
         ...state,
         boards: [
@@ -30,15 +30,15 @@ export default function dashboard(state = defaultState, action) {
           {
             ...state.boards[index],
             isLoading: true,
-            data: []
+            data: [],
           },
-          ...state.boards.slice(index + 1)
-        ]
+          ...state.boards.slice(index + 1),
+        ],
       };
       return newState;
     }
     case actions.FINISHED_LOADING_DASHBOARD_DATA: {
-      const index = state.boards.findIndex(board => board.boardId === action.boardId)
+      const index = state.boards.findIndex(board => board.boardId === action.boardId);
       const newState = {
         ...state,
         boards: [
@@ -47,26 +47,23 @@ export default function dashboard(state = defaultState, action) {
             ...state.boards[index],
             isLoading: false,
             isLoaded: true,
-            data: action.data
+            data: action.data,
           },
-          ...state.boards.slice(index + 1)
-        ]
+          ...state.boards.slice(index + 1),
+        ],
       };
 
       return newState;
     }
     case actions.REMOVE_DASHBOARD: {
-      const index = state.boards.findIndex(board => board.boardId === action.boardId)
+      const index = state.boards.findIndex(board => board.boardId === action.boardId);
       return {
         ...state,
-        boards: [
-          ...state.boards.slice(0, index),
-          ...state.boards.slice(index + 1)
-        ]
-      }
+        boards: [...state.boards.slice(0, index), ...state.boards.slice(index + 1)],
+      };
     }
     case actions.EDIT_DASHBOARD: {
-      const index = state.boards.findIndex(board => board.boardId === action.boardId)
+      const index = state.boards.findIndex(board => board.boardId === action.boardId);
       return {
         ...state,
         boards: [
@@ -75,12 +72,12 @@ export default function dashboard(state = defaultState, action) {
             ...state.boards[index],
             editing: true,
           },
-          ...state.boards.slice(index + 1)
-        ]
-      }
+          ...state.boards.slice(index + 1),
+        ],
+      };
     }
     case actions.FINISH_EDIT_DASHBOARD: {
-      const index = state.boards.findIndex(board => board.boardId === action.boardId)
+      const index = state.boards.findIndex(board => board.boardId === action.boardId);
       return {
         ...state,
         boards: [
@@ -91,13 +88,13 @@ export default function dashboard(state = defaultState, action) {
             query: action.query,
             data: [],
             isLoading: false,
-            isLoaded: false
+            isLoaded: false,
           },
-          ...state.boards.slice(index + 1)
-        ]
-      }
+          ...state.boards.slice(index + 1),
+        ],
+      };
     }
     default:
-      return state
+      return state;
   }
 }
