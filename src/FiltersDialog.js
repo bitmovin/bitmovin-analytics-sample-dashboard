@@ -1,34 +1,33 @@
-import React, { Component, PropTypes } from 'react'
-import { connect } from 'react-redux'
-import FilterRow from './components/FilterRow'
+import React, {Component, PropTypes} from 'react';
+import {connect} from 'react-redux';
+import FilterRow from './components/FilterRow';
 import Api from './api';
 
 class FiltersDialog extends Component {
   static propTypes = {
     callback: PropTypes.func,
-    queries: PropTypes.array
+    queries: PropTypes.array,
   };
   constructor(props) {
     super(props);
     this.state = {
-      queries: this.props.queries || []
-    }
+      queries: this.props.queries || [],
+    };
   }
   addQuery() {
     this.setState(prevState => {
       const queries = prevState.queries;
       queries.push({
-        key    : String(Math.random()),
-        name   : 'Series',
-        filters: []
+        key: String(Math.random()),
+        name: 'Series',
+        filters: [],
       });
 
       return {
         ...prevState,
-        queries
-      }
+        queries,
+      };
     });
-
   }
   addFilter(index) {
     this.setState(prevState => {
@@ -41,27 +40,24 @@ class FiltersDialog extends Component {
             filters: [
               ...prevState.queries[index].filters,
               {
-                key     : String(Math.random()),
-                name    : '',
+                key: String(Math.random()),
+                name: '',
                 operator: '',
-                value   : ''
-              }
-            ]
+                value: '',
+              },
+            ],
           },
-          ...prevState.queries.slice(index + 1)
-        ]
+          ...prevState.queries.slice(index + 1),
+        ],
       };
     });
   }
   removeSeries(queryIndex) {
     this.setState(prevState => {
-      const queries = [
-        ...prevState.queries.slice(0, queryIndex),
-        ...prevState.queries.slice(queryIndex + 1)
-      ];
+      const queries = [...prevState.queries.slice(0, queryIndex), ...prevState.queries.slice(queryIndex + 1)];
       return {
         ...prevState,
-        queries
+        queries,
       };
     });
   }
@@ -73,18 +69,18 @@ class FiltersDialog extends Component {
           ...prevState.queries[queryIndex],
           filters: [
             ...prevState.queries[queryIndex].filters.slice(0, filterIndex),
-            ...prevState.queries[queryIndex].filters.slice(filterIndex + 1)
-          ]
+            ...prevState.queries[queryIndex].filters.slice(filterIndex + 1),
+          ],
         },
-        ...prevState.queries.slice(queryIndex + 1)
+        ...prevState.queries.slice(queryIndex + 1),
       ];
       return {
         ...prevState,
-        queries
+        queries,
       };
     });
   }
-  saveDialog () {
+  saveDialog() {
     const queries = this.state.queries.map((query, queryIndex) => {
       const filters = query.filters.map((filter, filterIndex) => {
         const filterRowRef = this.refs['filter_' + queryIndex + '_' + filterIndex];
@@ -107,8 +103,8 @@ class FiltersDialog extends Component {
       const name = this.refs['seriesName_' + queryIndex].value;
       return {
         filters: filteredFilters,
-        name: name
-      }
+        name: name,
+      };
     });
 
     this.props.callback(queries);
@@ -121,70 +117,101 @@ class FiltersDialog extends Component {
       const filters = series.filters;
       const rows = filters.map((filter, filterIndex) => {
         return (
-          <FilterRow key={filter.key}
-                     ref={'filter_' + queryIndex + '_' + filterIndex}
-                     queryIndex={queryIndex}
-                     filterIndex={filterIndex}
-                     filterName={filter.name}
-                     filterOperator={filter.operator}
-                     filterValue={String(filter.value)}
-                     remove={::this.removeFilter}
+          <FilterRow
+            key={filter.key}
+            ref={'filter_' + queryIndex + '_' + filterIndex}
+            queryIndex={queryIndex}
+            filterIndex={filterIndex}
+            filterName={filter.name}
+            filterOperator={filter.operator}
+            filterValue={String(filter.value)}
+            remove={::this.removeFilter}
           />
         );
       });
       return (
         <div key={series.key}>
-          <table className='table'>
+          <table className="table">
             <tbody>
               <tr style={{textAlign: 'center'}}>
                 <td style={{width: '200px'}}>
-                  <input className='form-control' ref={ 'seriesName_' + queryIndex } type='text' defaultValue={series.name} placeholder='Series Name'/>
+                  <input
+                    className="form-control"
+                    ref={'seriesName_' + queryIndex}
+                    type="text"
+                    defaultValue={series.name}
+                    placeholder="Series Name"
+                  />
                 </td>
                 <td style={{width: '116px'}}>
-                  <button className='btn btn-info btn-sm' onClick={() => {::this.addFilter(queryIndex)}}>Add filter</button>
+                  <button
+                    className="btn btn-info btn-sm"
+                    onClick={() => {
+                      ::this.addFilter(queryIndex);
+                    }}>
+                    Add filter
+                  </button>
                 </td>
                 <td style={{width: '190px'}}>
-                  <button className='btn btn-danger btn-sm' onClick={() => {::this.removeSeries(queryIndex)}} style={{display: (this.state.queries.length>1?'block':'none')}}>Remove</button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => {
+                      ::this.removeSeries(queryIndex);
+                    }}
+                    style={{display: this.state.queries.length > 1 ? 'block' : 'none'}}>
+                    Remove
+                  </button>
                 </td>
-                <td style={{width: '66px'}}>
-                </td>
+                <td style={{width: '66px'}} />
               </tr>
               {rows}
             </tbody>
           </table>
-          <hr></hr>
+          <hr />
         </div>
       );
     });
     return tables;
   }
-  render () {
-		return (<div>
-      <div onClick={::this.closeDialog} className='modal-backdrop fade in' style={{zIndex: 1040 }}></div>
-      <div className='modal bootstrap-dialog type-primary fade size-normal in' role='dialog' aria-hidden='true' style={{zIndex: 1250, display: 'block', paddingRight: '15px'}}>
-        <div className='modal fade' style={{ display: 'block', opacity: 1 }}>
-          <div className='modal-dialog'>
-            <div className='modal-content'>
-              <div className='modal-header'>
-                <h3 style={{display: 'inline'}}>Filters</h3>
-                <button className='close' style={{float: 'right'}} onClick={::this.closeDialog}><i className='fa fa-times'></i></button>
-              </div>
-              <div className='modal-body'>
-                {this.renderQueriesTables()}
-                <button onClick={::this.addQuery} className='btn btn-info'>Add Series</button>
-                <button onClick={::this.saveDialog} className='btn btn-success' style={{float: 'right'}}>Apply</button>
+  render() {
+    return (
+      <div>
+        <div onClick={::this.closeDialog} className="modal-backdrop fade in" style={{zIndex: 1040}} />
+        <div
+          className="modal bootstrap-dialog type-primary fade size-normal in"
+          role="dialog"
+          aria-hidden="true"
+          style={{zIndex: 1250, display: 'block', paddingRight: '15px'}}>
+          <div className="modal fade" style={{display: 'block', opacity: 1}}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h3 style={{display: 'inline'}}>Filters</h3>
+                  <button className="close" style={{float: 'right'}} onClick={::this.closeDialog}>
+                    <i className="fa fa-times" />
+                  </button>
+                </div>
+                <div className="modal-body">
+                  {this.renderQueriesTables()}
+                  <button onClick={::this.addQuery} className="btn btn-info">
+                    Add Series
+                  </button>
+                  <button onClick={::this.saveDialog} className="btn btn-success" style={{float: 'right'}}>
+                    Apply
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>)
-	}
+    );
+  }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
-    api: new Api(state)
-  }
+    api: new Api(state),
+  };
 };
 export default connect(mapStateToProps)(FiltersDialog);

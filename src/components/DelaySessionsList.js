@@ -7,12 +7,12 @@ import * as Metrics from '../services/MetricsCalculation';
 import {push} from 'react-router-redux';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
-import { shortenString } from '../utils';
+import {shortenString} from '../utils';
 import Api from '../api';
 
 class DelaySessionsList extends Component {
   static propTypes = {
-    width: PropTypes.object
+    width: PropTypes.object,
   };
 
   state = {
@@ -20,68 +20,70 @@ class DelaySessionsList extends Component {
     offset: 0,
     sessions: [],
     loading: false,
-  }
+  };
 
-  componentDidMount () {
+  componentDidMount() {
     this.loadDelayedSessions(this.props, this.state.offset);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     this.loadDelayedSessions(nextProps, this.state.offset);
   }
 
-  handlePageClick = (pagination) => {
+  handlePageClick = pagination => {
     const newOffset = pagination.selected * this.state.limit;
     this.loadDelayedSessions(this.props, newOffset);
-  }
+  };
 
   async loadDelayedSessions(props, offset) {
-    this.setState({ loading: true });
+    this.setState({loading: true});
 
     const baseQuery = {
       ...props.primaryRange,
-      licenseKey: props.licenseKey
+      licenseKey: props.licenseKey,
     };
 
     const data = await startupDelay.delayedSessions(props.api, baseQuery, this.state.limit, offset);
 
-    this.setState({ offset: offset, sessions: data, loading: false });
+    this.setState({offset: offset, sessions: data, loading: false});
   }
 
-  render () {
-    const getInfo = (rows) => {
+  render() {
+    const getInfo = rows => {
       return {
         os: rows[0].operatingsystem,
         browser: rows[0].browser,
         ip: rows[0].ip_address,
-        time: moment(moment(rows[0].time)).local().format('YYYY-MM-DD HH:mm:ss'),
+        time: moment(moment(rows[0].time))
+          .local()
+          .format('YYYY-MM-DD HH:mm:ss'),
         country: rows[0].country,
         city: rows[0].city,
         page: rows[0].path,
         startuptime: rows[1].startuptime,
-        completionRate: Metrics.calculateCompletionRate(rows)
-      }
+        completionRate: Metrics.calculateCompletionRate(rows),
+      };
     };
 
     const sessions = this.state.sessions.map((session, index) => {
       const info = getInfo(session[3]);
       const playedVideo = shortenString(session[1], 50, 22);
-      return <tr onClick={() => this.props.navigateToSessionDetail(session[0])}
-                 key={index}
-                 className="impression-row">
-        <td>{info.time}</td>
-        <td>{info.page}</td>
-        <td>{playedVideo}</td>
-        <td>{info.city + ', ' + info.country}</td>
-        <td>{info.os}</td>
-        <td>{info.browser}</td>
-        <td>{info.startuptime + 'ms'}</td>
-        <td>{session[2] + 'ms'}</td>
-        <td>{info.completionRate}</td>
+      return (
+        <tr onClick={() => this.props.navigateToSessionDetail(session[0])} key={index} className="impression-row">
+          <td>{info.time}</td>
+          <td>{info.page}</td>
+          <td>{playedVideo}</td>
+          <td>{info.city + ', ' + info.country}</td>
+          <td>{info.os}</td>
+          <td>{info.browser}</td>
+          <td>{info.startuptime + 'ms'}</td>
+          <td>{session[2] + 'ms'}</td>
+          <td>{info.completionRate}</td>
         </tr>
+      );
     });
     return (
-      <Card title="Sessions delayed" width={this.props.width || { md: 4, sm: 4, xs: 12 }} cardHeight="auto">
+      <Card title="Sessions delayed" width={this.props.width || {md: 4, sm: 4, xs: 12}} cardHeight="auto">
         <LoadingIndicator loading={this.state.loading}>
           <table className="table table-hover">
             <thead>
@@ -97,9 +99,7 @@ class DelaySessionsList extends Component {
                 <th className="col-md-1">Completion Rate</th>
               </tr>
             </thead>
-            <tbody>
-              {sessions}
-            </tbody>
+            <tbody>{sessions}</tbody>
           </table>
           <ReactPaginate
             previousLabel="previous"
@@ -118,21 +118,24 @@ class DelaySessionsList extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  const { primaryRange } = state.ranges;
+const mapStateToProps = state => {
+  const {primaryRange} = state.ranges;
   return {
     api: new Api(state),
     primaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-  }
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    navigateToSessionDetail: (impressionId) => {
+    navigateToSessionDetail: impressionId => {
       dispatch(push(`/impressions/${impressionId}`));
-    }
-  }
+    },
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DelaySessionsList);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DelaySessionsList);

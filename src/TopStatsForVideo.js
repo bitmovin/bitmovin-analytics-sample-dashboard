@@ -1,12 +1,20 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import * as topstats from './api/topstats'
-import TopStatMetric from './components/TopStatMetric'
-import { push } from 'react-router-redux'
+import React from 'react';
+import {connect} from 'react-redux';
+import * as topstats from './api/topstats';
+import TopStatMetric from './components/TopStatMetric';
+import {push} from 'react-router-redux';
 import Api from './api';
 
-function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKey,  navigateToRebuffer, navigateToPerformance }){
-  const baseQuery = { licenseKey };
+function TopStatsForVideo({
+  api,
+  primaryRange,
+  secondaryRange,
+  videoId,
+  licenseKey,
+  navigateToRebuffer,
+  navigateToPerformance,
+}) {
+  const baseQuery = {licenseKey};
 
   return (
     <div>
@@ -19,7 +27,9 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
         <TopStatMetric
           title="Impressions"
           icon="user"
-          fetchData={() => topstats.fetchTotalImpressionsThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
+          fetchData={() =>
+            topstats.fetchTotalImpressionsThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)
+          }
         />
         <TopStatMetric
           format="pct"
@@ -35,7 +45,9 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
           icon="spinner"
           compareUserBase
           inverse
-          fetchData={() => topstats.fetchRebufferPercentageThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
+          fetchData={() =>
+            topstats.fetchRebufferPercentageThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)
+          }
         />
         <TopStatMetric
           format="ms"
@@ -44,7 +56,9 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
           icon="clock-o"
           inverse
           compareUserBase
-          fetchData={() => topstats.fetchAverageStartupDelayThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
+          fetchData={() =>
+            topstats.fetchAverageStartupDelayThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)
+          }
         />
         <TopStatMetric
           format="pct"
@@ -59,24 +73,27 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
   );
 }
 
-const mapStateToProps = (state) => {
-	return {
-		api: new Api(state),
-		primaryRange: state.ranges.primaryRange,
-		secondaryRange: state.ranges.secondaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-	}
+const mapStateToProps = state => {
+  return {
+    api: new Api(state),
+    primaryRange: state.ranges.primaryRange,
+    secondaryRange: state.ranges.secondaryRange,
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     navigateToPerformance: () => {
       dispatch(push('/performance'));
     },
     navigateToRebuffer: () => {
-      dispatch(push('/performance/rebuffer'))
-    }
-  }
+      dispatch(push('/performance/rebuffer'));
+    },
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TopStatsForVideo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TopStatsForVideo);
