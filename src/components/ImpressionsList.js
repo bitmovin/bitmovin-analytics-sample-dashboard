@@ -9,7 +9,7 @@ import Api from '../api';
 
 class ImpressionsList extends Component {
   static propTypes = {
-    baseQuery: React.PropTypes.object
+    baseQuery: React.PropTypes.object,
   };
 
   state = {
@@ -17,23 +17,23 @@ class ImpressionsList extends Component {
     offset: 0,
     impressions: [],
     hasMissingImpressions: false,
-  }
+  };
 
-  componentDidMount () {
+  componentDidMount() {
     this.loadImpressions(this.props, this.state.offset);
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     this.loadImpressions(nextProps, this.state.offset);
   }
 
-  handlePageClick = (pagination) => {
+  handlePageClick = pagination => {
     const newOffset = pagination.selected * this.state.limit;
     this.loadImpressions(this.props, newOffset);
-  }
+  };
 
-  async loadImpressions({ baseQuery, primaryRange, api, video, licenseKey }, offset) {
-    this.setState({ loading: true });
+  async loadImpressions({baseQuery, primaryRange, api, video, licenseKey}, offset) {
+    this.setState({loading: true});
 
     const query = {
       ...baseQuery,
@@ -44,45 +44,61 @@ class ImpressionsList extends Component {
     };
 
     const {impressions, hasMissingImpressions} = await stats.fetchLastImpressions(api, query, video && video.videoId);
-    this.setState({ offset: offset, impressions: impressions, hasMissingImpressions: hasMissingImpressions, loading: false });
+    this.setState({
+      offset: offset,
+      impressions: impressions,
+      hasMissingImpressions: hasMissingImpressions,
+      loading: false,
+    });
   }
 
-  render () {
-    const { impressions, loading, hasMissingImpressions } = this.state;
+  render() {
+    const {impressions, loading, hasMissingImpressions} = this.state;
     const rows = impressions.map((impression, index) => {
-      return <tr onClick={() => { this.props.openImpression(impression.impression_id); }}
-                 key={index}
-                 className="impression-row">
-        <td>{impression.time}</td>
-        <td>{impression.domain + impression.path}</td>
-        <td>{impression.operatingsystem} / {impression.browser}</td>
-        <td>{impression.city}, {impression.country}</td>
-        <td>{impression.video_startuptime + 'ms'}</td>
-        <td>{impression.buffered + 'ms'}</td>
-        <td>{impression.completion_rate}</td>
-      </tr>;
+      return (
+        <tr
+          onClick={() => {
+            this.props.openImpression(impression.impression_id);
+          }}
+          key={index}
+          className="impression-row">
+          <td>{impression.time}</td>
+          <td>{impression.domain + impression.path}</td>
+          <td>
+            {impression.operatingsystem} / {impression.browser}
+          </td>
+          <td>
+            {impression.city}, {impression.country}
+          </td>
+          <td>{impression.video_startuptime + 'ms'}</td>
+          <td>{impression.buffered + 'ms'}</td>
+          <td>{impression.completion_rate}</td>
+        </tr>
+      );
     });
-    let missingImpressionsText = hasMissingImpressions ? "Some Impressions are missing": '';
+    let missingImpressionsText = hasMissingImpressions ? 'Some Impressions are missing' : '';
     return (
       <div>
         <div className="row">
-          <Card title={this.props.title} subtitle={missingImpressionsText} width={{md:12, sm: 12, xs: 12}} cardHeight="auto">
+          <Card
+            title={this.props.title}
+            subtitle={missingImpressionsText}
+            width={{md: 12, sm: 12, xs: 12}}
+            cardHeight="auto">
             <LoadingIndicator loading={loading}>
-              <table className="table table-hover" style={{width:"100%"}}>
+              <table className="table table-hover" style={{width: '100%'}}>
                 <thead className="text-warning">
-                <tr>
-                  <th>Date</th>
-                  <th>Page</th>
-                  <th>Device</th>
-                  <th>Location</th>
-                  <th>Startup Delay</th>
-                  <th>Buffered</th>
-                  <th>Completion Rate</th>
-                </tr>
+                  <tr>
+                    <th>Date</th>
+                    <th>Page</th>
+                    <th>Device</th>
+                    <th>Location</th>
+                    <th>Startup Delay</th>
+                    <th>Buffered</th>
+                    <th>Completion Rate</th>
+                  </tr>
                 </thead>
-                <tbody>
-                  {rows}
-                </tbody>
+                <tbody>{rows}</tbody>
               </table>
               <ReactPaginate
                 previousLabel="previous"
@@ -95,7 +111,7 @@ class ImpressionsList extends Component {
                 subContainerClassName="pages pagination"
                 activeClassName="active"
               />
-          </LoadingIndicator>
+            </LoadingIndicator>
           </Card>
         </div>
       </div>
@@ -103,21 +119,24 @@ class ImpressionsList extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  const { primaryRange } = state.ranges;
+const mapStateToProps = state => {
+  const {primaryRange} = state.ranges;
   return {
     api: new Api(state),
     primaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-  }
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
-    openImpression: (impressionId) => {
-      dispatch(push('/impressions/' + impressionId))
-    }
-  }
+    openImpression: impressionId => {
+      dispatch(push('/impressions/' + impressionId));
+    },
+  };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ImpressionsList);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ImpressionsList);
