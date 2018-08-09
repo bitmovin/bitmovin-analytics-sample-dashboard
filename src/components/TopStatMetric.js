@@ -1,5 +1,8 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux'
+import { reLoadTopStat, loadTopStat } from '../actions/topstats';
 import LoadingIndicator from './LoadingIndicator';
+import deepEqual from 'deep-equal';
 
 class TopStatMetric extends Component {
   static propTypes = {
@@ -12,31 +15,14 @@ class TopStatMetric extends Component {
     fetchData: PropTypes.func.isRequired,
   };
 
-  state = {
-    primary: 0,
-    secondary: 0,
-    change: 0,
-    loading: false,
-  };
-
-  loadData = async ({ fetchData }) => {
-    this.setState({ loading: true })
-    const metric = await fetchData();
-    if (!isFinite(metric.change)) {
-      metric.change = 100;
-    }
-    if (metric.change > 100) {
-      metric.change = 100;
-    }
-    this.setState({ ...metric, loading: false });
-  }
-
   componentDidMount() {
-    this.loadData(this.props);
+    this.props.loadTopStat(this.props.title, this.props.fetchData)
   }
 
   componentWillReceiveProps(newProps) {
-    this.loadData(newProps);
+    if (!deepEqual(newProps.dependency, this.props.dependency)) {
+      this.props.reLoadTopStat(this.props.title, this.props.fetchData)
+    }
   }
 
   getColor(change) {
@@ -52,7 +38,7 @@ class TopStatMetric extends Component {
     return colors[2];
   }
   metricColor() {
-    return this.getColor(this.state.change)
+    return this.getColor(this.props.metric.change)
   }
   getIcon(change) {
     if (change === 0)
@@ -62,11 +48,11 @@ class TopStatMetric extends Component {
     return 'fa fa-sort-desc';
   }
   metricIcon () {
-    return this.getIcon(this.state.change);
+    return this.getIcon(this.props.metric.change);
   }
 
   formatMetricNumber () {
-    const { change } = this.state;
+    const { change } = this.props.metric;
     return change > 0 ? `+${change}` : change;
   }
 
@@ -79,7 +65,7 @@ class TopStatMetric extends Component {
   }
 
   render () {
-    const { primary, secondary, loading } = this.state;
+    const { primary, secondary, loading } = this.props.metric;
     const color = {
       'data-background-color': this.metricColor()
     };
@@ -106,4 +92,38 @@ class TopStatMetric extends Component {
   }
 }
 
-export default TopStatMetric;
+const mapStateToProps = (state, ownprops) => {
+  const defaultProps = {
+    primary: 0,
+    secondary: 0,
+    change: 0,
+    loading: false
+  }
+  let metric = {
+    ...defaultProps
+  }
+  if (state.topstats[ownprops.title] && state.topstats[ownprops.title].metric) {
+    metric = {
+      ...defaultProps,
+      ...state.topstats[ownprops.title].metric
+    }
+  }
+  return {
+    dependency: {
+      primaryRange: state.ranges.primaryRange,
+      secondaryRange: state.ranges.secondaryRange,
+      licenseKey: state.api.analyticsLicenseKey,
+      videoId: ownprops.videoId
+    },
+    metric
+  }
+}
+const mapDispatchToProps = (dispatch) => {
+  return {
+    loadTopStat: (name, func) => dispatch(loadTopStat(name, func)),
+    reLoadTopStat: (name, func) => dispatch(reLoadTopStat(name, func))
+  }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(TopStatMetric);

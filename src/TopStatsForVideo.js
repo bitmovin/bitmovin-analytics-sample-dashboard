@@ -12,26 +12,29 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
     <div>
       <div className="row tile_count">
         <TopStatMetric
-          title="Users"
+          title={"Users for video " + videoId}
+          videoId={videoId}
           icon="users"
           fetchData={() => topstats.fetchTotalUsersThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
         />
         <TopStatMetric
-          title="Impressions"
+          title={"Impressions for video " + videoId}
+          videoId={videoId}
           icon="user"
           fetchData={() => topstats.fetchTotalImpressionsThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
         />
         <TopStatMetric
           format="pct"
-          title="Errors"
+          title={"Errors for video " + videoId}
+          videoId={videoId}
           icon="exclamation-triangle"
           inverse
           fetchData={() => topstats.fetchErrorPercentageThisWeek(api, primaryRange, secondaryRange, baseQuery, videoId)}
         />
         <TopStatMetric
           format="pct"
-          onClick={navigateToRebuffer}
-          title="Buffering"
+          title={"Buffering for video " + videoId}
+          videoId={videoId}
           icon="spinner"
           compareUserBase
           inverse
@@ -39,8 +42,8 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
         />
         <TopStatMetric
           format="ms"
-          onClick={navigateToPerformance}
-          title="Delay"
+          title={"Delay for video " + videoId}
+          videoId={videoId}
           icon="clock-o"
           inverse
           compareUserBase
@@ -48,7 +51,8 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
         />
         <TopStatMetric
           format="pct"
-          title="Bounce Rate"
+          title={"Bounce Rate for video " + videoId}
+          videoId={videoId}
           icon="eject"
           inverse
           compareUserBase
@@ -61,7 +65,8 @@ function TopStatsForVideo({api, primaryRange, secondaryRange, videoId, licenseKe
 
 const mapStateToProps = (state) => {
 	return {
-		api: new Api(state),
+    api: new Api(state),
+		apiKey: state.api.apiKey,
 		primaryRange: state.ranges.primaryRange,
 		secondaryRange: state.ranges.secondaryRange,
     licenseKey: state.api.analyticsLicenseKey
