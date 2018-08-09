@@ -14,46 +14,46 @@ class TopContentsRebuffering extends PureComponent {
     limit: 6,
     offset: 0,
     page: 0,
-    orderByOrder: 'DESC'
+    orderByOrder: 'DESC',
   };
 
-	componentDidMount () {
-		this.loadData(this.props);
-	}
+  componentDidMount() {
+    this.loadData(this.props);
+  }
 
-	componentWillReceiveProps (nextProps) {
-		this.loadData(nextProps);
-	}
+  componentWillReceiveProps(nextProps) {
+    this.loadData(nextProps);
+  }
 
-  async loadData ({ primaryRange, licenseKey, api }) {
-    this.setState({ loading: true });
+  async loadData({primaryRange, licenseKey, api}) {
+    this.setState({loading: true});
 
     const rebufferQuery = {
       ...primaryRange,
       interval: null,
       groupBy: ['VIDEO_ID'],
       orderBy: [{name: 'FUNCTION', order: 'DESC'}],
-      licenseKey: licenseKey
+      licenseKey: licenseKey,
     };
 
     const result = await rebuffer.rebufferPercentageOverTime(api, rebufferQuery);
 
-    this.setState({ topContents: result, loading: false });
+    this.setState({topContents: result, loading: false});
   }
 
   toggleSorting() {
     const orderByOrder = this.state.orderByOrder === 'DESC' ? 'ASC' : 'DESC';
-    this.setState({ orderByOrder, offset: 0, page: 0 });
+    this.setState({orderByOrder, offset: 0, page: 0});
   }
 
   handlePageClick(pagination) {
     const offset = this.state.limit * pagination.selected;
-    this.setState({ offset, page: pagination.selected });
+    this.setState({offset, page: pagination.selected});
   }
 
-  renderTable () {
-    const { loading, orderByOrder, topContents, offset, limit, page } = this.state;
-    let sorting = (a, b) =>  b[3] - a[3];
+  renderTable() {
+    const {loading, orderByOrder, topContents, offset, limit, page} = this.state;
+    let sorting = (a, b) => b[3] - a[3];
     if (orderByOrder === 'ASC') {
       sorting = (a, b) => a[3] - b[3];
     }
@@ -63,7 +63,14 @@ class TopContentsRebuffering extends PureComponent {
     const top = sorted.slice(offset, offset + limit);
 
     const rows = top.map((video, index) => {
-      return <tr key={index}><td><VideoLink videoId={video[0]} /></td><td>{util.roundTo(video[3]*100, 2) + '%'}</td></tr>;
+      return (
+        <tr key={index}>
+          <td>
+            <VideoLink videoId={video[0]} />
+          </td>
+          <td>{util.roundTo(video[3] * 100, 2) + '%'}</td>
+        </tr>
+      );
     });
 
     let tbody = null;
@@ -77,7 +84,10 @@ class TopContentsRebuffering extends PureComponent {
           <thead>
             <tr>
               <th>Video id</th>
-              <th>Rebuffer Percentage <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting}></i></th>
+              <th>
+                Rebuffer Percentage{' '}
+                <i className="fa fa-sort table-metric-sort" aria-hidden="true" onClick={::this.toggleSorting} />
+              </th>
             </tr>
           </thead>
           {tbody}
@@ -99,22 +109,23 @@ class TopContentsRebuffering extends PureComponent {
     );
   }
 
-  render () {
+  render() {
     return (
-      <Card title="Top Contents" width={ this.props.width || {md:4, sm: 4, xs: 12}} cardHeight={"480px"}>
+      <Card title="Top Contents" width={this.props.width || {md: 4, sm: 4, xs: 12}} cardHeight={'480px'}>
         {this.renderTable()}
-      </Card>);
+      </Card>
+    );
   }
 }
 
-const mapStateToProps = (state) => {
-	return {
+const mapStateToProps = state => {
+  return {
     api: new Api(state),
-		interval: state.ranges.interval,
-		rangeName: state.ranges.name,
-		primaryRange: state.ranges.primaryRange,
-    licenseKey: state.api.analyticsLicenseKey
-	}
+    interval: state.ranges.interval,
+    rangeName: state.ranges.name,
+    primaryRange: state.ranges.primaryRange,
+    licenseKey: state.api.analyticsLicenseKey,
+  };
 };
 
 export default connect(mapStateToProps)(TopContentsRebuffering);

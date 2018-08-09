@@ -1,40 +1,51 @@
 import moment from 'moment';
 
-export function round10 (number) {
+export function round10(number) {
   return roundTo(number, 2);
 }
-export function roundTo (number, places) {
+export function roundTo(number, places) {
   const base = Math.pow(10, places);
   return Math.round(number * base) / base;
 }
 
-export function leftJoin (rows1, rows2, def = () => { return 0 }) {
-  return rows1.map((r1) => {
-    const row2 = rows2.find((r2) => {
+export function leftJoin(
+  rows1,
+  rows2,
+  def = () => {
+    return 0;
+  }
+) {
+  return rows1.map(r1 => {
+    const row2 = rows2.find(r2 => {
       return r1[0] === r2[0];
     });
     if (!row2) {
       return r1.concat(def(r1));
     }
     return r1.concat(row2.slice(1));
-  })
+  });
 }
 
-export function leftJoinOnTwoColumns (rows1, rows2, def = () => { return 0}) {
+export function leftJoinOnTwoColumns(
+  rows1,
+  rows2,
+  def = () => {
+    return 0;
+  }
+) {
   return rows1.map(r1 => {
-    const row2 = rows2.find((r2) => {
+    const row2 = rows2.find(r2 => {
       return r1[0] === r2[0] && r1[1] === r2[1];
-    })
+    });
     if (!row2) {
       return r1.concat(def(r1));
     }
     return r1.concat(row2.slice(2));
-  })
+  });
 }
 
-
 export function sliceRows(rows, start, end) {
-  return rows.map((row) => {
+  return rows.map(row => {
     return row.slice(start, end);
   });
 }
@@ -53,8 +64,8 @@ export function formatTime(time, interval) {
 }
 
 export function find80Percent(data, dataSelector) {
-  const mapped = data.map(dataSelector)
-  const total = mapped.reduce((a,b) => a+b, 0)
+  const mapped = data.map(dataSelector);
+  const total = mapped.reduce((a, b) => a + b, 0);
   const threshHold = total * 0.98;
   let running = 0;
   let i = 0;

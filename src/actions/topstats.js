@@ -1,19 +1,19 @@
-export const START_LOADING_TOPSTATS = 'START_LOADING_TOPSTATS'
-export const FINISHED_LOADING_TOPSTATS = 'FINISHED_LOADING_TOPSTATS'
+export const START_LOADING_TOPSTATS = 'START_LOADING_TOPSTATS';
+export const FINISHED_LOADING_TOPSTATS = 'FINISHED_LOADING_TOPSTATS';
 
 export function startLoadingTopstats(name) {
   return {
     type: START_LOADING_TOPSTATS,
-    name
-  }
+    name,
+  };
 }
 
 export function finishedLoadingTopstats(name, metric) {
   return {
     type: FINISHED_LOADING_TOPSTATS,
     name,
-    metric
-  }
+    metric,
+  };
 }
 
 export function reLoadTopStat(name, fetchData) {
@@ -27,7 +27,7 @@ export function loadTopStat(name, fetchData, reload = false) {
       return;
     }
 
-    dispatch(startLoadingTopstats(name))
+    dispatch(startLoadingTopstats(name));
     const load = async () => {
       const metric = await fetchData();
       if (!isFinite(metric.change)) {
@@ -36,8 +36,8 @@ export function loadTopStat(name, fetchData, reload = false) {
       if (metric.change > 100) {
         metric.change = 100;
       }
-      dispatch(finishedLoadingTopstats(name, metric))
-    }
+      dispatch(finishedLoadingTopstats(name, metric));
+    };
     load();
-  }
+  };
 }
