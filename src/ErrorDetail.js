@@ -7,6 +7,7 @@ import ReactPaginate from 'react-paginate';
 import {ErrorCodes} from './utils.js';
 import ImpressionsList from './components/ImpressionsList';
 import Api from './api';
+import {disconnect} from 'cluster';
 
 class ErrorDetail extends Component {
   constructor(props) {
@@ -124,41 +125,45 @@ class ErrorDetail extends Component {
           title={'Error #' + this.props.errorCode + ' - ' + ErrorCodes[this.props.errorCode]}
           width={{xs: 12}}
           cardHeight={'180px'}>
-          <p>
-            This View gives you an overview where Error #{this.props.errorCode} - {ErrorCodes[this.props.errorCode]}{' '}
-            occured and gives you a breakdown of what Technology caused the Error.
-          </p>
-          <p>Click a Video ID to see details for this Error in the clicked Video</p>
-          <p>
-            See documentation about the Error:{' '}
-            <a target="_blank" href={'https://bitmovin.com/errors/?post_type=errors&s=' + this.props.errorCode}>
-              Bitmovin Error Documentation
-            </a>
-          </p>
+          <div>
+            <p>
+              This View gives you an overview where Error #{this.props.errorCode} - {ErrorCodes[this.props.errorCode]}{' '}
+              occured and gives you a breakdown of what Technology caused the Error.
+            </p>
+            <p>Click a Video ID to see details for this Error in the clicked Video</p>
+            <p>
+              See documentation about the Error:{' '}
+              <a target="_blank" href={'https://bitmovin.com/errors/?post_type=errors&s=' + this.props.errorCode}>
+                Bitmovin Error Documentation
+              </a>
+            </p>
+          </div>
         </Card>
         <Card title="Errors per Video Id" width={{xs: 12}} cardHeight={'480px'}>
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th>Video id</th>
-                <th>Errors</th>
-              </tr>
-            </thead>
-            <tbody>{videos}</tbody>
-          </table>
-          <ReactPaginate
-            ref="table_pagination"
-            previousLabel={'previous'}
-            nextLabel={'next'}
-            pageCount={300}
-            forcePage={this.state.page}
-            marginPagesDisplayed={0}
-            pageRangeDisplayed={0}
-            onPageChange={::this.handlePageClick}
-            containerClassName={'pagination'}
-            subContainerClassName={'pages pagination'}
-            activeClassName={'active'}
-          />
+          <div>
+            <table className="table table-hover">
+              <thead>
+                <tr>
+                  <th>Video id</th>
+                  <th>Errors</th>
+                </tr>
+              </thead>
+              <tbody>{videos}</tbody>
+            </table>
+            <ReactPaginate
+              ref="table_pagination"
+              previousLabel={'previous'}
+              nextLabel={'next'}
+              pageCount={300}
+              forcePage={this.state.page}
+              marginPagesDisplayed={0}
+              pageRangeDisplayed={0}
+              onPageChange={::this.handlePageClick}
+              containerClassName={'pagination'}
+              subContainerClassName={'pages pagination'}
+              activeClassName={'active'}
+            />
+          </div>
         </Card>
       </div>
     );
