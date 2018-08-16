@@ -99,8 +99,6 @@ class ErrorDetail extends Component {
     if (!this.state.loaded) {
       return <div>Loading...</div>;
     }
-
-    debugger
     const videos = this.state.videos.map((video, index) => {
       return (
         <tr key={index}>

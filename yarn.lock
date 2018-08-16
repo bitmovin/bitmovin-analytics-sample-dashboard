@@ -5226,6 +5226,12 @@ redux-mock-store@^1.2.1:
   dependencies:
     lodash.isplainobject "^4.0.6"
 
+redux-router@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/redux-router/-/redux-router-2.1.2.tgz#034724bad08f41baf754db4d22e2d858adb64f11"
+  dependencies:
+    deep-equal "^1.0.1"
+
 redux-thunk@^2.1.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.2.0.tgz#e615a16e16b47a19a515766133d1e3e99b7852e5"
