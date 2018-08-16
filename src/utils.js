@@ -46,7 +46,7 @@ export const ErrorCodes = {
   3022: 'Error with the manifest, maybe MPD is not valid',
   3023:
     'A network error occurred. The reason might be: No Internet connection,' +
-    ' Domain Name could not be resolved, The server refused the connectionCORS is not enabled',
+    ' Domain Name could not be resolved, The server refused the connection, CORS is not enabled',
   3024: 'Manifest download has timed out',
   3025: 'Segment download has timed out',
   3026: 'Progressive stream has timed out',
