@@ -7,7 +7,6 @@ import ReactPaginate from 'react-paginate';
 import {ErrorCodes} from './utils.js';
 import ImpressionsList from './components/ImpressionsList';
 import Api from './api';
-import {disconnect} from 'cluster';
 
 class ErrorDetail extends Component {
   constructor(props) {
@@ -101,6 +100,7 @@ class ErrorDetail extends Component {
       return <div>Loading...</div>;
     }
 
+    debugger
     const videos = this.state.videos.map((video, index) => {
       return (
         <tr key={index}>
