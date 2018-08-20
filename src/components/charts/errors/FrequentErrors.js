@@ -13,12 +13,21 @@ class FrequentErrors extends Component {
     width: PropTypes.object,
   };
 
+  static contextTypes = {router: React.PropTypes.object};
+
   state = {
     categories: [],
     series: [],
     display: 'chart',
     loading: false,
   };
+
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      performanceExpanded: true,
+    };
+  }
 
   componentDidMount() {
     this.loadData(this.props);
@@ -63,6 +72,7 @@ class FrequentErrors extends Component {
   getMaxErrorPercentage = data => d3.max(data, series => d3.max(series.data)) * 3;
 
   render() {
+    let that = this;
     const {loading, maxErrorPercentage, series} = this.state;
     const chartConfig = {
       chart: {
@@ -78,7 +88,7 @@ class FrequentErrors extends Component {
           point: {
             events: {
               click: function() {
-                window.location = '/errors/' + this.name;
+                that.context.router.push('/errors/' + this.name);
               },
             },
           },

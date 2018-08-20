@@ -45,9 +45,8 @@ export const ErrorCodes = {
   3021: 'DRM: Key System not supported',
   3022: 'Error with the manifest, maybe MPD is not valid',
   3023:
-    '<strong>A network error occurred. The reason might be:</strong><br><ul><li>No Internet connection</li>' +
-    '<li>Domain Name could not be resolved</li><li>The server refused the connection</li><li>CORS is not enabled</li>' +
-    '</ul>',
+    'A network error occurred. The reason might be: No Internet connection,' +
+    ' Domain Name could not be resolved, The server refused the connection, CORS is not enabled',
   3024: 'Manifest download has timed out',
   3025: 'Segment download has timed out',
   3026: 'Progressive stream has timed out',
