@@ -21,7 +21,7 @@ class TopStatMetric extends Component {
 
   componentWillReceiveProps(newProps) {
     if (!deepEqual(newProps.dependency, this.props.dependency)) {
-      this.props.reLoadTopStat(this.props.title, this.props.fetchData);
+      this.props.reLoadTopStat(newProps.title, newProps.fetchData);
     }
   }
 
